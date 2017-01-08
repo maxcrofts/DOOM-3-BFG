@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "../../idlib/precompiled.h"
 
+#include "SDL.h"
+
 #include <errno.h>
 #include <float.h>
 #include <fcntl.h>
@@ -1454,10 +1456,10 @@ EXCEPTION_DISPOSITION __cdecl _except_handler( struct _EXCEPTION_RECORD *Excepti
 
 /*
 ==================
-WinMain
+main
 ==================
 */
-int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow ) {
+int main( int argc, char *argv[] ) {
 
 	const HCURSOR hcurSave = ::SetCursor( LoadCursor( 0, IDC_WAIT ) );
 
@@ -1475,8 +1477,12 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
     }
 #endif
 
-	win32.hInstance = hInstance;
-	idStr::Copynz( sys_cmdline, lpCmdLine, sizeof( sys_cmdline ) );
+	win32.hInstance = GetModuleHandle( NULL );
+
+	for ( int i = 1; i < argc; i++ ) {
+		idStr::Append( sys_cmdline, sizeof( sys_cmdline ), argv[i] );
+		idStr::Append( sys_cmdline, sizeof( sys_cmdline ), " " );
+	}
 
 	// done before Com/Sys_Init since we need this for error output
 	Sys_CreateConsole();
@@ -1503,7 +1509,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 //	Sys_FPU_EnableExceptions( TEST_FPU_EXCEPTIONS );
 	Sys_FPU_SetPrecision( FPU_PRECISION_DOUBLE_EXTENDED );
 
-	common->Init( 0, NULL, lpCmdLine );
+	common->Init( argc, argv, NULL );
 
 #if TEST_FPU_EXCEPTIONS != 0
 	common->Printf( Sys_FPU_GetState() );
