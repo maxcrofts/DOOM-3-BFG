@@ -42,8 +42,8 @@ Contains the windows implementation of the network session
 #include "../sys_savegame.h"
 #include "../sys_lobby_backend_direct.h"
 #include "../sys_voicechat.h"
-#include "win_achievements.h"
-#include "win_local.h"
+#include "sdl_achievements.h"
+#include "sdl_local.h"
 
 /*
 ========================

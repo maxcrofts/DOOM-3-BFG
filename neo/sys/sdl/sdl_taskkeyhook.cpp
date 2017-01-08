@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 //
 // This file implements the low-level keyboard hook that traps the task keys.
 //
-#include "win_local.h"
+#include "sdl_local.h"
 
 #define DLLEXPORT __declspec(dllexport)
 

@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../idlib/precompiled.h"
 #include "../../framework/PlayerProfile.h"
 #include "../sys_session_local.h"
-#include "win_signin.h"
+#include "sdl_signin.h"
 
 #ifdef _DEBUG
 idCVar win_userPersistent( "win_userPersistent", "1", CVAR_BOOL, "debugging cvar for profile persistence status" );

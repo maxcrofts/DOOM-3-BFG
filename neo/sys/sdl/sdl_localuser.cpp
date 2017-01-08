@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma hdrstop
 #include "../../idlib/precompiled.h"
-#include "win_localuser.h"
+#include "sdl_localuser.h"
 
 extern idCVar win_userPersistent;
 extern idCVar win_userOnline;

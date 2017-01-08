@@ -45,7 +45,7 @@ If you have questions concerning this license or the applicable additional terms
 #endif
 
 #include "../sys_local.h"
-#include "win_local.h"
+#include "sdl_local.h"
 #include "../../renderer/tr_local.h"
 
 idCVar Win32Vars_t::sys_arch( "sys_arch", "", CVAR_SYSTEM | CVAR_INIT, "" );

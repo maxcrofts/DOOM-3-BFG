@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "tr_local.h"
 
 // Vista OpenGL wrapper check
-#include "../sys/win32/win_local.h"
+#include "../sys/sdl/sdl_local.h"
 
 // DeviceContext bypasses RenderSystem to work directly with this
 idGuiModel * tr_guiModel;
