@@ -22,7 +22,7 @@
     <Filter Include="Sys">
       <UniqueIdentifier>{cd4f2be2-8eb4-4a80-a0ab-0ed8d4eda2db}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Sys\Win32">
+    <Filter Include="Sys\SDL">
       <UniqueIdentifier>{8d100526-0f7e-40c1-bd91-08a8fffad028}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -147,9 +147,6 @@
     <ClCompile Include="idlib\precompiled.cpp" />
     <ClCompile Include="idlib\Timer.cpp" />
     <ClCompile Include="idlib\Thread.cpp" />
-    <ClCompile Include="idlib\sys\win32\win_thread.cpp">
-      <Filter>Sys\Win32</Filter>
-    </ClCompile>
     <ClCompile Include="idlib\CommandLink.cpp" />
     <ClCompile Include="idlib\sys\sys_assert.cpp">
       <Filter>Sys</Filter>
@@ -165,6 +162,9 @@
     </ClCompile>
     <ClCompile Include="idlib\math\VecX.cpp">
       <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="idlib\sys\sdl\sdl_thread.cpp">
+      <Filter>Sys\SDL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

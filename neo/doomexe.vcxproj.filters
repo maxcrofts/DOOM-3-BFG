@@ -31,9 +31,6 @@
     <Filter Include="Renderer\OpenGL">
       <UniqueIdentifier>{9bc463bc-e3cf-4cce-9be3-bd2239fc67c5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Sys\Win32">
-      <UniqueIdentifier>{a2d7a7d4-8b15-4874-b56b-e0ec38cef758}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Sound\XAudio2">
       <UniqueIdentifier>{0266e842-a651-4b82-bc6f-4785aed69c9f}</UniqueIdentifier>
     </Filter>
@@ -60,6 +57,9 @@
     </Filter>
     <Filter Include="Renderer\Jobs\PreLightShadowVolume">
       <UniqueIdentifier>{de864e31-e19e-41ac-8186-9b27d6c29c03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sys\SDL">
+      <UniqueIdentifier>{a2d7a7d4-8b15-4874-b56b-e0ec38cef758}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -276,9 +276,6 @@
     <ClInclude Include="renderer\OpenGL\wglext.h">
       <Filter>Renderer\OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="sys\win32\win_local.h">
-      <Filter>Sys\Win32</Filter>
-    </ClInclude>
     <ClInclude Include="sys\sys_savegame.h">
       <Filter>Sys</Filter>
     </ClInclude>
@@ -324,12 +321,6 @@
     <ClInclude Include="sound\SoundVoice.h">
       <Filter>Sound</Filter>
     </ClInclude>
-    <ClInclude Include="sys\win32\win_signin.h">
-      <Filter>Sys\Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="sys\win32\win_localuser.h">
-      <Filter>Sys\Win32</Filter>
-    </ClInclude>
     <ClInclude Include="sys\sys_session_savegames.h">
       <Filter>Sys</Filter>
     </ClInclude>
@@ -362,12 +353,6 @@
     </ClInclude>
     <ClInclude Include="sys\sys_achievements.h">
       <Filter>Sys</Filter>
-    </ClInclude>
-    <ClInclude Include="sys\win32\win_achievements.h">
-      <Filter>Sys\Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="sys\win32\win_input.h">
-      <Filter>Sys\Win32</Filter>
     </ClInclude>
     <ClInclude Include="renderer\RenderLog.h">
       <Filter>Renderer</Filter>
@@ -536,6 +521,21 @@
     </ClInclude>
     <ClInclude Include="renderer\GLMatrix.h">
       <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="sys\sdl\sdl_achievements.h">
+      <Filter>Sys\SDL</Filter>
+    </ClInclude>
+    <ClInclude Include="sys\sdl\sdl_input.h">
+      <Filter>Sys\SDL</Filter>
+    </ClInclude>
+    <ClInclude Include="sys\sdl\sdl_local.h">
+      <Filter>Sys\SDL</Filter>
+    </ClInclude>
+    <ClInclude Include="sys\sdl\sdl_localuser.h">
+      <Filter>Sys\SDL</Filter>
+    </ClInclude>
+    <ClInclude Include="sys\sdl\sdl_signin.h">
+      <Filter>Sys\SDL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -779,47 +779,11 @@
     <ClCompile Include="renderer\OpenGL\gl_backend.cpp">
       <Filter>Renderer\OpenGL</Filter>
     </ClCompile>
-    <ClCompile Include="sys\win32\win_cpu.cpp">
-      <Filter>Sys\Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="sys\win32\win_wndproc.cpp">
-      <Filter>Sys\Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="sys\win32\win_glimp.cpp">
-      <Filter>Sys\Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="sys\win32\win_input.cpp">
-      <Filter>Sys\Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="sys\win32\win_main.cpp">
-      <Filter>Sys\Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="sys\win32\win_net.cpp">
-      <Filter>Sys\Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="sys\win32\win_qgl.cpp">
-      <Filter>Sys\Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="sys\win32\win_shared.cpp">
-      <Filter>Sys\Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="sys\win32\win_snd.cpp">
-      <Filter>Sys\Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="sys\win32\win_syscon.cpp">
-      <Filter>Sys\Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="sys\win32\win_taskkeyhook.cpp">
-      <Filter>Sys\Win32</Filter>
-    </ClCompile>
     <ClCompile Include="sys\sys_savegame.cpp">
       <Filter>Sys</Filter>
     </ClCompile>
     <ClCompile Include="framework\PlayerProfile.cpp">
       <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="sys\win32\win_savegame.cpp">
-      <Filter>Sys\Win32</Filter>
     </ClCompile>
     <ClCompile Include="sys\sys_localuser.cpp">
       <Filter>Sys</Filter>
@@ -844,12 +808,6 @@
     </ClCompile>
     <ClCompile Include="sound\SoundVoice.cpp">
       <Filter>Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="sys\win32\win_signin.cpp">
-      <Filter>Sys\Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="sys\win32\win_localuser.cpp">
-      <Filter>Sys\Win32</Filter>
     </ClCompile>
     <ClCompile Include="sys\sys_session_savegames.cpp">
       <Filter>Sys</Filter>
@@ -880,9 +838,6 @@
     </ClCompile>
     <ClCompile Include="framework\DeclTable.cpp">
       <Filter>Framework\Decls</Filter>
-    </ClCompile>
-    <ClCompile Include="sys\win32\win_achievements.cpp">
-      <Filter>Sys\Win32</Filter>
     </ClCompile>
     <ClCompile Include="renderer\ImageManager.cpp">
       <Filter>Renderer</Filter>
@@ -1133,8 +1088,56 @@
     <ClCompile Include="renderer\GLMatrix.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="sys\win32\win_session_local.cpp">
-      <Filter>Sys\Win32</Filter>
+    <ClCompile Include="sys\sdl\sdl_achievements.cpp">
+      <Filter>Sys\SDL</Filter>
+    </ClCompile>
+    <ClCompile Include="sys\sdl\sdl_cpu.cpp">
+      <Filter>Sys\SDL</Filter>
+    </ClCompile>
+    <ClCompile Include="sys\sdl\sdl_gamma.cpp">
+      <Filter>Sys\SDL</Filter>
+    </ClCompile>
+    <ClCompile Include="sys\sdl\sdl_glimp.cpp">
+      <Filter>Sys\SDL</Filter>
+    </ClCompile>
+    <ClCompile Include="sys\sdl\sdl_input.cpp">
+      <Filter>Sys\SDL</Filter>
+    </ClCompile>
+    <ClCompile Include="sys\sdl\sdl_localuser.cpp">
+      <Filter>Sys\SDL</Filter>
+    </ClCompile>
+    <ClCompile Include="sys\sdl\sdl_main.cpp">
+      <Filter>Sys\SDL</Filter>
+    </ClCompile>
+    <ClCompile Include="sys\sdl\sdl_net.cpp">
+      <Filter>Sys\SDL</Filter>
+    </ClCompile>
+    <ClCompile Include="sys\sdl\sdl_qgl.cpp">
+      <Filter>Sys\SDL</Filter>
+    </ClCompile>
+    <ClCompile Include="sys\sdl\sdl_savegame.cpp">
+      <Filter>Sys\SDL</Filter>
+    </ClCompile>
+    <ClCompile Include="sys\sdl\sdl_session_local.cpp">
+      <Filter>Sys\SDL</Filter>
+    </ClCompile>
+    <ClCompile Include="sys\sdl\sdl_shared.cpp">
+      <Filter>Sys\SDL</Filter>
+    </ClCompile>
+    <ClCompile Include="sys\sdl\sdl_signin.cpp">
+      <Filter>Sys\SDL</Filter>
+    </ClCompile>
+    <ClCompile Include="sys\sdl\sdl_snd.cpp">
+      <Filter>Sys\SDL</Filter>
+    </ClCompile>
+    <ClCompile Include="sys\sdl\sdl_syscon.cpp">
+      <Filter>Sys\SDL</Filter>
+    </ClCompile>
+    <ClCompile Include="sys\sdl\sdl_taskkeyhook.cpp">
+      <Filter>Sys\SDL</Filter>
+    </ClCompile>
+    <ClCompile Include="sys\sdl\sdl_wndproc.cpp">
+      <Filter>Sys\SDL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

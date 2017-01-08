@@ -149,8 +149,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="idlib\Str.cpp" />
+    <ClCompile Include="idlib\sys\sdl\sdl_thread.cpp" />
     <ClCompile Include="idlib\sys\sys_assert.cpp" />
-    <ClCompile Include="idlib\sys\win32\win_thread.cpp" />
     <ClCompile Include="idlib\Thread.cpp" />
     <ClCompile Include="idlib\Token.cpp" />
     <ClCompile Include="idlib\BitMsg.cpp" />
