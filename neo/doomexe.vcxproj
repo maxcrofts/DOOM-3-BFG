@@ -463,7 +463,6 @@
     <ClCompile Include="sys\PacketProcessor.cpp" />
     <ClCompile Include="sys\sdl\sdl_achievements.cpp" />
     <ClCompile Include="sys\sdl\sdl_cpu.cpp" />
-    <ClCompile Include="sys\sdl\sdl_gamma.cpp" />
     <ClCompile Include="sys\sdl\sdl_glimp.cpp" />
     <ClCompile Include="sys\sdl\sdl_input.cpp" />
     <ClCompile Include="sys\sdl\sdl_localuser.cpp" />

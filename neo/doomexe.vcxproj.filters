@@ -1094,9 +1094,6 @@
     <ClCompile Include="sys\sdl\sdl_cpu.cpp">
       <Filter>Sys\SDL</Filter>
     </ClCompile>
-    <ClCompile Include="sys\sdl\sdl_gamma.cpp">
-      <Filter>Sys\SDL</Filter>
-    </ClCompile>
     <ClCompile Include="sys\sdl\sdl_glimp.cpp">
       <Filter>Sys\SDL</Filter>
     </ClCompile>
