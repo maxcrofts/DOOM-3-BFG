@@ -29,8 +29,6 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "../../idlib/precompiled.h"
 
-#include "SDL.h"
-
 #include <errno.h>
 #include <float.h>
 #include <fcntl.h>
@@ -319,6 +317,7 @@ void Sys_Quit() {
 	timeEndPeriod( 1 );
 	Sys_ShutdownInput();
 	Sys_DestroyConsole();
+	SDL_Quit();
 	ExitProcess( 0 );
 }
 
@@ -559,7 +558,9 @@ Sys_EXEPath
 */
 const char *Sys_EXEPath() {
 	static char exe[ MAX_OSPATH ];
-	GetModuleFileName( NULL, exe, sizeof( exe ) - 1 );
+	char *basePath = SDL_GetBasePath();
+	idStr::snPrintf( exe, sizeof( exe ) - 1, "%s", basePath );
+	SDL_free( basePath );
 	return exe;
 }
 
@@ -617,19 +618,16 @@ char *Sys_GetClipboardData() {
 	char *data = NULL;
 	char *cliptext;
 
-	if ( OpenClipboard( NULL ) != 0 ) {
-		HANDLE hClipboardData;
+	if ( ( cliptext = SDL_GetClipboardText() ) != NULL ) {
+		if ( cliptext[0] != '\0' ) {
+			int bufsize = strlen( cliptext ) + 1;
 
-		if ( ( hClipboardData = GetClipboardData( CF_TEXT ) ) != 0 ) {
-			if ( ( cliptext = (char *)GlobalLock( hClipboardData ) ) != 0 ) {
-				data = (char *)Mem_Alloc( GlobalSize( hClipboardData ) + 1, TAG_CRAP );
-				strcpy( data, cliptext );
-				GlobalUnlock( hClipboardData );
+			data = (char *)Mem_Alloc( strlen( cliptext ) + 1, TAG_CRAP );
+			idStr::Copynz( data, cliptext, bufsize );
 				
-				strtok( data, "\n\r\b" );
-			}
+			strtok( data, "\n\r\b" );
 		}
-		CloseClipboard();
+		SDL_free( cliptext );
 	}
 	return data;
 }
@@ -640,35 +638,7 @@ Sys_SetClipboardData
 ================
 */
 void Sys_SetClipboardData( const char *string ) {
-	HGLOBAL HMem;
-	char *PMem;
-
-	// allocate memory block
-	HMem = (char *)::GlobalAlloc( GMEM_MOVEABLE | GMEM_DDESHARE, strlen( string ) + 1 );
-	if ( HMem == NULL ) {
-		return;
-	}
-	// lock allocated memory and obtain a pointer
-	PMem = (char *)::GlobalLock( HMem );
-	if ( PMem == NULL ) {
-		return;
-	}
-	// copy text into allocated memory block
-	lstrcpy( PMem, string );
-	// unlock allocated memory
-	::GlobalUnlock( HMem );
-	// open Clipboard
-	if ( !OpenClipboard( 0 ) ) {
-		::GlobalFree( HMem );
-		return;
-	}
-	// remove current Clipboard contents
-	EmptyClipboard();
-	// supply the memory handle to the Clipboard
-	SetClipboardData( CF_TEXT, HMem );
-	HMem = 0;
-	// close Clipboard
-	CloseClipboard();
+	SDL_SetClipboardText( string );
 }
 
 /*
@@ -849,7 +819,7 @@ Sys_DLL_Load
 =====================
 */
 int Sys_DLL_Load( const char *dllName ) {
-	HINSTANCE libHandle = LoadLibrary( dllName );
+	void *libHandle = SDL_LoadObject( dllName );
 	return (int)libHandle;
 }
 
@@ -859,7 +829,7 @@ Sys_DLL_GetProcAddress
 =====================
 */
 void *Sys_DLL_GetProcAddress( int dllHandle, const char *procName ) {
-	return GetProcAddress( (HINSTANCE)dllHandle, procName ); 
+	return SDL_LoadFunction( (void *)dllHandle, procName ); 
 }
 
 /*
@@ -871,20 +841,7 @@ void Sys_DLL_Unload( int dllHandle ) {
 	if ( !dllHandle ) {
 		return;
 	}
-	if ( FreeLibrary( (HINSTANCE)dllHandle ) == 0 ) {
-		int lastError = GetLastError();
-		LPVOID lpMsgBuf;
-		FormatMessage(
-			FORMAT_MESSAGE_ALLOCATE_BUFFER,
-		    NULL,
-			lastError,
-			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-			(LPTSTR) &lpMsgBuf,
-			0,
-			NULL 
-		);
-		Sys_Error( "Sys_DLL_Unload: FreeLibrary failed - %s (%d)", lpMsgBuf, lastError );
-	}
+	SDL_UnloadObject( (void *)dllHandle );
 }
 
 /*
@@ -1214,7 +1171,7 @@ void Sys_Init() {
 
 	common->Printf( "%s\n", win32.sys_cpustring.GetString() );
 	common->Printf( "%d MB System Memory\n", Sys_GetSystemRam() );
-	common->Printf( "%d MB Video Memory\n", Sys_GetVideoRam() );
+//	common->Printf( "%d MB Video Memory\n", Sys_GetVideoRam() );
 	if ( ( win32.cpuid & CPUID_SSE2 ) == 0 ) {
 		common->Error( "SSE2 not supported!" );
 	}
@@ -1253,18 +1210,6 @@ const char *Sys_GetProcessorString() {
 
 //#define SET_THREAD_AFFINITY
 
-
-/*
-====================
-Win_Frame
-====================
-*/
-void Win_Frame() {
-	// if "viewlog" has been modified, show or hide the log console
-	if ( win32.win_viewlog.IsModified() ) {
-		win32.win_viewlog.ClearModified();
-	}
-}
 
 extern "C" { void _chkstk( int size ); };
 void clrstk();
@@ -1460,22 +1405,15 @@ main
 ==================
 */
 int main( int argc, char *argv[] ) {
+	SDL_Init( SDL_INIT_VIDEO );
 
-	const HCURSOR hcurSave = ::SetCursor( LoadCursor( 0, IDC_WAIT ) );
+	SDL_Cursor *curSave = SDL_GetCursor();
+	SDL_Cursor *curWait = SDL_CreateSystemCursor( SDL_SYSTEM_CURSOR_WAIT );
+	SDL_SetCursor( curWait );
 
 	Sys_SetPhysicalWorkMemory( 192 << 20, 1024 << 20 );
 
 	Sys_GetCurrentMemoryStatus( exeLaunchMemoryStats );
-
-#if 0
-    DWORD handler = (DWORD)_except_handler;
-    __asm
-    {                           // Build EXCEPTION_REGISTRATION record:
-        push    handler         // Address of handler function
-        push    FS:[0]          // Address of previous handler
-        mov     FS:[0],ESP      // Install new EXECEPTION_REGISTRATION
-    }
-#endif
 
 	win32.hInstance = GetModuleHandle( NULL );
 
@@ -1487,19 +1425,20 @@ int main( int argc, char *argv[] ) {
 	// done before Com/Sys_Init since we need this for error output
 	Sys_CreateConsole();
 
+#ifdef ID_PC_WIN
 	// no abort/retry/fail errors
 	SetErrorMode( SEM_FAILCRITICALERRORS );
+#endif
 
 	for ( int i = 0; i < MAX_CRITICAL_SECTIONS; i++ ) {
 		InitializeCriticalSection( &win32.criticalSections[i] );
 	}
 
+#ifdef ID_PC_WIN
 	// make sure the timer is high precision, otherwise
 	// NT gets 18ms resolution
 	timeBeginPeriod( 1 );
-
-	// get the initial time base
-	Sys_Milliseconds();
+#endif
 
 #ifdef DEBUG
 	// disable the painfully slow MS heap check every 1024 allocs
@@ -1509,15 +1448,21 @@ int main( int argc, char *argv[] ) {
 //	Sys_FPU_EnableExceptions( TEST_FPU_EXCEPTIONS );
 	Sys_FPU_SetPrecision( FPU_PRECISION_DOUBLE_EXTENDED );
 
-	common->Init( argc, argv, NULL );
+	if ( argc > 1 ) {
+		common->Init( argc-1, &argv[1], NULL );
+	} else {
+		common->Init( 0, NULL, NULL );
+	}
 
 #if TEST_FPU_EXCEPTIONS != 0
 	common->Printf( Sys_FPU_GetState() );
 #endif
 
+#if 0
 	if ( win32.win_notaskkeys.GetInteger() ) {
 		DisableTaskKeys( TRUE, FALSE, /*( win32.win_notaskkeys.GetInteger() == 2 )*/ FALSE );
 	}
+#endif
 
 	// hide or show the early console as necessary
 	if ( win32.win_viewlog.GetInteger() ) {
@@ -1531,14 +1476,17 @@ int main( int argc, char *argv[] ) {
 	SetThreadAffinityMask( GetCurrentThread(), 1 );
 #endif
 
-	::SetCursor( hcurSave );
+	SDL_SetCursor( curSave );
+	SDL_FreeCursor( curWait );
 
-	::SetFocus( win32.hWnd );
+	SDL_RaiseWindow( win32.window );
 
     // main game loop
-	while( 1 ) {
-
-		Win_Frame();
+	while ( 1 ) {
+		// if "viewlog" has been modified, show or hide the log console
+		if ( win32.win_viewlog.IsModified() ) {
+			win32.win_viewlog.ClearModified();
+		}
 
 #ifdef DEBUG
 		Sys_MemFrame();

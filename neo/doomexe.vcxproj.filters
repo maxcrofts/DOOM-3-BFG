@@ -1130,12 +1130,6 @@
     <ClCompile Include="sys\sdl\sdl_syscon.cpp">
       <Filter>Sys\SDL</Filter>
     </ClCompile>
-    <ClCompile Include="sys\sdl\sdl_taskkeyhook.cpp">
-      <Filter>Sys\SDL</Filter>
-    </ClCompile>
-    <ClCompile Include="sys\sdl\sdl_wndproc.cpp">
-      <Filter>Sys\SDL</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sys\win32\rc\res\doom.ico">

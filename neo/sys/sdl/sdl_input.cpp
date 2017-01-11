@@ -31,229 +31,59 @@ If you have questions concerning this license or the applicable additional terms
 #include "../sys_session_local.h"
 
 #include "sdl_local.h"
+#include "../../renderer/tr_local.h"
 
 #define DINPUT_BUFFERSIZE           256
 
-/*
-============================================================
+static inputEvent_t poll_events_keyboard[DINPUT_BUFFERSIZE];
+static int poll_keyboard_event_count;
+static inputEvent_t poll_events_mouse[MAX_MOUSE_EVENTS];
+static int poll_mouse_event_count;
 
-DIRECT INPUT KEYBOARD CONTROL
+static SDL_GameController *controller = NULL;
+SDL_Haptic *haptic;
 
-============================================================
-*/
+extern idCVar r_windowX;
+extern idCVar r_windowY;
+extern idCVar r_windowWidth;
+extern idCVar r_windowHeight;
 
-bool IN_StartupKeyboard() {
-    HRESULT hr;
-    bool    bExclusive;
-    bool    bForeground;
-    bool    bImmediate;
-    bool    bDisableWindowsKey;
-    DWORD   dwCoopFlags;
-
-	if (!win32.g_pdi) {
-		common->Printf("keyboard: DirectInput has not been started\n");
-		return false;
-	}
-
-	if (win32.g_pKeyboard) {
-		win32.g_pKeyboard->Release();
-		win32.g_pKeyboard = NULL;
-	}
-
-    // Detrimine where the buffer would like to be allocated 
-    bExclusive         = false;
-    bForeground        = true;
-    bImmediate         = false;
-    bDisableWindowsKey = true;
-
-    if( bExclusive )
-        dwCoopFlags = DISCL_EXCLUSIVE;
-    else
-        dwCoopFlags = DISCL_NONEXCLUSIVE;
-
-    if( bForeground )
-        dwCoopFlags |= DISCL_FOREGROUND;
-    else
-        dwCoopFlags |= DISCL_BACKGROUND;
-
-    // Disabling the windows key is only allowed only if we are in foreground nonexclusive
-    if( bDisableWindowsKey && !bExclusive && bForeground )
-        dwCoopFlags |= DISCL_NOWINKEY;
-
-    // Obtain an interface to the system keyboard device.
-    if( FAILED( hr = win32.g_pdi->CreateDevice( GUID_SysKeyboard, &win32.g_pKeyboard, NULL ) ) ) {
-		common->Printf("keyboard: couldn't find a keyboard device\n");
-        return false;
-	}
-    
-    // Set the data format to "keyboard format" - a predefined data format 
-    //
-    // A data format specifies which controls on a device we
-    // are interested in, and how they should be reported.
-    //
-    // This tells DirectInput that we will be passing an array
-    // of 256 bytes to IDirectInputDevice::GetDeviceState.
-    if( FAILED( hr = win32.g_pKeyboard->SetDataFormat( &c_dfDIKeyboard ) ) )
-        return false;
-    
-    // Set the cooperativity level to let DirectInput know how
-    // this device should interact with the system and with other
-    // DirectInput applications.
-    hr = win32.g_pKeyboard->SetCooperativeLevel( win32.hWnd, dwCoopFlags );
-    if( hr == DIERR_UNSUPPORTED && !bForeground && bExclusive ) {
-        common->Printf("keyboard: SetCooperativeLevel() returned DIERR_UNSUPPORTED.\nFor security reasons, background exclusive keyboard access is not allowed.\n");
-        return false;
-    }
-
-    if( FAILED(hr) ) {
-        return false;
-	}
-
-    if( !bImmediate ) {
-        // IMPORTANT STEP TO USE BUFFERED DEVICE DATA!
-        //
-        // DirectInput uses unbuffered I/O (buffer size = 0) by default.
-        // If you want to read buffered data, you need to set a nonzero
-        // buffer size.
-        //
-        // Set the buffer size to DINPUT_BUFFERSIZE (defined above) elements.
-        //
-        // The buffer size is a DWORD property associated with the device.
-        DIPROPDWORD dipdw;
-
-        dipdw.diph.dwSize       = sizeof(DIPROPDWORD);
-        dipdw.diph.dwHeaderSize = sizeof(DIPROPHEADER);
-        dipdw.diph.dwObj        = 0;
-        dipdw.diph.dwHow        = DIPH_DEVICE;
-        dipdw.dwData            = DINPUT_BUFFERSIZE; // Arbitary buffer size
-
-        if( FAILED( hr = win32.g_pKeyboard->SetProperty( DIPROP_BUFFERSIZE, &dipdw.diph ) ) )
-            return false;
-    }
-
-    // Acquire the newly created device
-    win32.g_pKeyboard->Acquire();
-
-	common->Printf( "keyboard: DirectInput initialized.\n");
-    return true;
-}
 
 /*
-==========================
-IN_DeactivateKeyboard
-==========================
+==========
+PostKeyboardEvent
+==========
 */
-void IN_DeactivateKeyboard() {
-	if (!win32.g_pKeyboard) {
-		return;
-	}
-	win32.g_pKeyboard->Unacquire( );
-}
-
-/*
-============================================================
-
-DIRECT INPUT MOUSE CONTROL
-
-============================================================
-*/
-
-/*
-========================
-IN_InitDirectInput
-========================
-*/
-
-void IN_InitDirectInput() {
-    HRESULT		hr;
-
-	common->Printf( "Initializing DirectInput...\n" );
-
-	if ( win32.g_pdi != NULL ) {
-		win32.g_pdi->Release();			// if the previous window was destroyed we need to do this
-		win32.g_pdi = NULL;
-	}
-
-    // Register with the DirectInput subsystem and get a pointer
-    // to a IDirectInput interface we can use.
-    // Create the base DirectInput object
-	if ( FAILED( hr = DirectInput8Create( GetModuleHandle(NULL), DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&win32.g_pdi, NULL ) ) ) {
-		common->Printf ("DirectInputCreate failed\n");
-    }
-}
-
-/*
-========================
-IN_InitDIMouse
-========================
-*/
-bool IN_InitDIMouse() {
-    HRESULT		hr;
-
-	if ( win32.g_pdi == NULL) {
+bool PostKeyboardEvent( int key, bool state ) {
+	if( poll_keyboard_event_count > DINPUT_BUFFERSIZE ) {
+		common->DPrintf( "poll_keyboard_event_count exceeded DINPUT_BUFFERSIZE\n" );
 		return false;
 	}
 
-	// obtain an interface to the system mouse device.
-	hr = win32.g_pdi->CreateDevice( GUID_SysMouse, &win32.g_pMouse, NULL);
+	poll_events_keyboard[poll_keyboard_event_count].event = key;
+	poll_events_keyboard[poll_keyboard_event_count].value = state;
+	poll_keyboard_event_count++;
 
-	if (FAILED(hr)) {
-		common->Printf ("mouse: Couldn't open DI mouse device\n");
-		return false;
-	}
-
-    // Set the data format to "mouse format" - a predefined data format 
-    //
-    // A data format specifies which controls on a device we
-    // are interested in, and how they should be reported.
-    //
-    // This tells DirectInput that we will be passing a
-    // DIMOUSESTATE2 structure to IDirectInputDevice::GetDeviceState.
-    if( FAILED( hr = win32.g_pMouse->SetDataFormat( &c_dfDIMouse2 ) ) ) {
-		common->Printf ("mouse: Couldn't set DI mouse format\n");
-		return false;
-	}
-    
-	// set the cooperativity level.
-	hr = win32.g_pMouse->SetCooperativeLevel( win32.hWnd, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
-
-	if (FAILED(hr)) {
-		common->Printf ("mouse: Couldn't set DI coop level\n");
-		return false;
-	}
-
-
-    // IMPORTANT STEP TO USE BUFFERED DEVICE DATA!
-    //
-    // DirectInput uses unbuffered I/O (buffer size = 0) by default.
-    // If you want to read buffered data, you need to set a nonzero
-    // buffer size.
-    //
-    // Set the buffer size to SAMPLE_BUFFER_SIZE (defined above) elements.
-    //
-    // The buffer size is a DWORD property associated with the device.
-    DIPROPDWORD dipdw;
-    dipdw.diph.dwSize       = sizeof(DIPROPDWORD);
-    dipdw.diph.dwHeaderSize = sizeof(DIPROPHEADER);
-    dipdw.diph.dwObj        = 0;
-    dipdw.diph.dwHow        = DIPH_DEVICE;
-    dipdw.dwData            = DINPUT_BUFFERSIZE; // Arbitary buffer size
-
-    if( FAILED( hr = win32.g_pMouse->SetProperty( DIPROP_BUFFERSIZE, &dipdw.diph ) ) ) {
-		common->Printf ("mouse: Couldn't set DI buffersize\n");
-		return false;
-	}
-
-	IN_ActivateMouse();
-
-	// clear any pending samples
-	int	mouseEvents[MAX_MOUSE_EVENTS][2];
-	Sys_PollMouseInputEvents( mouseEvents );
-
-	common->Printf( "mouse: DirectInput initialized.\n");
 	return true;
 }
 
+/*
+==========
+PostMouseEvent
+==========
+*/
+bool PostMouseEvent( int action, int value ) {
+	if( poll_mouse_event_count > MAX_MOUSE_EVENTS ) {
+		common->DPrintf( "WARNING: poll_mouse_event_count exceeded MAX_MOUSE_EVENTS\n" );
+		return false;
+	}
+
+	poll_events_mouse[poll_mouse_event_count].event = action;
+	poll_events_mouse[poll_mouse_event_count].value = value;
+	poll_mouse_event_count++;
+
+	return true;
+}
 
 /*
 ==========================
@@ -261,28 +91,15 @@ IN_ActivateMouse
 ==========================
 */
 void IN_ActivateMouse() {
-	int i;
-	HRESULT hr;
-
-	if ( !win32.in_mouse.GetBool() || win32.mouseGrabbed || !win32.g_pMouse ) {
+	if ( !win32.in_mouse.GetBool() || win32.mouseGrabbed ) {
 		return;
 	}
 
 	win32.mouseGrabbed = true;
-	for ( i = 0; i < 10; i++ ) {
-		if ( ::ShowCursor( false ) < 0 ) {
-			break;
-		}
-	}
-
-	// we may fail to reacquire if the window has been recreated
-	hr = win32.g_pMouse->Acquire();
-	if (FAILED(hr)) {
-		return;
-	}
+	SDL_ShowCursor( SDL_DISABLE );
 
 	// set the cooperativity level.
-	hr = win32.g_pMouse->SetCooperativeLevel( win32.hWnd, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
+	SDL_SetRelativeMouseMode( SDL_TRUE );
 }
 
 /*
@@ -291,19 +108,13 @@ IN_DeactivateMouse
 ==========================
 */
 void IN_DeactivateMouse() {
-	int i;
-
-	if (!win32.g_pMouse || !win32.mouseGrabbed ) {
+	if ( !win32.mouseGrabbed ) {
 		return;
 	}
 
-	win32.g_pMouse->Unacquire();
+	SDL_SetRelativeMouseMode( SDL_FALSE );
 
-	for ( i = 0; i < 10; i++ ) {
-		if ( ::ShowCursor( true ) >= 0 ) {
-			break;
-		}
-	}
+	SDL_ShowCursor( SDL_ENABLE );
 	win32.mouseGrabbed = false;
 }
 
@@ -319,36 +130,12 @@ void IN_DeactivateMouseIfWindowed() {
 }
 
 /*
-============================================================
-
-  MOUSE CONTROL
-
-============================================================
-*/
-
-
-/*
 ===========
 Sys_ShutdownInput
 ===========
 */
 void Sys_ShutdownInput() {
 	IN_DeactivateMouse();
-	IN_DeactivateKeyboard();
-	if ( win32.g_pKeyboard ) {
-		win32.g_pKeyboard->Release();
-		win32.g_pKeyboard = NULL;
-	}
-
-    if ( win32.g_pMouse ) {
-		win32.g_pMouse->Release();
-		win32.g_pMouse = NULL;
-	}
-
-    if ( win32.g_pdi ) {
-		win32.g_pdi->Release();
-		win32.g_pdi = NULL;
-	}
 }
 
 /*
@@ -358,18 +145,393 @@ Sys_InitInput
 */
 void Sys_InitInput() {
 	common->Printf ("\n------- Input Initialization -------\n");
-	IN_InitDirectInput();
 	if ( win32.in_mouse.GetBool() ) {
-		IN_InitDIMouse();
+		IN_ActivateMouse();
 		// don't grab the mouse on initialization
 		Sys_GrabMouseCursor( false );
 	} else {
 		common->Printf ("Mouse control not active.\n");
 	}
-	IN_StartupKeyboard();
+	//IN_StartupKeyboard();
 
 	common->Printf ("------------------------------------\n");
 	win32.in_mouse.ClearModified();
+}
+
+/*
+=======
+MapKey
+
+Map from SDL to Doom keynums
+=======
+*/
+int MapKey( int key ) {
+	int result = 0;
+
+	switch( key ) {
+	case SDL_SCANCODE_ESCAPE:		result = K_ESCAPE;		break;
+	case SDL_SCANCODE_1:			result = K_1;			break;
+	case SDL_SCANCODE_2:			result = K_2;			break;
+	case SDL_SCANCODE_3:			result = K_3;			break;
+	case SDL_SCANCODE_4:			result = K_4;			break;
+	case SDL_SCANCODE_5:			result = K_5;			break;
+	case SDL_SCANCODE_6:			result = K_6;			break;
+	case SDL_SCANCODE_7:			result = K_7;			break;
+	case SDL_SCANCODE_8:			result = K_8;			break;
+	case SDL_SCANCODE_9:			result = K_9;			break;
+	case SDL_SCANCODE_0:			result = K_0;			break;
+	case SDL_SCANCODE_MINUS:		result = K_MINUS;		break;
+	case SDL_SCANCODE_EQUALS:		result = K_EQUALS;		break;
+	case SDL_SCANCODE_BACKSPACE:	result = K_BACKSPACE;	break;
+	case SDL_SCANCODE_TAB:			result = K_TAB;			break;
+	case SDL_SCANCODE_Q:			result = K_Q;			break;
+	case SDL_SCANCODE_W:			result = K_W;			break;
+	case SDL_SCANCODE_E:			result = K_E;			break;
+	case SDL_SCANCODE_R:			result = K_R;			break;
+	case SDL_SCANCODE_T:			result = K_T;			break;
+	case SDL_SCANCODE_Y:			result = K_Y;			break;
+	case SDL_SCANCODE_U:			result = K_U;			break;
+	case SDL_SCANCODE_I:			result = K_I;			break;
+	case SDL_SCANCODE_O:			result = K_O;			break;
+	case SDL_SCANCODE_P:			result = K_P;			break;
+	case SDL_SCANCODE_LEFTBRACKET:	result = K_LBRACKET;	break;
+	case SDL_SCANCODE_RIGHTBRACKET:	result = K_RBRACKET;	break;
+	case SDL_SCANCODE_RETURN:		result = K_ENTER;		break;
+	case SDL_SCANCODE_LCTRL:		result = K_LCTRL;		break;
+	case SDL_SCANCODE_A:			result = K_A;			break;
+	case SDL_SCANCODE_S:			result = K_S;			break;
+	case SDL_SCANCODE_D:			result = K_D;			break;
+	case SDL_SCANCODE_F:			result = K_F;			break;
+	case SDL_SCANCODE_G:			result = K_G;			break;
+	case SDL_SCANCODE_H:			result = K_H;			break;
+	case SDL_SCANCODE_J:			result = K_J;			break;
+	case SDL_SCANCODE_K:			result = K_K;			break;
+	case SDL_SCANCODE_L:			result = K_L;			break;
+	case SDL_SCANCODE_SEMICOLON:	result = K_SEMICOLON;	break;
+	case SDL_SCANCODE_APOSTROPHE:	result = K_APOSTROPHE;	break;
+	case SDL_SCANCODE_GRAVE:		result = K_GRAVE;		break;
+	case SDL_SCANCODE_LSHIFT:		result = K_LSHIFT;		break;
+	case SDL_SCANCODE_BACKSLASH:	result = K_BACKSLASH;	break;
+	case SDL_SCANCODE_Z:			result = K_Z;			break;
+	case SDL_SCANCODE_X:			result = K_X;			break;
+	case SDL_SCANCODE_C:			result = K_C;			break;
+	case SDL_SCANCODE_V:			result = K_V;			break;
+	case SDL_SCANCODE_B:			result = K_B;			break;
+	case SDL_SCANCODE_N:			result = K_N;			break;
+	case SDL_SCANCODE_M:			result = K_M;			break;
+	case SDL_SCANCODE_COMMA:		result = K_COMMA;		break;
+	case SDL_SCANCODE_PERIOD:		result = K_PERIOD;		break;
+	case SDL_SCANCODE_SLASH:		result = K_SLASH;		break;
+	case SDL_SCANCODE_RSHIFT:		result = K_RSHIFT;		break;
+	case SDL_SCANCODE_KP_MULTIPLY:	result = K_KP_STAR;		break;
+	case SDL_SCANCODE_LALT:			result = K_LALT;		break;
+	case SDL_SCANCODE_SPACE:		result = K_SPACE;		break;
+	case SDL_SCANCODE_CAPSLOCK:		result = K_CAPSLOCK;	break;
+	case SDL_SCANCODE_F1:			result = K_F1;			break;
+	case SDL_SCANCODE_F2:			result = K_F2;			break;
+	case SDL_SCANCODE_F3:			result = K_F3;			break;
+	case SDL_SCANCODE_F4:			result = K_F4;			break;
+	case SDL_SCANCODE_F5:			result = K_F5;			break;
+	case SDL_SCANCODE_F6:			result = K_F6;			break;
+	case SDL_SCANCODE_F7:			result = K_F7;			break;
+	case SDL_SCANCODE_F8:			result = K_F8;			break;
+	case SDL_SCANCODE_F9:			result = K_F9;			break;
+	case SDL_SCANCODE_F10:			result = K_F10;			break;
+	case SDL_SCANCODE_NUMLOCKCLEAR:	result = K_NUMLOCK;		break;
+	case SDL_SCANCODE_SCROLLLOCK:	result = K_SCROLL;		break;
+	case SDL_SCANCODE_KP_7:			result = K_KP_7;		break;
+	case SDL_SCANCODE_KP_8:			result = K_KP_8;		break;
+	case SDL_SCANCODE_KP_9:			result = K_KP_9;		break;
+	case SDL_SCANCODE_KP_MINUS:		result = K_KP_MINUS;	break;
+	case SDL_SCANCODE_KP_4:			result = K_KP_4;		break;
+	case SDL_SCANCODE_KP_5:			result = K_KP_5;		break;
+	case SDL_SCANCODE_KP_6:			result = K_KP_6;		break;
+	case SDL_SCANCODE_KP_PLUS:		result = K_KP_PLUS;		break;
+	case SDL_SCANCODE_KP_1:			result = K_KP_1;		break;
+	case SDL_SCANCODE_KP_2:			result = K_KP_2;		break;
+	case SDL_SCANCODE_KP_3:			result = K_KP_3;		break;
+	case SDL_SCANCODE_KP_0:			result = K_KP_0;		break;
+	case SDL_SCANCODE_KP_PERIOD:	result = K_KP_DOT;		break;
+	case SDL_SCANCODE_F11:			result = K_F11;			break;
+	case SDL_SCANCODE_F12:			result = K_F12;			break;
+	case SDL_SCANCODE_F13:			result = K_F13;			break;
+	case SDL_SCANCODE_F14:			result = K_F14;			break;
+	case SDL_SCANCODE_F15:			result = K_F15;			break;
+	case SDL_SCANCODE_KP_EQUALS:	result = K_KP_EQUALS;	break;
+	case SDL_SCANCODE_STOP:			result = K_STOP;		break;
+	case SDL_SCANCODE_KP_ENTER:		result = K_KP_ENTER;	break;
+	case SDL_SCANCODE_RCTRL:		result = K_RCTRL;		break;
+	case SDL_SCANCODE_KP_COMMA:		result = K_KP_COMMA;	break;
+	case SDL_SCANCODE_KP_DIVIDE:	result = K_KP_SLASH;	break;
+	case SDL_SCANCODE_PRINTSCREEN:	result = K_PRINTSCREEN;	break;
+	case SDL_SCANCODE_RALT:			result = K_RALT;		break;
+	case SDL_SCANCODE_PAUSE:		result = K_PAUSE;		break;
+	case SDL_SCANCODE_HOME:			result = K_HOME;		break;
+	case SDL_SCANCODE_UP:			result = K_UPARROW;		break;
+	case SDL_SCANCODE_PAGEUP:		result = K_PGUP;		break;
+	case SDL_SCANCODE_LEFT:			result = K_LEFTARROW;	break;
+	case SDL_SCANCODE_RIGHT:		result = K_RIGHTARROW;	break;
+	case SDL_SCANCODE_END:			result = K_END;			break;
+	case SDL_SCANCODE_DOWN:			result = K_DOWNARROW;	break;
+	case SDL_SCANCODE_PAGEDOWN:		result = K_PGDN;		break;
+	case SDL_SCANCODE_INSERT:		result = K_INS;			break;
+	case SDL_SCANCODE_DELETE:		result = K_DEL;			break;
+	case SDL_SCANCODE_LGUI:			result = K_LWIN;		break;
+	case SDL_SCANCODE_RGUI:			result = K_RWIN;		break;
+	case SDL_SCANCODE_APPLICATION:	result = K_APPS;		break;
+	case SDL_SCANCODE_POWER:		result = K_POWER;		break;
+	case SDL_SCANCODE_SLEEP:		result = K_SLEEP;		break;
+	default:						result = K_NONE;		break;
+	}
+
+	return result;
+}
+
+/*
+====================
+IN_PollEvents
+====================
+*/
+void IN_PollEvents() {
+	SDL_Event event;
+	int key;
+
+	poll_mouse_event_count = 0;
+
+	while( SDL_PollEvent( &event ) ) {
+		switch( event.type ) {
+		case SDL_WINDOWEVENT:
+			switch( event.window.event ) {
+			case SDL_WINDOWEVENT_MOVED:
+				if ( !renderSystem->IsFullScreen() ) {
+					r_windowX.SetInteger( event.window.data1 );
+					r_windowY.SetInteger( event.window.data2 );
+				}
+				break;
+
+			case SDL_WINDOWEVENT_LEAVE:
+				Sys_QueEvent( SE_MOUSE_LEAVE, 0, 0, 0, NULL, 0 );
+				break;
+
+			case SDL_WINDOWEVENT_FOCUS_GAINED:
+			case SDL_WINDOWEVENT_FOCUS_LOST:
+				// if we got here because of an alt-tab or maximize,
+				// we should activate immediately.  If we are here because
+				// the mouse was clicked on a title bar or drag control,
+				// don't activate until the mouse button is released
+				{
+					win32.activeApp = ( event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED );
+					if ( win32.activeApp ) {
+						idKeyInput::ClearStates();
+						Sys_GrabMouseCursor( true );
+						if ( common->IsInitialized() ) {
+							SDL_ShowCursor( SDL_DISABLE );
+						}
+					}
+
+					if ( event.window.event == SDL_WINDOWEVENT_FOCUS_LOST ) {
+						win32.movingWindow = false;
+						if ( common->IsInitialized() ) {
+							SDL_ShowCursor( SDL_ENABLE );
+						}
+					}
+
+					// start playing the game sound world
+					soundSystem->SetMute( !win32.activeApp );
+
+					// we do not actually grab or release the mouse here,
+					// that will be done next time through the main loop
+				}
+				break;
+
+			case SDL_WINDOWEVENT_RESIZED:
+				if ( !R_IsInitialized() || renderSystem->GetWidth() <= 0 || renderSystem->GetHeight() <= 0 ) {
+					return;
+				}
+
+				// restrict to a standard aspect ratio
+				int width = event.window.data1;
+				int height = event.window.data2;
+
+				// Clamp to a minimum size
+				if ( width < SCREEN_WIDTH / 4 ) {
+					width = SCREEN_WIDTH / 4;
+				}
+				if ( height < SCREEN_HEIGHT / 4 ) {
+					height = SCREEN_HEIGHT / 4;
+				}
+
+				const int minWidth = height * 4 / 3;
+				const int maxWidth = height * 16 / 9;
+
+				width = idMath::ClampInt( minWidth, maxWidth, width );
+
+				glConfig.nativeScreenWidth = width;
+				glConfig.nativeScreenHeight = height;
+
+				// save the window size in cvars if we aren't fullscreen
+				if ( !renderSystem->IsFullScreen() ) {
+					SDL_SetWindowSize( win32.window, width, height );
+					r_windowWidth.SetInteger( width );
+					r_windowHeight.SetInteger( height );
+				}
+				break;
+			}
+			break;
+
+		case SDL_KEYDOWN:
+			if ( event.key.keysym.mod & KMOD_ALT && event.key.keysym.scancode == SDL_SCANCODE_RETURN ) {	// alt-enter toggles full-screen
+				cvarSystem->SetCVarBool( "r_fullscreen", !renderSystem->IsFullScreen() );
+				cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "vid_restart\n" );
+				break;
+			}
+
+			key = MapKey( event.key.keysym.scancode );
+			// D
+			if ( key == K_NUMLOCK ) {
+				key = K_PAUSE;
+			} else if ( key == K_PAUSE ) {
+				key = K_NUMLOCK;
+			}
+			Sys_QueEvent( SE_KEY, key, true, 0, NULL, 0 );
+			PostKeyboardEvent( key, true );
+
+			if ( key == K_BACKSPACE ) {
+				Sys_QueEvent( SE_CHAR, event.key.keysym.sym, 0, 0, NULL, 0 );
+			} else if ( event.key.keysym.mod & KMOD_CTRL && event.key.keysym.sym >= 'a' && event.key.keysym.sym <= 'z' ) {
+				Sys_QueEvent( SE_CHAR, ( event.key.keysym.sym - 'a' + 1 ), 0, 0, NULL, 0 );
+			}
+			break;
+
+		case SDL_KEYUP:
+			key = MapKey( event.key.keysym.scancode );
+			Sys_QueEvent( SE_KEY, key, false, 0, NULL, 0 );
+			PostKeyboardEvent( key, false );
+			break;
+
+		case SDL_TEXTINPUT: {
+			char *c = event.text.text;
+
+			// Quick and dirty UTF-8 to UTF-32 conversion
+			while( *c ) {
+				int utf32 = 0;
+
+				if( ( *c & 0x80 ) == 0 ) {
+					utf32 = *c++;
+				} else if( ( *c & 0xE0 ) == 0xC0 ) { // 110x xxxx
+					utf32 |= ( *c++ & 0x1F ) << 6;
+					utf32 |= ( *c++ & 0x3F );
+				} else if( ( *c & 0xF0 ) == 0xE0 ) { // 1110 xxxx
+					utf32 |= ( *c++ & 0x0F ) << 12;
+					utf32 |= ( *c++ & 0x3F ) << 6;
+					utf32 |= ( *c++ & 0x3F );
+				} else if( ( *c & 0xF8 ) == 0xF0 ) { // 1111 0xxx
+					utf32 |= ( *c++ & 0x07 ) << 18;
+					utf32 |= ( *c++ & 0x3F ) << 12;
+					utf32 |= ( *c++ & 0x3F ) << 6;
+					utf32 |= ( *c++ & 0x3F );
+				} else {
+					common->DPrintf( "Unrecognised UTF-8 lead byte: 0x%x\n", (unsigned int)*c );
+					c++;
+				}
+
+				if( utf32 != 0 ) {
+					Sys_QueEvent( SE_CHAR, utf32, 0, 0, NULL, 0 );
+				}
+			}
+			
+			break;
+		}
+
+		case SDL_QUIT:
+			soundSystem->SetMute( true );
+			cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "quit\n" );
+			break;
+
+		case SDL_MOUSEMOTION: {
+			if ( !common->IsInitialized() ) {
+				break;
+			}
+
+			const bool isShellActive = ( game && ( game->Shell_IsActive() || game->IsPDAOpen() ) );
+			const bool isConsoleActive = console->Active();
+
+			if ( win32.activeApp ) {
+				if ( isShellActive ) {
+					// If the shell is active, it will display its own cursor.
+					SDL_ShowCursor( SDL_DISABLE );
+				} else if ( isConsoleActive ) {
+					// The console is active but the shell is not.
+					// Show the Windows cursor.
+					SDL_ShowCursor( SDL_ENABLE );
+				} else {
+					// The shell not active and neither is the console.
+					// This is normal gameplay, hide the cursor.
+					SDL_ShowCursor( SDL_DISABLE );
+				}
+			} else {
+				if ( !isShellActive ) {
+					// Always show the cursor when the window is in the background
+					SDL_ShowCursor( SDL_ENABLE );
+				} else {
+					SDL_ShowCursor( SDL_DISABLE );
+				}
+			}
+
+			// Generate an event
+			PostMouseEvent( M_DELTAX, event.motion.xrel );
+			PostMouseEvent( M_DELTAY, event.motion.yrel );
+			Sys_QueEvent( SE_MOUSE_ABSOLUTE, event.motion.x, event.motion.y, 0, NULL, 0 );
+		}
+
+		case SDL_MOUSEBUTTONDOWN:
+		case SDL_MOUSEBUTTONUP: {
+			int b;
+			switch( event.button.button ) {
+			case SDL_BUTTON_LEFT:
+				b = K_MOUSE1;
+				break;
+			case SDL_BUTTON_MIDDLE:
+				b = K_MOUSE3;
+				break;
+			case SDL_BUTTON_RIGHT:
+				b = K_MOUSE2;
+				break;
+			case SDL_BUTTON_X1:
+				b = K_MOUSE4;
+				break;
+			case SDL_BUTTON_X2:
+				b = K_MOUSE5;
+				break;
+			default:
+				b = NULL;
+				break;
+			}
+			bool buttonDown = ( event.type == SDL_MOUSEBUTTONDOWN );
+			PostMouseEvent( b - K_MOUSE1, buttonDown );
+			Sys_QueEvent( SE_KEY, b, buttonDown, 0, NULL, 0 );
+			break;
+		}
+
+		case SDL_MOUSEWHEEL: {
+			int delta = event.wheel.y;
+			int key = delta < 0 ? K_MWHEELDOWN : K_MWHEELUP;
+			PostMouseEvent( M_DELTAZ, delta );
+			delta = abs( delta );
+			while( delta-- > 0 ) {
+				Sys_QueEvent( SE_KEY, key, true, 0, NULL, 0 );
+				Sys_QueEvent( SE_KEY, key, false, 0, NULL, 0 );
+			}
+			break;
+		}
+
+		case SDL_CONTROLLERDEVICEADDED:
+		case SDL_CONTROLLERDEVICEREMOVED:
+			win32.g_Joystick.Init();
+			break;
+
+		}
+	}
 }
 
 /*
@@ -407,15 +569,10 @@ void IN_Frame() {
 			IN_DeactivateMouse();
 		} else {
 			IN_ActivateMouse();
-
-#if 0	// if we can't reacquire, try reinitializing
-			if ( !IN_InitDIMouse() ) {
-				win32.in_mouse.SetBool( false );
-				return;
-			}
-#endif
 		}
 	}
+
+	IN_PollEvents();
 }
 
 
@@ -429,15 +586,6 @@ void	Sys_GrabMouseCursor( bool grabIt ) {
 
 //=====================================================================================
 
-static DIDEVICEOBJECTDATA polled_didod[ DINPUT_BUFFERSIZE ];  // Receives buffered data 
-
-static int diFetch;
-static byte toggleFetch[2][ 256 ];
-
-
-#if 1
-// I tried doing the full-state get to address a keyboard problem on one system,
-// but it didn't make any difference
 
 /*
 ====================
@@ -445,106 +593,8 @@ Sys_PollKeyboardInputEvents
 ====================
 */
 int Sys_PollKeyboardInputEvents() {
-    DWORD              dwElements;
-    HRESULT            hr;
-
-    if( win32.g_pKeyboard == NULL ) {
-        return 0;
-	}
-    
-    dwElements = DINPUT_BUFFERSIZE;
-    hr = win32.g_pKeyboard->GetDeviceData( sizeof(DIDEVICEOBJECTDATA),
-                                     polled_didod, &dwElements, 0 );
-    if( hr != DI_OK ) 
-    {
-        // We got an error or we got DI_BUFFEROVERFLOW.
-        //
-        // Either way, it means that continuous contact with the
-        // device has been lost, either due to an external
-        // interruption, or because the buffer overflowed
-        // and some events were lost.
-        hr = win32.g_pKeyboard->Acquire();
-
-		
-
-		// nuke the garbage
-		if (!FAILED(hr)) {
-			//Bug 951: The following command really clears the garbage input.
-			//The original will still process keys in the buffer and was causing
-			//some problems.
-			win32.g_pKeyboard->GetDeviceData( sizeof(DIDEVICEOBJECTDATA), NULL, &dwElements, 0 );
-			dwElements = 0;
-		}
-        // hr may be DIERR_OTHERAPPHASPRIO or other errors.  This
-        // may occur when the app is minimized or in the process of 
-        // switching, so just try again later 
-    }
-
-    if( FAILED(hr) ) {
-        return 0;
-	}
-
-	return dwElements;
+	return poll_keyboard_event_count;
 }
-
-#else
-
-/*
-====================
-Sys_PollKeyboardInputEvents
-
-Fake events by getting the entire device state
-and checking transitions
-====================
-*/
-int Sys_PollKeyboardInputEvents() {
-    HRESULT            hr;
-
-    if( win32.g_pKeyboard == NULL ) {
-        return 0;
-	}
-    
-	hr = win32.g_pKeyboard->GetDeviceState( sizeof( toggleFetch[ diFetch ] ), toggleFetch[ diFetch ] );
-    if( hr != DI_OK ) 
-    {
-        // We got an error or we got DI_BUFFEROVERFLOW.
-        //
-        // Either way, it means that continuous contact with the
-        // device has been lost, either due to an external
-        // interruption, or because the buffer overflowed
-        // and some events were lost.
-        hr = win32.g_pKeyboard->Acquire();
-
-		// nuke the garbage
-		if (!FAILED(hr)) {
-			hr = win32.g_pKeyboard->GetDeviceState( sizeof( toggleFetch[ diFetch ] ), toggleFetch[ diFetch ] );
-		}
-        // hr may be DIERR_OTHERAPPHASPRIO or other errors.  This
-        // may occur when the app is minimized or in the process of 
-        // switching, so just try again later 
-    }
-
-    if( FAILED(hr) ) {
-        return 0;
-	}
-
-	// build faked events
-	int		numChanges = 0;
-
-	for ( int i = 0 ; i < 256 ; i++ ) {
-		if ( toggleFetch[0][i] != toggleFetch[1][i] ) {
-			polled_didod[ numChanges ].dwOfs = i;
-			polled_didod[ numChanges ].dwData = toggleFetch[ diFetch ][i] ? 0x80 : 0;
-			numChanges++;
-		}
-	}
-
-	diFetch ^= 1;
-
-	return numChanges;
-}
-
-#endif
 
 /*
 ====================
@@ -552,92 +602,38 @@ Sys_PollKeyboardInputEvents
 ====================
 */
 int Sys_ReturnKeyboardInputEvent( const int n, int &ch, bool &state ) {
-	ch = polled_didod[ n ].dwOfs;
-	state = ( polled_didod[ n ].dwData & 0x80 ) == 0x80;
-	if ( ch == K_PRINTSCREEN || ch == K_LCTRL || ch == K_LALT || ch == K_RCTRL || ch == K_RALT ) {
-		// for windows, add a keydown event for print screen here, since
-		// windows doesn't send keydown events to the WndProc for this key.
-		// ctrl and alt are handled here to get around windows sending ctrl and
-		// alt messages when the right-alt is pressed on non-US 102 keyboards.
-		Sys_QueEvent( SE_KEY, ch, state, 0, NULL, 0 );
+	if( n >= poll_keyboard_event_count ) {
+		return 0;
 	}
-	return ch;
+	ch = poll_events_keyboard[n].event;
+	state = ( poll_events_keyboard[n].value != 0 );
+	return 1;
 }
 
 
 void Sys_EndKeyboardInputEvents() {
+	poll_keyboard_event_count = 0;	
 }
 
 //=====================================================================================
 
 
 int Sys_PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] ) {
-	DWORD				dwElements;
-	HRESULT				hr;
-
-	if ( !win32.g_pMouse || !win32.mouseGrabbed ) {
+	if ( !win32.mouseGrabbed ) {
 		return 0;
 	}
 
-    dwElements = DINPUT_BUFFERSIZE;
-    hr = win32.g_pMouse->GetDeviceData( sizeof(DIDEVICEOBJECTDATA), polled_didod, &dwElements, 0 );
-
-    if( hr != DI_OK ) {
-        hr = win32.g_pMouse->Acquire();
-		// clear the garbage
-		if (!FAILED(hr)) {
-			win32.g_pMouse->GetDeviceData( sizeof(DIDEVICEOBJECTDATA), polled_didod, &dwElements, 0 );
-		}
-    }
-
-    if( FAILED(hr) ) {
-        return 0;
+	if ( poll_mouse_event_count > MAX_MOUSE_EVENTS ) {
+		poll_mouse_event_count = MAX_MOUSE_EVENTS;
 	}
 
-	if ( dwElements > MAX_MOUSE_EVENTS ) {
-		dwElements = MAX_MOUSE_EVENTS;
+	int i;
+	for( i = 0; i < poll_mouse_event_count; i++ ) {
+		mouseEvents[i][0] = poll_events_mouse[i].event;
+		mouseEvents[i][1] = poll_events_mouse[i].value;
 	}
 
-	for( DWORD i = 0; i < dwElements; i++ ) {
-		mouseEvents[i][0] = M_INVALID;
-		mouseEvents[i][1] = 0;
-
-		if ( polled_didod[i].dwOfs >= DIMOFS_BUTTON0 && polled_didod[i].dwOfs <= DIMOFS_BUTTON7 ) {
-			const int mouseButton = ( polled_didod[i].dwOfs - DIMOFS_BUTTON0 );
-			const bool mouseDown = (polled_didod[i].dwData & 0x80) == 0x80;
-			mouseEvents[i][0] = M_ACTION1 + mouseButton;
-			mouseEvents[i][1] = mouseDown;
-			Sys_QueEvent( SE_KEY, K_MOUSE1 + mouseButton, mouseDown, 0, NULL, 0 );
-		} else {
-			switch (polled_didod[i].dwOfs) {
-			case DIMOFS_X:
-				mouseEvents[i][0] = M_DELTAX;
-				mouseEvents[i][1] = polled_didod[i].dwData;
-				Sys_QueEvent( SE_MOUSE, polled_didod[i].dwData, 0, 0, NULL, 0 );
-				break;
-			case DIMOFS_Y:
-				mouseEvents[i][0] = M_DELTAY;
-				mouseEvents[i][1] = polled_didod[i].dwData;
-				Sys_QueEvent( SE_MOUSE, 0, polled_didod[i].dwData, 0, NULL, 0 );
-				break;
-			case DIMOFS_Z:
-				mouseEvents[i][0] = M_DELTAZ;
-				mouseEvents[i][1] = (int)polled_didod[i].dwData / WHEEL_DELTA;
-				{
-					const int value = (int)polled_didod[i].dwData / WHEEL_DELTA;
-					const int key = value < 0 ? K_MWHEELDOWN : K_MWHEELUP;
-					const int iterations = abs( value );
-					for ( int i = 0; i < iterations; i++ ) {
-						Sys_QueEvent( SE_KEY, key, true, 0, NULL, 0 );
-						Sys_QueEvent( SE_KEY, key, false, 0, NULL, 0 );
-					}
-				}
-				break;
-			}
-		}
-	}
-
-	return dwElements;
+	return i;
 }
 
 //=====================================================================================
@@ -664,89 +660,10 @@ void Sys_EndJoystickInputEvents() {
 
 /*
 ========================
-JoystickSamplingThread
+idJoystickSDL::idJoystickSDL
 ========================
 */
-static int	threadTimeDeltas[256];
-static int	threadPacket[256];
-static int	threadCount;
-void JoystickSamplingThread( void *data ) {
-	static int prevTime = 0;
-	static uint64 nextCheck[MAX_JOYSTICKS] = { 0 };
-	const uint64 waitTime = 5000000; // poll every 5 seconds to see if a controller was connected
-	while( 1 ) {
-		// hopefully we see close to 4000 usec each loop
-		int	now = Sys_Microseconds();
-		int	delta;
-		if ( prevTime == 0 ) {
-			delta = 4000;
-		} else {
-			delta = now - prevTime;
-		}
-		prevTime = now;
-		threadTimeDeltas[threadCount&255] = delta;
-		threadCount++;
-
-		{
-			XINPUT_STATE	joyData[MAX_JOYSTICKS];
-			bool			validData[MAX_JOYSTICKS];
-			for ( int i = 0 ; i < MAX_JOYSTICKS ; i++ ) {
-				if ( now >= nextCheck[i] ) {
-					// XInputGetState might block... for a _really_ long time..
-					validData[i] = XInputGetState( i, &joyData[i] ) == ERROR_SUCCESS;
-
-					// allow an immediate data poll if the input device is connected else 
-					// wait for some time to see if another device was reconnected.
-					// Checking input state infrequently for newly connected devices prevents 
-					// severe slowdowns on PC, especially on WinXP64.
-					if ( validData[i] ) {
-						nextCheck[i] = 0;
-					} else {
-						nextCheck[i] = now + waitTime;
-					}
-				}
-			}
-
-			// do this short amount of processing inside a critical section
-			idScopedCriticalSection cs( win32.g_Joystick.mutexXis );
-
-			for ( int i = 0 ; i < MAX_JOYSTICKS ; i++ ) {
-				controllerState_t * cs = &win32.g_Joystick.controllers[i];
-
-				if ( !validData[i] ) {
-					cs->valid = false;
-					continue;
-				}
-				cs->valid = true;
-
-				XINPUT_STATE& current = joyData[i];
-
-				cs->current = current;
-
-				// Switch from using cs->current to current to reduce chance of Load-Hit-Store on consoles
-
-				threadPacket[threadCount&255] = current.dwPacketNumber;
-#if 0
-				if ( xis.dwPacketNumber == oldXis[ inputDeviceNum ].dwPacketNumber ) {
-					return numEvents;
-				}
-#endif
-				cs->buttonBits |= current.Gamepad.wButtons;
-			}
-		}
-
-		// we want this to be processed at least 250 times a second
-		WaitForSingleObject( win32.g_Joystick.timer, INFINITE );
-	}
-}
-
-
-/*
-========================
-idJoystickWin32::idJoystickWin32
-========================
-*/
-idJoystickWin32::idJoystickWin32() {
+idJoystickSDL::idJoystickSDL() {
 	numEvents = 0;
 	memset( &events, 0, sizeof( events ) );
 	memset( &controllers, 0, sizeof( controllers ) );
@@ -756,54 +673,95 @@ idJoystickWin32::idJoystickWin32() {
 
 /*
 ========================
-idJoystickWin32::Init
+idJoystickSDL::Init
 ========================
 */
-bool idJoystickWin32::Init() {
+bool idJoystickSDL::Init() {
 	idJoystick::Init();
 
-	// setup the timer that the high frequency thread will wait on
-	// to fire every 4 msec
-	timer = CreateWaitableTimer( NULL, FALSE, "JoypadTimer" );
-	LARGE_INTEGER dueTime;
-	dueTime.QuadPart = -1;
-	if ( !SetWaitableTimer( timer, &dueTime, 4, NULL, NULL, FALSE ) ) {
-		idLib::FatalError( "SetWaitableTimer for joystick failed" );
+	if ( !SDL_WasInit( SDL_INIT_JOYSTICK ) ) {
+		common->DPrintf("Calling SDL_Init(SDL_INIT_JOYSTICK)...\n");
+		if ( SDL_Init( SDL_INIT_JOYSTICK ) != 0 ) {
+			common->DPrintf( "SDL_Init(SDL_INIT_JOYSTICK) failed: %s\n", SDL_GetError() );
+			return false;
+		}
+		common->DPrintf( "SDL_Init(SDL_INIT_JOYSTICK) passed.\n" );
 	}
 
-	// spawn the high frequency joystick reading thread
-	Sys_CreateThread( (xthread_t)JoystickSamplingThread, NULL, THREAD_HIGHEST, "Joystick", CORE_1A );
+	if ( !SDL_WasInit( SDL_INIT_GAMECONTROLLER ) ) {
+		common->DPrintf( "Calling SDL_Init(SDL_INIT_GAMECONTROLLER)...\n" );
+		if ( SDL_Init( SDL_INIT_GAMECONTROLLER ) != 0 ) {
+			common->DPrintf( "SDL_Init(SDL_INIT_GAMECONTROLLER) failed: %s\n", SDL_GetError() );
+			return false;
+		}
+		common->DPrintf( "SDL_Init(SDL_INIT_GAMECONTROLLER) passed.\n" );
+	}
 
-	return false;
+	if ( !SDL_WasInit( SDL_INIT_HAPTIC ) ) {
+		common->DPrintf( "Calling SDL_Init(SDL_INIT_HAPTIC)...\n" );
+		if ( SDL_Init( SDL_INIT_HAPTIC ) != 0 ) {
+			common->DPrintf( "SDL_Init(SDL_INIT_HAPTIC) failed: %s\n", SDL_GetError() );
+			return false;
+		}
+		common->DPrintf( "SDL_Init(SDL_INIT_HAPTIC) passed.\n" );
+	}
+
+	if ( SDL_NumJoysticks() == 0 ) {
+		return false;
+	}
+
+	for ( int i = 0; i < SDL_NumJoysticks(); i++ ) {
+		if ( SDL_IsGameController( i ) ) {
+			controller = SDL_GameControllerOpen( i );
+			if ( controller == NULL ) {
+				common->DPrintf( "Could not open gamecontroller %i: %s\n", i, SDL_GetError() );
+			}
+			haptic = SDL_HapticOpen( i );
+			if ( haptic == NULL ) {
+				common->DPrintf( "Could not open haptic for gamecontroller %i: %s\n", i, SDL_GetError() );
+			}
+		}
+	}
+
+	return true;
 }
 
 /*
 ========================
-idJoystickWin32::SetRumble
+idJoystickSDL::SetRumble
 ========================
 */
-void idJoystickWin32::SetRumble( int inputDeviceNum, int rumbleLow, int rumbleHigh ) {
+void idJoystickSDL::SetRumble( int inputDeviceNum, int rumbleLow, int rumbleHigh ) {
 	if ( inputDeviceNum < 0 || inputDeviceNum >= MAX_JOYSTICKS ) {
 		return;
 	}
 	if ( !controllers[inputDeviceNum].valid ) {
+//		return;
+	}
+	SDL_HapticEffect effect;
+	static int effectId = NULL;
+	SDL_HapticDestroyEffect( haptic, effectId );
+	if ( rumbleLow == 0 && rumbleHigh == 0) {
 		return;
 	}
-	XINPUT_VIBRATION vibration;
-	vibration.wLeftMotorSpeed = idMath::ClampInt( 0, 65535, rumbleLow );
-	vibration.wRightMotorSpeed = idMath::ClampInt( 0, 65535, rumbleHigh );
-	DWORD err = XInputSetState( inputDeviceNum, &vibration );
-	if ( err != ERROR_SUCCESS ) {
-		idLib::Warning( "XInputSetState error: 0x%x", err );
-	}
+	// Create the effect
+	memset( &effect, 0, sizeof(SDL_HapticEffect) ); // 0 is safe default
+	effect.type = SDL_HAPTIC_LEFTRIGHT;
+	effect.leftright.length = SDL_HAPTIC_INFINITY;
+	effect.leftright.large_magnitude = idMath::ClampInt( 0, 32767, rumbleLow / 2 );
+	effect.leftright.small_magnitude = idMath::ClampInt( 0, 32767, rumbleHigh / 2 );
+	// Upload the effect
+	effectId = SDL_HapticNewEffect( haptic, &effect );
+	// Run the effect
+	SDL_HapticRunEffect( haptic, effectId, 1 );
 }
 
 /*
 ========================
-idJoystickWin32::PostInputEvent
+idJoystickSDL::PostInputEvent
 ========================
 */
-void idJoystickWin32::PostInputEvent( int inputDeviceNum, int event, int value, int range ) {
+void idJoystickSDL::PostInputEvent( int inputDeviceNum, int event, int value, int range ) {
 	// These events are used for GUI button presses
 	if ( ( event >= J_ACTION1 ) && ( event <= J_ACTION_MAX ) ) {
 		PushButton( inputDeviceNum, K_JOY1 + ( event - J_ACTION1 ), value != 0 );
@@ -843,94 +801,74 @@ void idJoystickWin32::PostInputEvent( int inputDeviceNum, int event, int value, 
 
 /*
 ========================
-idJoystickWin32::PollInputEvents
+idJoystickSDL::PollInputEvents
 ========================
 */
-int idJoystickWin32::PollInputEvents( int inputDeviceNum ) {
+int idJoystickSDL::PollInputEvents( int inputDeviceNum ) {
 	numEvents = 0;
 
 	if ( !win32.activeApp ) {
 		return numEvents;
 	}
 
-	assert( inputDeviceNum < 4 );
+//	assert( inputDeviceNum < 4 );
 
 //	if ( inputDeviceNum > in_joystick.GetInteger() ) {
 //		return numEvents;
 //	}
+	
+	SDL_GameControllerUpdate();
 
 	controllerState_t *cs = &controllers[ inputDeviceNum ];
 
-	// grab the current packet under a critical section
-	XINPUT_STATE xis;
-	XINPUT_STATE old;
-	int		orBits;
-	{
-		idScopedCriticalSection crit( mutexXis );
-		xis = cs->current;
-		old = cs->previous;
-		cs->previous = xis;
-		// fetch or'd button bits
-		orBits = cs->buttonBits;
-		cs->buttonBits = 0;
-	}
-#if 0
-	if ( XInputGetState( inputDeviceNum, &xis ) != ERROR_SUCCESS ) {
-		return numEvents;
-	}
-#endif
-	for ( int i = 0 ; i < 32 ; i++ ) {
-		int	bit = 1<<i;
-
-		if ( ( ( xis.Gamepad.wButtons | old.Gamepad.wButtons ) & bit ) == 0
-			&& ( orBits & bit ) ) {
-				idLib::Printf( "Dropped button press on bit %i\n", i );
-		}
-	}
-
 	if ( session->IsSystemUIShowing() ) {
 		// memset xis so the current input does not get latched if the UI is showing
-		memset( &xis, 0, sizeof( XINPUT_STATE ) );
+		//memset( &xis, 0, sizeof( XINPUT_STATE ) );
 	}
 
-	int joyRemap[16] = {
-		J_DPAD_UP,		J_DPAD_DOWN,	// Up, Down
-		J_DPAD_LEFT,	J_DPAD_RIGHT,	// Left, Right
-		J_ACTION9,		J_ACTION10,		// Start, Back
-		J_ACTION7,		J_ACTION8,		// Left Stick Down, Right Stick Down
-		J_ACTION5,		J_ACTION6,		// Black, White (Left Shoulder, Right Shoulder)
-		0,				0,				// Unused
-		J_ACTION1,		J_ACTION2,		// A, B
-		J_ACTION3,		J_ACTION4,		// X, Y
+	int buttonMap[SDL_CONTROLLER_BUTTON_MAX] = {
+		J_ACTION1,		// A
+		J_ACTION2,		// B
+		J_ACTION3,		// X
+		J_ACTION4,		// Y
+		J_ACTION10,		// Back
+		0,				// Unused
+		J_ACTION9,		// Start
+		J_ACTION7,		// Left Stick Down
+		J_ACTION8,		// Right Stick Down
+		J_ACTION5,		// Black (Left Shoulder)
+		J_ACTION6,		// White (Right Shoulder)
+		J_DPAD_UP,		// Up
+		J_DPAD_DOWN,	// Down
+		J_DPAD_LEFT,	// Left
+		J_DPAD_RIGHT,	// Right
 	};
 
 	// Check the digital buttons
-	for ( int i = 0; i < 16; i++ ) {
-		int mask = ( 1 << i );
-		if ( ( xis.Gamepad.wButtons & mask ) != ( old.Gamepad.wButtons & mask ) ) {
-			PostInputEvent( inputDeviceNum, joyRemap[i], ( xis.Gamepad.wButtons & mask ) > 0 );
+	for ( int i = 0; i < SDL_CONTROLLER_BUTTON_MAX; i++ ) {
+		bool pressed = ( SDL_GameControllerGetButton( controller, (SDL_GameControllerButton)( SDL_CONTROLLER_BUTTON_A + i ) ) > 0 );
+		if ( pressed != cs->buttons[i] ) {
+			PostInputEvent( inputDeviceNum, buttonMap[i], pressed );
+			cs->buttons[i] = pressed;
 		}
 	}
 
-	// Check the triggers
-	if ( xis.Gamepad.bLeftTrigger != old.Gamepad.bLeftTrigger ) {
-		PostInputEvent( inputDeviceNum, J_AXIS_LEFT_TRIG, xis.Gamepad.bLeftTrigger * 128 );
-	}
-	if ( xis.Gamepad.bRightTrigger != old.Gamepad.bRightTrigger ) {
-		PostInputEvent( inputDeviceNum, J_AXIS_RIGHT_TRIG, xis.Gamepad.bRightTrigger * 128 );
-	}
+	int axisMap[SDL_CONTROLLER_AXIS_MAX] = {
+		J_AXIS_LEFT_X,
+		J_AXIS_LEFT_Y,
+		J_AXIS_RIGHT_X,
+		J_AXIS_RIGHT_Y,
+		J_AXIS_LEFT_TRIG,
+		J_AXIS_RIGHT_TRIG,
+	};
 
-	if ( xis.Gamepad.sThumbLX != old.Gamepad.sThumbLX ) {
-		PostInputEvent( inputDeviceNum, J_AXIS_LEFT_X, xis.Gamepad.sThumbLX );
-	}
-	if ( xis.Gamepad.sThumbLY != old.Gamepad.sThumbLY ) {
-		PostInputEvent( inputDeviceNum, J_AXIS_LEFT_Y, -xis.Gamepad.sThumbLY );
-	}
-	if ( xis.Gamepad.sThumbRX != old.Gamepad.sThumbRX ) {
-		PostInputEvent( inputDeviceNum, J_AXIS_RIGHT_X, xis.Gamepad.sThumbRX );
-	}
-	if ( xis.Gamepad.sThumbRY != old.Gamepad.sThumbRY ) {
-		PostInputEvent( inputDeviceNum, J_AXIS_RIGHT_Y, -xis.Gamepad.sThumbRY );
+	// Check the axes
+	for ( int i = 0; i < SDL_CONTROLLER_AXIS_MAX; i++ ) {
+		int axis = SDL_GameControllerGetAxis( controller, (SDL_GameControllerAxis)i );
+		if ( axis != cs->axes[i] ) {
+			PostInputEvent( inputDeviceNum, axisMap[i], axis );
+			cs->axes[i] = axis;
+		}
 	}
 
 	return numEvents;
@@ -939,10 +877,10 @@ int idJoystickWin32::PollInputEvents( int inputDeviceNum ) {
 
 /*
 ========================
-idJoystickWin32::ReturnInputEvent
+idJoystickSDL::ReturnInputEvent
 ========================
 */
-int idJoystickWin32::ReturnInputEvent( const int n, int & action, int &value ) {
+int idJoystickSDL::ReturnInputEvent( const int n, int & action, int &value ) {
 	if ( ( n < 0 ) || ( n >= MAX_JOY_EVENT ) ) {
 		return 0;
 	}
@@ -955,10 +893,10 @@ int idJoystickWin32::ReturnInputEvent( const int n, int & action, int &value ) {
 
 /*
 ========================
-idJoystickWin32::PushButton
+idJoystickSDL::PushButton
 ========================
 */
-void idJoystickWin32::PushButton( int inputDeviceNum, int key, bool value ) {
+void idJoystickSDL::PushButton( int inputDeviceNum, int key, bool value ) {
 	// So we don't keep sending the same SE_KEY message over and over again
 	if ( buttonStates[inputDeviceNum][key] != value ) {
 		buttonStates[inputDeviceNum][key] = value;

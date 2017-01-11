@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __WIN_LOCAL_H__
 #define __WIN_LOCAL_H__
 
+#include "SDL.h"
 #include <windows.h>
 #include "../../renderer/OpenGL/wglext.h"		// windows OpenGL extensions
 #include "sdl_input.h"
@@ -92,6 +93,9 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 void Conbuf_AppendText( const char *msg );
 
 typedef struct {
+	SDL_Window		*window;
+	SDL_GLContext	glContext;
+
 	HWND			hWnd;
 	HINSTANCE		hInstance;
 
@@ -147,7 +151,7 @@ typedef struct {
 	LPDIRECTINPUT8			g_pdi;
 	LPDIRECTINPUTDEVICE8	g_pMouse;
 	LPDIRECTINPUTDEVICE8	g_pKeyboard;
-	idJoystickWin32			g_Joystick;
+	idJoystickSDL			g_Joystick;
 
 	HANDLE			renderCommandsEvent;
 	HANDLE			renderCompletedEvent;

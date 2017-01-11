@@ -57,8 +57,7 @@ Sys_Milliseconds
 ================
 */
 int Sys_Milliseconds() {
-	static DWORD sys_timeBase = timeGetTime();
-	return timeGetTime() - sys_timeBase;
+	return SDL_GetTicks();
 }
 
 /*
@@ -85,10 +84,7 @@ Sys_GetSystemRam
 ================
 */
 int Sys_GetSystemRam() {
-	MEMORYSTATUSEX statex;
-	statex.dwLength = sizeof ( statex );
-	GlobalMemoryStatusEx (&statex);
-	int physRam = statex.ullTotalPhys / ( 1024 * 1024 );
+	int physRam = SDL_GetSystemRAM();
 	// HACK: For some reason, ullTotalPhys is sometimes off by a meg or two, so we round up to the nearest 16 megs
 	physRam = ( physRam + 8 ) & ~15;
 	return physRam;
@@ -136,6 +132,7 @@ Sys_GetVideoRam
 returns in megabytes
 ================
 */
+#if 0
 int Sys_GetVideoRam() {
 	unsigned int retSize = 64;
 
@@ -184,6 +181,7 @@ int Sys_GetVideoRam() {
 	}
 	return retSize;
 }
+#endif
 
 /*
 ================

@@ -475,8 +475,6 @@
     <ClCompile Include="sys\sdl\sdl_signin.cpp" />
     <ClCompile Include="sys\sdl\sdl_snd.cpp" />
     <ClCompile Include="sys\sdl\sdl_syscon.cpp" />
-    <ClCompile Include="sys\sdl\sdl_taskkeyhook.cpp" />
-    <ClCompile Include="sys\sdl\sdl_wndproc.cpp" />
     <ClCompile Include="sys\Snapshot.cpp" />
     <ClCompile Include="sys\SnapshotProcessor.cpp" />
     <ClCompile Include="sys\Snapshot_Jobs.cpp" />

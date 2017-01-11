@@ -31,40 +31,42 @@ If you have questions concerning this license or the applicable additional terms
 //#if defined( ID_VS2010 )
 //#include "../../../libs/dxsdk_June2010/include/xinput.h"
 //#else
-#include <Xinput.h>
+//#include <Xinput.h>
 //#endif
+
+struct inputEvent_t {
+	int event;
+	int value;
+};
 
 static const int MAX_JOYSTICKS = 4;
 
 /*
 ================================================================================================
 
-	Joystick Win32
+	Joystick SDL
 
 ================================================================================================
 */
 
 struct controllerState_t {
 	// the current states are updated by the input thread at 250 hz
-	XINPUT_STATE	current;
+	//XINPUT_STATE	current;
 
 	// the previous state is latched at polling time
-	XINPUT_STATE	previous;
+	//XINPUT_STATE	previous;
 
-	// The current button bits are or'd into this at the high sampling rate, then
-	// zero'd by the main thread when a usercmd_t is created.  This prevents the
-	// complete missing of a button press that went down and up between two usercmd_t
-	// creations, although it can add sn extra frame of latency to sensing a release.
-	int				buttonBits;
+	bool			buttons[SDL_CONTROLLER_BUTTON_MAX];
+	Sint16			axes[SDL_CONTROLLER_AXIS_MAX];
 
 	// Only valid controllers will have their rumble set
 	bool			valid;
 };
 
 
-class idJoystickWin32 : idJoystick {
+class idJoystickSDL : idJoystick {
 public:
-					idJoystickWin32();
+					idJoystickSDL();
 
 	virtual bool	Init();
 	virtual void	SetRumble( int deviceNum, int rumbleLow, int rumbleHigh );
@@ -83,10 +85,7 @@ protected:
 
 	int						numEvents;
 
-	struct {
-		int event;
-		int value;
-	}						events[ MAX_JOY_EVENT ];
+	inputEvent_t			events[ MAX_JOY_EVENT ];
 
 	controllerState_t		controllers[ MAX_JOYSTICKS ];
 

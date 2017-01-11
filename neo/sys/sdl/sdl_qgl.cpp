@@ -43,6 +43,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../renderer/tr_local.h"
 
 
+#if 0
 int   ( WINAPI * qwglChoosePixelFormat )(HDC, CONST PIXELFORMATDESCRIPTOR *);
 int   ( WINAPI * qwglDescribePixelFormat) (HDC, int, UINT, LPPIXELFORMATDESCRIPTOR);
 int   ( WINAPI * qwglGetPixelFormat)(HDC);
@@ -71,6 +72,7 @@ int  ( WINAPI * qwglGetLayerPaletteEntries)(HDC, int, int, int,
                                                 COLORREF *);
 BOOL ( WINAPI * qwglRealizeLayerPalette)(HDC, int, BOOL);
 BOOL ( WINAPI * qwglSwapLayerBuffers)(HDC, UINT);
+#endif
 
 void ( APIENTRY * qglAccum )(GLenum op, GLfloat value);
 void ( APIENTRY * qglAlphaFunc )(GLenum func, GLclampf ref);
@@ -1584,6 +1586,7 @@ void QGL_Shutdown( void )
 	qglVertexPointer             = NULL;
 	qglViewport                  = NULL;
 
+#if 0
 	qwglCopyContext              = NULL;
 	qwglCreateContext            = NULL;
 	qwglCreateLayerContext       = NULL;
@@ -1606,6 +1609,7 @@ void QGL_Shutdown( void )
 	qwglGetPixelFormat           = NULL;
 	qwglSetPixelFormat           = NULL;
 	qwglSwapBuffers              = NULL;
+#endif
 }
 
 #define GR_NUM_BOARDS 0x0f
@@ -1975,6 +1979,7 @@ bool QGL_Init( const char *dllname )
 	qglVertexPointer             = 	dllVertexPointer             = glVertexPointer;
 	qglViewport                  = 	dllViewport                  = glViewport;
 
+#if 0
 	qwglCopyContext              = wglCopyContext;
 	qwglCreateContext            = wglCreateContext;
 	qwglCreateLayerContext       = wglCreateLayerContext;
@@ -1997,6 +2002,7 @@ bool QGL_Init( const char *dllname )
 	qwglGetPixelFormat           = GetPixelFormat;
 	qwglSetPixelFormat           = SetPixelFormat;
 	qwglSwapBuffers              = SwapBuffers;
+#endif
 
 	return true;
 }
