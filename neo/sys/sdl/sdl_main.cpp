@@ -1428,13 +1428,7 @@ int main( int argc, char *argv[] ) {
 #ifdef ID_PC_WIN
 	// no abort/retry/fail errors
 	SetErrorMode( SEM_FAILCRITICALERRORS );
-#endif
 
-	for ( int i = 0; i < MAX_CRITICAL_SECTIONS; i++ ) {
-		InitializeCriticalSection( &win32.criticalSections[i] );
-	}
-
-#ifdef ID_PC_WIN
 	// make sure the timer is high precision, otherwise
 	// NT gets 18ms resolution
 	timeBeginPeriod( 1 );

@@ -144,8 +144,6 @@ typedef struct {
 	static idCVar	win_timerUpdate;
 	static idCVar	win_allowMultipleInstances;
 
-	CRITICAL_SECTION criticalSections[MAX_CRITICAL_SECTIONS];
-
 	HINSTANCE		hInstDI;			// direct input
 
 	LPDIRECTINPUT8			g_pdi;
