@@ -482,6 +482,7 @@ void IN_PollEvents() {
 			PostMouseEvent( M_DELTAX, event.motion.xrel );
 			PostMouseEvent( M_DELTAY, event.motion.yrel );
 			Sys_QueEvent( SE_MOUSE_ABSOLUTE, event.motion.x, event.motion.y, 0, NULL, 0 );
+			break;
 		}
 
 		case SDL_MOUSEBUTTONDOWN:
