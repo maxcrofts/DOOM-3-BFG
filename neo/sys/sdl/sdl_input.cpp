@@ -301,81 +301,63 @@ void IN_PollEvents() {
 	while( SDL_PollEvent( &event ) ) {
 		switch( event.type ) {
 		case SDL_WINDOWEVENT:
-			switch( event.window.event ) {
-			case SDL_WINDOWEVENT_MOVED:
-				if ( !renderSystem->IsFullScreen() ) {
-					r_windowX.SetInteger( event.window.data1 );
-					r_windowY.SetInteger( event.window.data2 );
-				}
-				break;
+			if ( event.window.windowID == SDL_GetWindowID( win32.window ) ) {
+				switch( event.window.event ) {
+				case SDL_WINDOWEVENT_SIZE_CHANGED:
+					if ( R_IsInitialized() ) {
+						glConfig.nativeScreenWidth = event.window.data1;
+						glConfig.nativeScreenHeight = event.window.data2;
 
-			case SDL_WINDOWEVENT_LEAVE:
-				Sys_QueEvent( SE_MOUSE_LEAVE, 0, 0, 0, NULL, 0 );
-				break;
-
-			case SDL_WINDOWEVENT_FOCUS_GAINED:
-			case SDL_WINDOWEVENT_FOCUS_LOST:
-				// if we got here because of an alt-tab or maximize,
-				// we should activate immediately.  If we are here because
-				// the mouse was clicked on a title bar or drag control,
-				// don't activate until the mouse button is released
-				{
-					win32.activeApp = ( event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED );
-					if ( win32.activeApp ) {
-						idKeyInput::ClearStates();
-						Sys_GrabMouseCursor( true );
-						if ( common->IsInitialized() ) {
-							SDL_ShowCursor( SDL_DISABLE );
+						// save the window size in cvars if we aren't fullscreen
+						if ( !renderSystem->IsFullScreen() ) {
+							r_windowWidth.SetInteger( glConfig.nativeScreenWidth );
+							r_windowHeight.SetInteger( glConfig.nativeScreenHeight );
 						}
 					}
+					break;
 
-					if ( event.window.event == SDL_WINDOWEVENT_FOCUS_LOST ) {
-						win32.movingWindow = false;
-						if ( common->IsInitialized() ) {
-							SDL_ShowCursor( SDL_ENABLE );
-						}
+				case SDL_WINDOWEVENT_MOVED:
+					if ( !renderSystem->IsFullScreen() ) {
+						r_windowX.SetInteger( event.window.data1 );
+						r_windowY.SetInteger( event.window.data2 );
 					}
+					break;
 
-					// start playing the game sound world
-					soundSystem->SetMute( !win32.activeApp );
+				case SDL_WINDOWEVENT_LEAVE:
+					Sys_QueEvent( SE_MOUSE_LEAVE, 0, 0, 0, NULL, 0 );
+					break;
 
-					// we do not actually grab or release the mouse here,
-					// that will be done next time through the main loop
+				case SDL_WINDOWEVENT_FOCUS_GAINED:
+				case SDL_WINDOWEVENT_FOCUS_LOST:
+					// if we got here because of an alt-tab or maximize,
+					// we should activate immediately.  If we are here because
+					// the mouse was clicked on a title bar or drag control,
+					// don't activate until the mouse button is released
+					{
+						win32.activeApp = ( event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED );
+						if ( win32.activeApp ) {
+							idKeyInput::ClearStates();
+							Sys_GrabMouseCursor( true );
+							if ( common->IsInitialized() ) {
+								SDL_ShowCursor( SDL_DISABLE );
+							}
+						}
+
+						if ( event.window.event == SDL_WINDOWEVENT_FOCUS_LOST ) {
+							win32.movingWindow = false;
+							if ( common->IsInitialized() ) {
+								SDL_ShowCursor( SDL_ENABLE );
+							}
+						}
+
+						// start playing the game sound world
+						soundSystem->SetMute( !win32.activeApp );
+
+						// we do not actually grab or release the mouse here,
+						// that will be done next time through the main loop
+					}
+					break;
 				}
-				break;
-
-			case SDL_WINDOWEVENT_RESIZED:
-				if ( !R_IsInitialized() || renderSystem->GetWidth() <= 0 || renderSystem->GetHeight() <= 0 ) {
-					return;
-				}
-
-				// restrict to a standard aspect ratio
-				int width = event.window.data1;
-				int height = event.window.data2;
-
-				// Clamp to a minimum size
-				if ( width < SCREEN_WIDTH / 4 ) {
-					width = SCREEN_WIDTH / 4;
-				}
-				if ( height < SCREEN_HEIGHT / 4 ) {
-					height = SCREEN_HEIGHT / 4;
-				}
-
-				const int minWidth = height * 4 / 3;
-				const int maxWidth = height * 16 / 9;
-
-				width = idMath::ClampInt( minWidth, maxWidth, width );
-
-				glConfig.nativeScreenWidth = width;
-				glConfig.nativeScreenHeight = height;
-
-				// save the window size in cvars if we aren't fullscreen
-				if ( !renderSystem->IsFullScreen() ) {
-					SDL_SetWindowSize( win32.window, width, height );
-					r_windowWidth.SetInteger( width );
-					r_windowHeight.SetInteger( height );
-				}
-				break;
 			}
 			break;
 
