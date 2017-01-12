@@ -548,18 +548,31 @@ GLimp_SwapBuffers
 =====================
 */
 void GLimp_SwapBuffers() {
+	static bool swapControlTearAvailable = true;
+
 	if ( r_swapInterval.IsModified() ) {
 		r_swapInterval.ClearModified();
 
-		if ( r_swapInterval.GetInteger() == 1 ) {
-			if ( SDL_GL_SetSwapInterval( -1 ) == -1 ) {
-				glConfig.swapControlTearAvailable = false;
-				SDL_GL_SetSwapInterval( 1 );
-			} else {
-				glConfig.swapControlTearAvailable = true;
+		for ( int i = 0 ; i < 2 ; i++ ) {
+			int interval = 0;
+			if ( r_swapInterval.GetInteger() == 1 ) {
+				interval = ( swapControlTearAvailable ) ? -1 : 1;
+			} else if ( r_swapInterval.GetInteger() == 2 ) {
+				interval = 1;
 			}
-		} else if ( r_swapInterval.GetInteger() == 2 ) {
-			SDL_GL_SetSwapInterval( 1 );
+
+			if ( SDL_GL_SetSwapInterval( interval ) == 0 ) {
+				// success
+				break;
+			} else {
+				if ( interval == -1 ) {
+					// EXT_swap_control_tear not supported
+					swapControlTearAvailable = false;
+				} else {
+					// EXT_swap_control not supported
+					break;
+				}
+			}
 		}
 	}
 
