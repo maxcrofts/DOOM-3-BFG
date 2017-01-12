@@ -58,8 +58,11 @@
     <Filter Include="Renderer\Jobs\PreLightShadowVolume">
       <UniqueIdentifier>{de864e31-e19e-41ac-8186-9b27d6c29c03}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Sys\SDL">
+    <Filter Include="Sys\Win32">
       <UniqueIdentifier>{a2d7a7d4-8b15-4874-b56b-e0ec38cef758}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sys\SDL">
+      <UniqueIdentifier>{404df561-ae77-41d4-b137-f11dbb673318}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1091,9 +1094,6 @@
     <ClCompile Include="sys\sdl\sdl_achievements.cpp">
       <Filter>Sys\SDL</Filter>
     </ClCompile>
-    <ClCompile Include="sys\sdl\sdl_cpu.cpp">
-      <Filter>Sys\SDL</Filter>
-    </ClCompile>
     <ClCompile Include="sys\sdl\sdl_glimp.cpp">
       <Filter>Sys\SDL</Filter>
     </ClCompile>
@@ -1104,9 +1104,6 @@
       <Filter>Sys\SDL</Filter>
     </ClCompile>
     <ClCompile Include="sys\sdl\sdl_main.cpp">
-      <Filter>Sys\SDL</Filter>
-    </ClCompile>
-    <ClCompile Include="sys\sdl\sdl_net.cpp">
       <Filter>Sys\SDL</Filter>
     </ClCompile>
     <ClCompile Include="sys\sdl\sdl_qgl.cpp">
@@ -1124,11 +1121,14 @@
     <ClCompile Include="sys\sdl\sdl_signin.cpp">
       <Filter>Sys\SDL</Filter>
     </ClCompile>
-    <ClCompile Include="sys\sdl\sdl_snd.cpp">
-      <Filter>Sys\SDL</Filter>
+    <ClCompile Include="sys\win32\win_cpu.cpp">
+      <Filter>Sys\Win32</Filter>
     </ClCompile>
-    <ClCompile Include="sys\sdl\sdl_syscon.cpp">
-      <Filter>Sys\SDL</Filter>
+    <ClCompile Include="sys\win32\win_net.cpp">
+      <Filter>Sys\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="sys\win32\win_syscon.cpp">
+      <Filter>Sys\Win32</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
