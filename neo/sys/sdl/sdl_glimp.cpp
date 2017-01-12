@@ -47,12 +47,6 @@ If you have questions concerning this license or the applicable additional terms
 
 idCVar r_useOpenGL32( "r_useOpenGL32", "1", CVAR_INTEGER, "0 = OpenGL 2.0, 1 = OpenGL 3.2 compatibility profile, 2 = OpenGL 3.2 core profile", 0, 2 );
 
-//
-// function declaration
-//
-bool QGL_Init( const char *dllname );
-void QGL_Shutdown();
-
 
 /*
 ========================
@@ -416,7 +410,6 @@ parameters and try again.
 ===================
 */
 bool GLimp_Init( glimpParms_t parms ) {
-	const char	*driverName;
 	SDL_DisplayMode desktopDisplayMode;
 
 	cmdSystem->AddCommand( "testSwapBuffers", GLimp_TestSwapBuffers, CMD_FL_SYSTEM, "Times swapbuffer options" );
@@ -434,18 +427,6 @@ bool GLimp_Init( glimpParms_t parms ) {
 	// SDL sometimes reports 32 bpp as 24 bpp so we check for that instead
 	if ( win32.desktopBitsPixel < 24 && parms.fullScreen <= 0 ) {
 		common->Printf("^3Windowed mode requires 32 bit desktop depth^0\n");
-		return false;
-	}
-
-	// this will load the dll and set all our qgl* function pointers,
-	// but doesn't create a window
-
-	// r_glDriver is only intended for using instrumented OpenGL
-	// dlls.  Normal users should never have to use it, and it is
-	// not archived.
-	driverName = r_glDriver.GetString()[0] ? r_glDriver.GetString() : "opengl32";
-	if ( !QGL_Init( driverName ) ) {
-		common->Printf( "^3GLimp_Init() could not load r_glDriver \"%s\"^0\n", driverName );
 		return false;
 	}
 
@@ -537,9 +518,6 @@ void GLimp_Shutdown() {
 		CloseHandle( win32.renderThreadHandle );
 		win32.renderThreadHandle = NULL;
 	}
-
-	// shutdown QGL subsystem
-	QGL_Shutdown();
 }
 
 /*
@@ -717,4 +695,13 @@ GLExtension_t GLimp_ExtensionPointer( const char *name ) {
 	}
 
 	return proc;
+}
+
+/*
+==================
+GLimp_EnableLogging
+==================
+*/
+void GLimp_EnableLogging( bool enable ) {
+
 }

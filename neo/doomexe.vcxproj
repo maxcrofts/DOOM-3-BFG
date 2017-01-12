@@ -466,7 +466,6 @@
     <ClCompile Include="sys\sdl\sdl_input.cpp" />
     <ClCompile Include="sys\sdl\sdl_localuser.cpp" />
     <ClCompile Include="sys\sdl\sdl_main.cpp" />
-    <ClCompile Include="sys\sdl\sdl_qgl.cpp" />
     <ClCompile Include="sys\sdl\sdl_savegame.cpp" />
     <ClCompile Include="sys\sdl\sdl_session_local.cpp" />
     <ClCompile Include="sys\sdl\sdl_shared.cpp" />

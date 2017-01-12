@@ -1106,9 +1106,6 @@
     <ClCompile Include="sys\sdl\sdl_main.cpp">
       <Filter>Sys\SDL</Filter>
     </ClCompile>
-    <ClCompile Include="sys\sdl\sdl_qgl.cpp">
-      <Filter>Sys\SDL</Filter>
-    </ClCompile>
     <ClCompile Include="sys\sdl\sdl_savegame.cpp">
       <Filter>Sys\SDL</Filter>
     </ClCompile>
