@@ -369,6 +369,7 @@ void IN_PollEvents() {
 			}
 
 			key = MapKey( event.key.keysym.scancode );
+			PostKeyboardEvent( key, true );
 			// D
 			if ( key == K_NUMLOCK ) {
 				key = K_PAUSE;
@@ -376,7 +377,6 @@ void IN_PollEvents() {
 				key = K_NUMLOCK;
 			}
 			Sys_QueEvent( SE_KEY, key, true, 0, NULL, 0 );
-			PostKeyboardEvent( key, true );
 
 			if ( key == K_BACKSPACE ) {
 				Sys_QueEvent( SE_CHAR, event.key.keysym.sym, 0, 0, NULL, 0 );
@@ -387,8 +387,8 @@ void IN_PollEvents() {
 
 		case SDL_KEYUP:
 			key = MapKey( event.key.keysym.scancode );
-			Sys_QueEvent( SE_KEY, key, false, 0, NULL, 0 );
 			PostKeyboardEvent( key, false );
+			Sys_QueEvent( SE_KEY, key, false, 0, NULL, 0 );
 			break;
 
 		case SDL_TEXTINPUT: {
