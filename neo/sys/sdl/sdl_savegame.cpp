@@ -31,7 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "../sys_session_local.h"
 #include "../sys_savegame.h"
 
-idCVar savegame_winInduceDelay( "savegame_winInduceDelay", "0", CVAR_INTEGER, "on windows, this is a delay induced before any file operation occurs" );
 extern idCVar fs_savepath;
 extern idCVar saveGame_checksum;
 extern idCVar savegame_error;
@@ -612,10 +611,6 @@ int idSaveGameThread::Run() {
 		idLocalUserWin * user = GetLocalUserFromSaveParms( data );
 		if ( user != NULL && !user->IsStorageDeviceAvailable() ) {
 			data.saveLoadParms->errorCode = SAVEGAME_E_UNABLE_TO_SELECT_STORAGE_DEVICE;
-		}
-
-		if ( savegame_winInduceDelay.GetInteger() > 0 ) {
-			Sys_Sleep( savegame_winInduceDelay.GetInteger() );
 		}
 
 		if ( data.saveLoadParms->mode & SAVEGAME_MBF_SAVE ) {
