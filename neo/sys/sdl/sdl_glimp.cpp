@@ -122,10 +122,10 @@ static bool GetDisplayCoordinates( const int deviceNum, int & x, int & y, int & 
 
 	common->Printf( "display device: %i\n", deviceNum );
 	common->Printf( "  DeviceName  : %s\n", deviceName.c_str() );
-	common->Printf( "      dmPosition.x: %i\n", r.x );
-	common->Printf( "      dmPosition.y: %i\n", r.y );
-	common->Printf( "      dmPelsWidth : %i\n", r.w );
-	common->Printf( "      dmPelsHeight: %i\n", r.h );
+	common->Printf( "                 x: %i\n", r.x );
+	common->Printf( "                 y: %i\n", r.y );
+	common->Printf( "                 w: %i\n", r.w );
+	common->Printf( "                 h: %i\n", r.h );
 
 	x = r.x;
 	y = r.y;
@@ -157,7 +157,7 @@ void DumpAllDisplayDevices() {
 		}
 		common->Printf( "      -------------------\n" );
 		common->Printf( "      CurrentDisplayMode\n" );
-		common->Printf( "      format              : %i\n", SDL_BITSPERPIXEL( displayMode.format ) );
+		common->Printf( "      format              : %s\n", SDL_GetPixelFormatName( displayMode.format ) );
 		common->Printf( "      w                   : %i\n", displayMode.w );
 		common->Printf( "      h                   : %i\n", displayMode.h );
 		common->Printf( "      refresh_rate        : %i\n", displayMode.refresh_rate );
@@ -178,7 +178,7 @@ void DumpAllDisplayDevices() {
 			}
 			common->Printf( "      -------------------\n" );
 			common->Printf( "      modeNum             : %i\n", modeNum );
-			common->Printf( "      format              : %i\n", SDL_BITSPERPIXEL( displayMode.format ) );
+			common->Printf( "      format              : %s\n", SDL_GetPixelFormatName( displayMode.format ) );
 			common->Printf( "      w                   : %i\n", displayMode.w );
 			common->Printf( "      h                   : %i\n", displayMode.h );
 			common->Printf( "      refresh_rate        : %i\n", displayMode.refresh_rate );
@@ -226,7 +226,7 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t> &
 			if ( verbose ) {
 				common->Printf( "      -------------------\n" );
 				common->Printf( "      modeNum             : %i\n", modeNum );
-				common->Printf( "      format              : %i\n", SDL_BITSPERPIXEL( displayMode.format ) );
+				common->Printf( "      format              : %s\n", SDL_GetPixelFormatName( displayMode.format ) );
 				common->Printf( "      w                   : %i\n", displayMode.w );
 				common->Printf( "      h                   : %i\n", displayMode.h );
 				common->Printf( "      refresh_rate        : %i\n", displayMode.refresh_rate );
@@ -359,7 +359,8 @@ static bool GLimp_CreateWindow( glimpParms_t parms ) {
 	SDL_VERSION( &info.version );
 	if( SDL_GetWindowWMInfo( sdl.window, &info ) ) {
 		if ( !parms.fullScreen ) {
-			SetWindowLong( info.info.win.window, GWL_STYLE, WINDOW_STYLE );
+			SetWindowLongPtr( info.info.win.window, GWL_STYLE, WINDOW_STYLE );
+			SetClassLongPtr( info.info.win.window, GCLP_HBRBACKGROUND, COLOR_GRAYTEXT );
 		}
 	}
 #endif
@@ -498,7 +499,8 @@ bool GLimp_SetScreenParms( glimpParms_t parms ) {
 		SDL_SysWMinfo info;
 		SDL_VERSION( &info.version );
 		if( SDL_GetWindowWMInfo( sdl.window, &info ) ) {
-			SetWindowLong( info.info.win.window, GWL_STYLE, WINDOW_STYLE );
+			SetWindowLongPtr( info.info.win.window, GWL_STYLE, WINDOW_STYLE );
+			SetClassLongPtr( info.info.win.window, GCLP_HBRBACKGROUND, COLOR_GRAYTEXT );
 		}
 #endif
 	}
