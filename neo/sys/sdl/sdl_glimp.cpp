@@ -301,6 +301,45 @@ static bool GLimp_GetWindowDimensions( const glimpParms_t parms, int &x, int &y,
 
 
 /*
+====================
+EventFilter
+====================
+*/
+static int EventFilter( void *data, SDL_Event *event ) {
+	if ( event->type == SDL_WINDOWEVENT ) {
+		if ( event->window.windowID == SDL_GetWindowID( sdl.window ) ) {
+			if ( event->window.event == SDL_WINDOWEVENT_RESIZED ) {
+				if ( !R_IsInitialized() || renderSystem->GetWidth() <= 0 || renderSystem->GetHeight() <= 0 ) {
+					return 0;
+				}
+
+				// restrict to a standard aspect ratio
+				int width = event->window.data1;
+				int height = event->window.data2;
+
+				// Clamp to a minimum size
+				if ( width < SCREEN_WIDTH / 4 ) {
+					width = SCREEN_WIDTH / 4;
+				}
+				if ( height < SCREEN_HEIGHT / 4 ) {
+					height = SCREEN_HEIGHT / 4;
+				}
+
+				const int minWidth = height * 4 / 3;
+				const int maxHeight = width * 3 / 4;
+
+				const int maxWidth = height * 16 / 9;
+				const int minHeight = width * 9 / 16;
+
+				SDL_SetWindowMaximumSize( sdl.window, maxWidth, maxHeight );
+				SDL_SetWindowMinimumSize( sdl.window, minWidth, minHeight );
+			}
+		}
+	}
+	return 0;
+}
+
+/*
 =======================
 GLimp_CreateWindow
 
@@ -353,6 +392,8 @@ static bool GLimp_CreateWindow( glimpParms_t parms ) {
 		common->Printf( "^3GLimp_CreateWindow() - Couldn't create window^0\n" );
 		return false;
 	}
+
+	SDL_AddEventWatch( EventFilter, NULL );
 
 #ifdef ID_PC_WIN
 	SDL_SysWMinfo info;
