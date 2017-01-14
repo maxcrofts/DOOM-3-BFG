@@ -52,7 +52,6 @@ idCVar SDLVars_t::sys_arch( "sys_arch", "", CVAR_SYSTEM | CVAR_INIT, "" );
 idCVar SDLVars_t::sys_cpustring( "sys_cpustring", "detect", CVAR_SYSTEM | CVAR_INIT, "" );
 idCVar SDLVars_t::in_mouse( "in_mouse", "1", CVAR_SYSTEM | CVAR_BOOL, "enable mouse input" );
 idCVar SDLVars_t::sys_username( "sys_username", "", CVAR_SYSTEM | CVAR_INIT, "system user name" );
-idCVar SDLVars_t::sdl_timerUpdate( "sdl_timerUpdate", "0", CVAR_SYSTEM | CVAR_BOOL, "allows the game to be updated while dragging the window" );
 
 SDLVars_t sdl;
 

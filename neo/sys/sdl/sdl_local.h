@@ -95,7 +95,6 @@ typedef struct {
 	static idCVar	sys_cpustring;
 	static idCVar	in_mouse;
 	static idCVar	sys_username;
-	static idCVar	sdl_timerUpdate;
 
 	idJoystickSDL	g_Joystick;
 
