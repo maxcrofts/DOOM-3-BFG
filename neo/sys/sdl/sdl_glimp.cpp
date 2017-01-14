@@ -40,6 +40,10 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "../../idlib/precompiled.h"
 
+#ifdef ID_PC_WIN
+#include "SDL_syswm.h"
+#endif
+
 #include "sdl_local.h"
 #include "../win32/rc/doom_resource.h"
 #include "../../renderer/tr_local.h"
@@ -310,7 +314,7 @@ static bool GLimp_CreateWindow( glimpParms_t parms ) {
 		return false;
 	}
 
-	Uint32 flags = SDL_WINDOW_SHOWN|SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE;
+	Uint32 flags = SDL_WINDOW_HIDDEN|SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE;
 	if ( parms.fullScreen == -1 ) {
 		flags |= SDL_WINDOW_BORDERLESS;
 	} else if ( parms.fullScreen == 1 ) {
@@ -350,6 +354,17 @@ static bool GLimp_CreateWindow( glimpParms_t parms ) {
 		return false;
 	}
 
+#ifdef ID_PC_WIN
+	SDL_SysWMinfo info;
+	SDL_VERSION( &info.version );
+	if( SDL_GetWindowWMInfo( sdl.window, &info ) ) {
+		if ( !parms.fullScreen ) {
+			SetWindowLong( info.info.win.window, GWL_STYLE, WINDOW_STYLE );
+		}
+	}
+#endif
+
+	SDL_ShowWindow( sdl.window );
 	SDL_GetWindowPosition( sdl.window, &x, &y );
 	common->Printf( "...created window @ %d,%d (%dx%d)\n", x, y, w, h );
 
@@ -478,6 +493,14 @@ bool GLimp_SetScreenParms( glimpParms_t parms ) {
 		SDL_SetWindowFullscreen( sdl.window, 0 );
 		SDL_SetWindowSize( sdl.window, w, h );
 		SDL_SetWindowPosition( sdl.window, x, y );
+
+#ifdef ID_PC_WIN
+		SDL_SysWMinfo info;
+		SDL_VERSION( &info.version );
+		if( SDL_GetWindowWMInfo( sdl.window, &info ) ) {
+			SetWindowLong( info.info.win.window, GWL_STYLE, WINDOW_STYLE );
+		}
+#endif
 	}
 
 	sdl.cdsFullscreen = ( parms.fullScreen > 0 ? parms.fullScreen : 0 );
