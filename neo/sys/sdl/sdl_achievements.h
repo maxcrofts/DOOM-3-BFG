@@ -25,8 +25,8 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#ifndef __WIN_ACHIEVEMENTS_H__
-#define __WIN_ACHIEVEMENTS_H__
+#ifndef __SDL_ACHIEVEMENTS_H__
+#define __SDL_ACHIEVEMENTS_H__
 
 /*
 ================================================
@@ -46,4 +46,4 @@ public:
 	bool	GetAchievementState( idLocalUser * user, idArray< bool, idAchievementSystem::MAX_ACHIEVEMENTS > & achievements ) const;
 };
 
-#endif // __WIN_ACHIEVEMENTS_H__
+#endif // __SDL_ACHIEVEMENTS_H__

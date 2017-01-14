@@ -72,7 +72,7 @@ void GLimp_TestSwapBuffers( const idCmdArgs &args ) {
 				qglClearColor( 1, 0, 0, 1 );
 			}
 			qglClear( GL_COLOR_BUFFER_BIT );
-			SDL_GL_SwapWindow( win32.window );
+			SDL_GL_SwapWindow( sdl.window );
 			qglFinish();
 			timestamps[i] = Sys_Microseconds();
 		}
@@ -93,7 +93,7 @@ The renderer calls this when the user adjusts r_gamma or r_brightness
 ========================
 */
 void GLimp_SetGamma( unsigned short red[256], unsigned short green[256], unsigned short blue[256] ) {
-	if ( SDL_SetWindowGammaRamp( win32.window, red, green, blue ) == -1 ) {
+	if ( SDL_SetWindowGammaRamp( sdl.window, red, green, blue ) == -1 ) {
 		common->Printf( "WARNING: SDL_SetWindowGammaRamp failed.\n" );
 	}
 }
@@ -340,23 +340,23 @@ static bool GLimp_CreateWindow( glimpParms_t parms ) {
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, glProfile );
 	}
 
-	win32.window = SDL_CreateWindow(
+	sdl.window = SDL_CreateWindow(
 		GAME_NAME,
 		x, y, w, h,
 		flags);
 	
-	if ( !win32.window ) {
+	if ( !sdl.window ) {
 		common->Printf( "^3GLimp_CreateWindow() - Couldn't create window^0\n" );
 		return false;
 	}
 
-	SDL_GetWindowPosition( win32.window, &x, &y );
+	SDL_GetWindowPosition( sdl.window, &x, &y );
 	common->Printf( "...created window @ %d,%d (%dx%d)\n", x, y, w, h );
 
 #if 0
 	// Check to see if we can get a stereo pixel format, even if we aren't going to use it,
 	// so the menu option can be 
-	if ( GLW_ChoosePixelFormat( win32.hDC, parms.multiSamples, true ) != -1 ) {
+	if ( GLW_ChoosePixelFormat( sdl.hDC, parms.multiSamples, true ) != -1 ) {
 		glConfig.stereoPixelFormatAvailable = true;
 	} else {
 		glConfig.stereoPixelFormatAvailable = false;
@@ -371,23 +371,23 @@ static bool GLimp_CreateWindow( glimpParms_t parms ) {
 	// startup the OpenGL subsystem by creating a context and making it current
 	//
 	common->Printf( "...creating GL context: " );
-	win32.glContext = SDL_GL_CreateContext( win32.window );
-	if ( !win32.glContext ) {
+	sdl.glContext = SDL_GL_CreateContext( sdl.window );
+	if ( !sdl.glContext ) {
 		common->Printf( "^3failed^0\n" );
 		return false;
 	}
 	common->Printf( "succeeded\n" );
 
 	common->Printf( "...making context current: " );
-	if ( SDL_GL_MakeCurrent(win32.window, win32.glContext) != 0 ) {
-		SDL_GL_DeleteContext( win32.glContext );
-		win32.glContext = NULL;
+	if ( SDL_GL_MakeCurrent(sdl.window, sdl.glContext) != 0 ) {
+		SDL_GL_DeleteContext( sdl.glContext );
+		sdl.glContext = NULL;
 		common->Printf( "^3failed^0\n" );
 		return false;
 	}
 	common->Printf( "succeeded\n" );
 
-	SDL_RaiseWindow( win32.window );
+	SDL_RaiseWindow( sdl.window );
 
 	glConfig.isFullscreen = parms.fullScreen;
 
@@ -419,13 +419,13 @@ bool GLimp_Init( glimpParms_t parms ) {
 
 	// check our desktop attributes
 	SDL_GetDesktopDisplayMode( 0, &desktopDisplayMode );
-	win32.desktopBitsPixel = SDL_BITSPERPIXEL( desktopDisplayMode.format );
-	win32.desktopWidth = desktopDisplayMode.w;
-	win32.desktopHeight = desktopDisplayMode.h;
+	sdl.desktopBitsPixel = SDL_BITSPERPIXEL( desktopDisplayMode.format );
+	sdl.desktopWidth = desktopDisplayMode.w;
+	sdl.desktopHeight = desktopDisplayMode.h;
 
 	// we can't run in a window unless it is 32 bpp
 	// SDL sometimes reports 32 bpp as 24 bpp so we check for that instead
-	if ( win32.desktopBitsPixel < 24 && parms.fullScreen <= 0 ) {
+	if ( sdl.desktopBitsPixel < 24 && parms.fullScreen <= 0 ) {
 		common->Printf("^3Windowed mode requires 32 bit desktop depth^0\n");
 		return false;
 	}
@@ -437,7 +437,7 @@ bool GLimp_Init( glimpParms_t parms ) {
 		return false;
 	}
 
-	win32.cdsFullscreen = ( parms.fullScreen > 0 ? parms.fullScreen : 0 );
+	sdl.cdsFullscreen = ( parms.fullScreen > 0 ? parms.fullScreen : 0 );
 
 	glConfig.isFullscreen = parms.fullScreen;
 	glConfig.isStereoPixelFormat = parms.stereo;
@@ -471,16 +471,16 @@ bool GLimp_SetScreenParms( glimpParms_t parms ) {
 	}
 
 	if ( parms.fullScreen > 0 ) {
-		SDL_SetWindowSize( win32.window, w, h );
-		SDL_SetWindowPosition( win32.window, x, y );
-		SDL_SetWindowFullscreen( win32.window, SDL_WINDOW_FULLSCREEN );
+		SDL_SetWindowSize( sdl.window, w, h );
+		SDL_SetWindowPosition( sdl.window, x, y );
+		SDL_SetWindowFullscreen( sdl.window, SDL_WINDOW_FULLSCREEN );
 	} else {
-		SDL_SetWindowFullscreen( win32.window, 0 );
-		SDL_SetWindowSize( win32.window, w, h );
-		SDL_SetWindowPosition( win32.window, x, y );
+		SDL_SetWindowFullscreen( sdl.window, 0 );
+		SDL_SetWindowSize( sdl.window, w, h );
+		SDL_SetWindowPosition( sdl.window, x, y );
 	}
 
-	win32.cdsFullscreen = ( parms.fullScreen > 0 ? parms.fullScreen : 0 );
+	sdl.cdsFullscreen = ( parms.fullScreen > 0 ? parms.fullScreen : 0 );
 
 	glConfig.isFullscreen = parms.fullScreen;
 	glConfig.pixelAspect = 1.0f;	// FIXME: some monitor modes may be distorted
@@ -504,19 +504,19 @@ void GLimp_Shutdown() {
 	common->Printf( "Shutting down OpenGL subsystem\n" );
 
 //	SDL_QuitSubSystem( SDL_INIT_VIDEO );
-	SDL_GL_DeleteContext( win32.glContext );
-	SDL_DestroyWindow( win32.window );
+	SDL_GL_DeleteContext( sdl.glContext );
+	SDL_DestroyWindow( sdl.window );
 
 	// reset display settings
-	if ( win32.cdsFullscreen ) {
-		win32.cdsFullscreen = 0;
+	if ( sdl.cdsFullscreen ) {
+		sdl.cdsFullscreen = 0;
 	}
 
 	// close the thread so the handle doesn't dangle
-	if ( win32.renderThreadHandle ) {
+	if ( sdl.renderThreadHandle ) {
 		common->Printf( "...closing smp thread\n" );
-		CloseHandle( win32.renderThreadHandle );
-		win32.renderThreadHandle = NULL;
+		CloseHandle( sdl.renderThreadHandle );
+		sdl.renderThreadHandle = NULL;
 	}
 }
 
@@ -554,7 +554,7 @@ void GLimp_SwapBuffers() {
 		}
 	}
 
-	SDL_GL_SwapWindow( win32.window );
+	SDL_GL_SwapWindow( sdl.window );
 }
 
 /*
@@ -571,7 +571,7 @@ GLimp_ActivateContext
 ===================
 */
 void GLimp_ActivateContext() {
-	SDL_GL_MakeCurrent( win32.window, win32.glContext );
+	SDL_GL_MakeCurrent( sdl.window, sdl.glContext );
 }
 
 /*
@@ -581,7 +581,7 @@ GLimp_DeactivateContext
 */
 void GLimp_DeactivateContext() {
 	qglFinish();
-	SDL_GL_MakeCurrent( win32.window, NULL );
+	SDL_GL_MakeCurrent( sdl.window, NULL );
 }
 
 
@@ -598,20 +598,20 @@ void *GLimp_BackEndSleep() {
 #ifdef DEBUG_PRINTS
 OutputDebugString( "-->GLimp_BackEndSleep\n" );
 #endif
-	ResetEvent( win32.renderActiveEvent );
+	ResetEvent( sdl.renderActiveEvent );
 
 	// after this, the front end can exit GLimp_FrontEndSleep
-	SetEvent( win32.renderCompletedEvent );
+	SetEvent( sdl.renderCompletedEvent );
 
-	WaitForSingleObject( win32.renderCommandsEvent, INFINITE );
+	WaitForSingleObject( sdl.renderCommandsEvent, INFINITE );
 
-	ResetEvent( win32.renderCompletedEvent );
-	ResetEvent( win32.renderCommandsEvent );
+	ResetEvent( sdl.renderCompletedEvent );
+	ResetEvent( sdl.renderCommandsEvent );
 
-	data = win32.smpData;
+	data = sdl.smpData;
 
 	// after this, the main thread can exit GLimp_WakeRenderer
-	SetEvent( win32.renderActiveEvent );
+	SetEvent( sdl.renderActiveEvent );
 
 #ifdef DEBUG_PRINTS
 OutputDebugString( "<--GLimp_BackEndSleep\n" );
@@ -628,7 +628,7 @@ void GLimp_FrontEndSleep() {
 #ifdef DEBUG_PRINTS
 OutputDebugString( "-->GLimp_FrontEndSleep\n" );
 #endif
-	WaitForSingleObject( win32.renderCompletedEvent, INFINITE );
+	WaitForSingleObject( sdl.renderCompletedEvent, INFINITE );
 
 #ifdef DEBUG_PRINTS
 OutputDebugString( "<--GLimp_FrontEndSleep\n" );
@@ -648,26 +648,26 @@ void GLimp_WakeBackEnd( void *data ) {
 #ifdef DEBUG_PRINTS
 OutputDebugString( "-->GLimp_WakeBackEnd\n" );
 #endif
-	win32.smpData = data;
+	sdl.smpData = data;
 
 	if ( renderThreadActive ) {
 		common->FatalError( "GLimp_WakeBackEnd: already active" );
 	}
 
-	r = WaitForSingleObject( win32.renderActiveEvent, 0 );
+	r = WaitForSingleObject( sdl.renderActiveEvent, 0 );
 	if ( r == WAIT_OBJECT_0 ) {
 		common->FatalError( "GLimp_WakeBackEnd: already signaled" );
 	}
 
-	r = WaitForSingleObject( win32.renderCommandsEvent, 0 );
+	r = WaitForSingleObject( sdl.renderCommandsEvent, 0 );
 	if ( r == WAIT_OBJECT_0 ) {
 		common->FatalError( "GLimp_WakeBackEnd: commands already signaled" );
 	}
 
 	// after this, the renderer can continue through GLimp_RendererSleep
-	SetEvent( win32.renderCommandsEvent );
+	SetEvent( sdl.renderCommandsEvent );
 
-	r = WaitForSingleObject( win32.renderActiveEvent, 5000 );
+	r = WaitForSingleObject( sdl.renderActiveEvent, 5000 );
 
 	if ( r == WAIT_TIMEOUT ) {
 		common->FatalError( "GLimp_WakeBackEnd: WAIT_TIMEOUT" );

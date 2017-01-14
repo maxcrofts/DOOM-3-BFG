@@ -25,8 +25,8 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#ifndef __WIN_LOCALUSER_H__
-#define __WIN_LOCALUSER_H__
+#ifndef __SDL_LOCALUSER_H__
+#define __SDL_LOCALUSER_H__
 
 // This is to quickly get/set the data needed for disc-swapping
 typedef struct {
@@ -72,4 +72,4 @@ private:
 	int							inputDevice;
 };
 
-#endif // __WIN_LOCALUSER_H__
+#endif // __SDL_LOCALUSER_H__

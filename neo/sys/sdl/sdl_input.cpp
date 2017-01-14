@@ -91,11 +91,11 @@ IN_ActivateMouse
 ==========================
 */
 void IN_ActivateMouse() {
-	if ( !win32.in_mouse.GetBool() || win32.mouseGrabbed ) {
+	if ( !sdl.in_mouse.GetBool() || sdl.mouseGrabbed ) {
 		return;
 	}
 
-	win32.mouseGrabbed = true;
+	sdl.mouseGrabbed = true;
 	SDL_ShowCursor( SDL_DISABLE );
 
 	// set the cooperativity level.
@@ -108,14 +108,14 @@ IN_DeactivateMouse
 ==========================
 */
 void IN_DeactivateMouse() {
-	if ( !win32.mouseGrabbed ) {
+	if ( !sdl.mouseGrabbed ) {
 		return;
 	}
 
 	SDL_SetRelativeMouseMode( SDL_FALSE );
 
 	SDL_ShowCursor( SDL_ENABLE );
-	win32.mouseGrabbed = false;
+	sdl.mouseGrabbed = false;
 }
 
 /*
@@ -124,7 +124,7 @@ IN_DeactivateMouseIfWindowed
 ==========================
 */
 void IN_DeactivateMouseIfWindowed() {
-	if ( !win32.cdsFullscreen ) {
+	if ( !sdl.cdsFullscreen ) {
 		IN_DeactivateMouse();
 	}
 }
@@ -145,7 +145,7 @@ Sys_InitInput
 */
 void Sys_InitInput() {
 	common->Printf ("\n------- Input Initialization -------\n");
-	if ( win32.in_mouse.GetBool() ) {
+	if ( sdl.in_mouse.GetBool() ) {
 		IN_ActivateMouse();
 		// don't grab the mouse on initialization
 		Sys_GrabMouseCursor( false );
@@ -155,7 +155,7 @@ void Sys_InitInput() {
 	//IN_StartupKeyboard();
 
 	common->Printf ("------------------------------------\n");
-	win32.in_mouse.ClearModified();
+	sdl.in_mouse.ClearModified();
 }
 
 /*
@@ -301,7 +301,7 @@ void IN_PollEvents() {
 	while( SDL_PollEvent( &event ) ) {
 		switch( event.type ) {
 		case SDL_WINDOWEVENT:
-			if ( event.window.windowID == SDL_GetWindowID( win32.window ) ) {
+			if ( event.window.windowID == SDL_GetWindowID( sdl.window ) ) {
 				switch( event.window.event ) {
 				case SDL_WINDOWEVENT_SIZE_CHANGED:
 					if ( R_IsInitialized() ) {
@@ -334,8 +334,8 @@ void IN_PollEvents() {
 					// the mouse was clicked on a title bar or drag control,
 					// don't activate until the mouse button is released
 					{
-						win32.activeApp = ( event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED );
-						if ( win32.activeApp ) {
+						sdl.activeApp = ( event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED );
+						if ( sdl.activeApp ) {
 							idKeyInput::ClearStates();
 							Sys_GrabMouseCursor( true );
 							if ( common->IsInitialized() ) {
@@ -344,14 +344,14 @@ void IN_PollEvents() {
 						}
 
 						if ( event.window.event == SDL_WINDOWEVENT_FOCUS_LOST ) {
-							win32.movingWindow = false;
+							sdl.movingWindow = false;
 							if ( common->IsInitialized() ) {
 								SDL_ShowCursor( SDL_ENABLE );
 							}
 						}
 
 						// start playing the game sound world
-						soundSystem->SetMute( !win32.activeApp );
+						soundSystem->SetMute( !sdl.activeApp );
 
 						// we do not actually grab or release the mouse here,
 						// that will be done next time through the main loop
@@ -438,7 +438,7 @@ void IN_PollEvents() {
 			const bool isShellActive = ( game && ( game->Shell_IsActive() || game->IsPDAOpen() ) );
 			const bool isConsoleActive = console->Active();
 
-			if ( win32.activeApp ) {
+			if ( sdl.activeApp ) {
 				if ( isShellActive ) {
 					// If the shell is active, it will display its own cursor.
 					SDL_ShowCursor( SDL_DISABLE );
@@ -510,7 +510,7 @@ void IN_PollEvents() {
 
 		case SDL_CONTROLLERDEVICEADDED:
 		case SDL_CONTROLLERDEVICEREMOVED:
-			win32.g_Joystick.Init();
+			sdl.g_Joystick.Init();
 			break;
 
 		}
@@ -527,28 +527,28 @@ Called every frame, even if not generating commands
 void IN_Frame() {
 	bool	shouldGrab = true;
 
-	if ( !win32.in_mouse.GetBool() ) {
+	if ( !sdl.in_mouse.GetBool() ) {
 		shouldGrab = false;
 	}
 	// if fullscreen, we always want the mouse
-	if ( !win32.cdsFullscreen ) {
-		if ( win32.mouseReleased ) {
+	if ( !sdl.cdsFullscreen ) {
+		if ( sdl.mouseReleased ) {
 			shouldGrab = false;
 		}
-		if ( win32.movingWindow ) {
+		if ( sdl.movingWindow ) {
 			shouldGrab = false;
 		}
-		if ( !win32.activeApp ) {
+		if ( !sdl.activeApp ) {
 			shouldGrab = false;
 		}
 	}
 
-	if ( shouldGrab != win32.mouseGrabbed ) {
+	if ( shouldGrab != sdl.mouseGrabbed ) {
 		if ( usercmdGen != NULL ) {
 			usercmdGen->Clear();
 		}
 
-		if ( win32.mouseGrabbed ) {
+		if ( sdl.mouseGrabbed ) {
 			IN_DeactivateMouse();
 		} else {
 			IN_ActivateMouse();
@@ -560,7 +560,7 @@ void IN_Frame() {
 
 
 void	Sys_GrabMouseCursor( bool grabIt ) {
-	win32.mouseReleased = !grabIt;
+	sdl.mouseReleased = !grabIt;
 	if ( !grabIt ) {
 		// release it right now
 		IN_Frame();
@@ -602,7 +602,7 @@ void Sys_EndKeyboardInputEvents() {
 
 
 int Sys_PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] ) {
-	if ( !win32.mouseGrabbed ) {
+	if ( !sdl.mouseGrabbed ) {
 		return 0;
 	}
 
@@ -624,16 +624,16 @@ int Sys_PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] ) {
 //=====================================================================================
 
 void Sys_SetRumble( int device, int low, int hi ) {
-	return win32.g_Joystick.SetRumble( device, low, hi );
+	return sdl.g_Joystick.SetRumble( device, low, hi );
 }
 
 int Sys_PollJoystickInputEvents( int deviceNum ) {
-	return win32.g_Joystick.PollInputEvents( deviceNum );
+	return sdl.g_Joystick.PollInputEvents( deviceNum );
 }
 
 
 int Sys_ReturnJoystickInputEvent( const int n, int &action, int &value ) {
-	return win32.g_Joystick.ReturnInputEvent( n, action, value );
+	return sdl.g_Joystick.ReturnInputEvent( n, action, value );
 }
 
 
@@ -790,7 +790,7 @@ idJoystickSDL::PollInputEvents
 int idJoystickSDL::PollInputEvents( int inputDeviceNum ) {
 	numEvents = 0;
 
-	if ( !win32.activeApp ) {
+	if ( !sdl.activeApp ) {
 		return numEvents;
 	}
 

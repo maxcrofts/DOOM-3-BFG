@@ -25,10 +25,10 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#ifndef __WIN_SIGNIN_H__
-#define __WIN_SIGNIN_H__
+#ifndef __SDL_SIGNIN_H__
+#define __SDL_SIGNIN_H__
 
-#include "win_localuser.h"
+#include "sdl_localuser.h"
 
 /*
 ================================================

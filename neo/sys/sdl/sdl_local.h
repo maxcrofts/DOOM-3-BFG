@@ -26,36 +26,11 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#ifndef __WIN_LOCAL_H__
-#define __WIN_LOCAL_H__
+#ifndef __SDL_LOCAL_H__
+#define __SDL_LOCAL_H__
 
 #include "SDL.h"
-#include <windows.h>
-#include "../../renderer/OpenGL/wglext.h"		// windows OpenGL extensions
 #include "sdl_input.h"
-
-// WGL_ARB_extensions_string
-extern	PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB;
-
-// WGL_EXT_swap_interval
-extern	PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
-
-// WGL_ARB_pixel_format
-extern	PFNWGLGETPIXELFORMATATTRIBIVARBPROC wglGetPixelFormatAttribivARB;
-extern	PFNWGLGETPIXELFORMATATTRIBFVARBPROC wglGetPixelFormatAttribfvARB;
-extern	PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB;
-
-// WGL_ARB_pbuffer
-extern	PFNWGLCREATEPBUFFERARBPROC	wglCreatePbufferARB;
-extern	PFNWGLGETPBUFFERDCARBPROC	wglGetPbufferDCARB;
-extern	PFNWGLRELEASEPBUFFERDCARBPROC	wglReleasePbufferDCARB;
-extern	PFNWGLDESTROYPBUFFERARBPROC	wglDestroyPbufferARB;
-extern	PFNWGLQUERYPBUFFERARBPROC	wglQueryPbufferARB;
-
-// WGL_ARB_render_texture 
-extern	PFNWGLBINDTEXIMAGEARBPROC		wglBindTexImageARB;
-extern	PFNWGLRELEASETEXIMAGEARBPROC	wglReleaseTexImageARB;
-extern	PFNWGLSETPBUFFERATTRIBARBPROC	wglSetPbufferAttribARB;
 
 #define	WINDOW_STYLE	(WS_OVERLAPPED|WS_BORDER|WS_CAPTION|WS_VISIBLE | WS_THICKFRAME)
 
@@ -83,12 +58,7 @@ void	IN_ActivateMouse();
 
 void	IN_Frame();
 
-void	DisableTaskKeys( BOOL bDisable, BOOL bBeep, BOOL bTaskMgr );
-
 uint64 Sys_Microseconds();
-
-// window procedure
-LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 void Conbuf_AppendText( const char *msg );
 
@@ -96,15 +66,10 @@ typedef struct {
 	SDL_Window		*window;
 	SDL_GLContext	glContext;
 
-	HWND			hWnd;
-	HINSTANCE		hInstance;
-
 	bool			activeApp;			// changed with WM_ACTIVATE messages
 	bool			mouseReleased;		// when the game has the console down or is doing a long operation
 	bool			movingWindow;		// inhibit mouse grab when dragging the window
 	bool			mouseGrabbed;		// current state of grab and hide
-
-	OSVERSIONINFOEX	osversion;
 
 	cpuid_t			cpuid;
 
@@ -113,15 +78,6 @@ typedef struct {
 	int				sysMsgTime;
 
 	bool			windowClassRegistered;
-
-	WNDPROC			wndproc;
-
-	HDC				hDC;							// handle to device context
-	HGLRC			hGLRC;						// handle to GL rendering context
-	PIXELFORMATDESCRIPTOR pfd;		
-	int				pixelformat;
-
-	HINSTANCE		hinstOpenGL;	// HINSTANCE for the OpenGL library
 
 	int				desktopBitsPixel;
 	int				desktopWidth, desktopHeight;
@@ -136,33 +92,36 @@ typedef struct {
 	static idCVar	sys_arch;
 	static idCVar	sys_cpustring;
 	static idCVar	in_mouse;
-	static idCVar	win_allowAltTab;
-	static idCVar	win_notaskkeys;
-	static idCVar	win_username;
-	static idCVar	win_outputEditString;
-	static idCVar	win_viewlog;
-	static idCVar	win_timerUpdate;
-	static idCVar	win_allowMultipleInstances;
+	static idCVar	sys_username;
+	static idCVar	sdl_timerUpdate;
 
-	HINSTANCE		hInstDI;			// direct input
+	idJoystickSDL	g_Joystick;
 
-	LPDIRECTINPUT8			g_pdi;
-	LPDIRECTINPUTDEVICE8	g_pMouse;
-	LPDIRECTINPUTDEVICE8	g_pKeyboard;
-	idJoystickSDL			g_Joystick;
-
-	HANDLE			renderCommandsEvent;
-	HANDLE			renderCompletedEvent;
-	HANDLE			renderActiveEvent;
-	HANDLE			renderThreadHandle;
+	void			*renderCommandsEvent;
+	void			*renderCompletedEvent;
+	void			*renderActiveEvent;
+	void			*renderThreadHandle;
 	unsigned long	renderThreadId;
 	void			(*glimpRenderThread)();
 	void			*smpData;
 	int				wglErrors;
 	// SMP acceleration vars
 
+} SDLVars_t;
+
+extern SDLVars_t	sdl;
+
+#ifdef ID_PC_WIN
+typedef struct {
+	HINSTANCE		hInstance;
+	
+	static idCVar	win_outputEditString;
+	static idCVar	win_viewlog;
+	static idCVar	win_allowMultipleInstances;
+
 } Win32Vars_t;
 
 extern Win32Vars_t	win32;
+#endif
 
-#endif /* !__WIN_LOCAL_H__ */
+#endif /* !__SDL_LOCAL_H__ */

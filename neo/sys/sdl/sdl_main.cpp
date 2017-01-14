@@ -48,18 +48,21 @@ If you have questions concerning this license or the applicable additional terms
 #include "sdl_local.h"
 #include "../../renderer/tr_local.h"
 
-idCVar Win32Vars_t::sys_arch( "sys_arch", "", CVAR_SYSTEM | CVAR_INIT, "" );
-idCVar Win32Vars_t::sys_cpustring( "sys_cpustring", "detect", CVAR_SYSTEM | CVAR_INIT, "" );
-idCVar Win32Vars_t::in_mouse( "in_mouse", "1", CVAR_SYSTEM | CVAR_BOOL, "enable mouse input" );
-idCVar Win32Vars_t::win_allowAltTab( "win_allowAltTab", "0", CVAR_SYSTEM | CVAR_BOOL, "allow Alt-Tab when fullscreen" );
-idCVar Win32Vars_t::win_notaskkeys( "win_notaskkeys", "0", CVAR_SYSTEM | CVAR_INTEGER, "disable windows task keys" );
-idCVar Win32Vars_t::win_username( "win_username", "", CVAR_SYSTEM | CVAR_INIT, "windows user name" );
+idCVar SDLVars_t::sys_arch( "sys_arch", "", CVAR_SYSTEM | CVAR_INIT, "" );
+idCVar SDLVars_t::sys_cpustring( "sys_cpustring", "detect", CVAR_SYSTEM | CVAR_INIT, "" );
+idCVar SDLVars_t::in_mouse( "in_mouse", "1", CVAR_SYSTEM | CVAR_BOOL, "enable mouse input" );
+idCVar SDLVars_t::sys_username( "sys_username", "", CVAR_SYSTEM | CVAR_INIT, "system user name" );
+idCVar SDLVars_t::sdl_timerUpdate( "sdl_timerUpdate", "0", CVAR_SYSTEM | CVAR_BOOL, "allows the game to be updated while dragging the window" );
+
+SDLVars_t sdl;
+
+#ifdef ID_PC_WIN
 idCVar Win32Vars_t::win_outputEditString( "win_outputEditString", "1", CVAR_SYSTEM | CVAR_BOOL, "" );
 idCVar Win32Vars_t::win_viewlog( "win_viewlog", "0", CVAR_SYSTEM | CVAR_INTEGER, "" );
-idCVar Win32Vars_t::win_timerUpdate( "win_timerUpdate", "0", CVAR_SYSTEM | CVAR_BOOL, "allows the game to be updated while dragging the window" );
 idCVar Win32Vars_t::win_allowMultipleInstances( "win_allowMultipleInstances", "0", CVAR_SYSTEM | CVAR_BOOL, "allow multiple instances running concurrently" );
 
 Win32Vars_t	win32;
+#endif
 
 static char		sys_cmdline[MAX_STRING_CHARS];
 
@@ -391,7 +394,11 @@ Sys_ShowWindow
 ==============
 */
 void Sys_ShowWindow( bool show ) {
-	::ShowWindow( win32.hWnd, show ? SW_SHOW : SW_HIDE );
+	if ( show ) {
+		SDL_ShowWindow( sdl.window );
+	} else {
+		SDL_HideWindow( sdl.window );
+	}
 }
 
 /*
@@ -400,7 +407,7 @@ Sys_IsWindowVisible
 ==============
 */
 bool Sys_IsWindowVisible() {
-	return ( ::IsWindowVisible( win32.hWnd ) != 0 );
+	return ( SDL_GetWindowFlags( sdl.window ) & SDL_WINDOW_SHOWN ? true : false );
 }
 
 /*
@@ -906,11 +913,11 @@ void Sys_PumpEvents() {
 		}
 
 		// save the msg time, because wndprocs don't have access to the timestamp
-		if ( win32.sysMsgTime && win32.sysMsgTime > (int)msg.time ) {
+		if ( sdl.sysMsgTime && sdl.sysMsgTime > (int)msg.time ) {
 			// don't ever let the event times run backwards	
-//			common->Printf( "Sys_PumpEvents: win32.sysMsgTime (%i) > msg.time (%i)\n", win32.sysMsgTime, msg.time );
+//			common->Printf( "Sys_PumpEvents: sdl.sysMsgTime (%i) > msg.time (%i)\n", sdl.sysMsgTime, msg.time );
 		} else {
-			win32.sysMsgTime = msg.time;
+			sdl.sysMsgTime = msg.time;
 		}
  
 		TranslateMessage (&msg);
@@ -1029,55 +1036,55 @@ void Sys_Init() {
 	//
 	// User name
 	//
-	win32.win_username.SetString( Sys_GetCurrentUser() );
+	sdl.sys_username.SetString( Sys_GetCurrentUser() );
 
 	//
 	// CPU type
 	//
-	if ( !idStr::Icmp( win32.sys_cpustring.GetString(), "detect" ) ) {
+	if ( !idStr::Icmp( sdl.sys_cpustring.GetString(), "detect" ) ) {
 		idStr string;
 
 		common->Printf( "%1.0f MHz ", Sys_ClockTicksPerSecond() / 1000000.0f );
 
-		win32.cpuid = Sys_GetCPUId();
+		sdl.cpuid = Sys_GetCPUId();
 
 		string.Clear();
 
-		if ( win32.cpuid & CPUID_AMD ) {
+		if ( sdl.cpuid & CPUID_AMD ) {
 			string += "AMD CPU";
-		} else if ( win32.cpuid & CPUID_INTEL ) {
+		} else if ( sdl.cpuid & CPUID_INTEL ) {
 			string += "Intel CPU";
-		} else if ( win32.cpuid & CPUID_UNSUPPORTED ) {
+		} else if ( sdl.cpuid & CPUID_UNSUPPORTED ) {
 			string += "unsupported CPU";
 		} else {
 			string += "generic CPU";
 		}
 
 		string += " with ";
-		if ( win32.cpuid & CPUID_MMX ) {
+		if ( sdl.cpuid & CPUID_MMX ) {
 			string += "MMX & ";
 		}
-		if ( win32.cpuid & CPUID_3DNOW ) {
+		if ( sdl.cpuid & CPUID_3DNOW ) {
 			string += "3DNow! & ";
 		}
-		if ( win32.cpuid & CPUID_SSE ) {
+		if ( sdl.cpuid & CPUID_SSE ) {
 			string += "SSE & ";
 		}
-		if ( win32.cpuid & CPUID_SSE2 ) {
+		if ( sdl.cpuid & CPUID_SSE2 ) {
             string += "SSE2 & ";
 		}
-		if ( win32.cpuid & CPUID_SSE3 ) {
+		if ( sdl.cpuid & CPUID_SSE3 ) {
 			string += "SSE3 & ";
 		}
-		if ( win32.cpuid & CPUID_HTT ) {
+		if ( sdl.cpuid & CPUID_HTT ) {
 			string += "HTT & ";
 		}
 		string.StripTrailing( " & " );
 		string.StripTrailing( " with " );
-		win32.sys_cpustring.SetString( string );
+		sdl.sys_cpustring.SetString( string );
 	} else {
 		common->Printf( "forcing CPU type to " );
-		idLexer src( win32.sys_cpustring.GetString(), idStr::Length( win32.sys_cpustring.GetString() ), "sys_cpustring" );
+		idLexer src( sdl.sys_cpustring.GetString(), idStr::Length( sdl.sys_cpustring.GetString() ), "sys_cpustring" );
 		idToken token;
 
 		int id = CPUID_NONE;
@@ -1103,18 +1110,18 @@ void Sys_Init() {
 			}
 		}
 		if ( id == CPUID_NONE ) {
-			common->Printf( "WARNING: unknown sys_cpustring '%s'\n", win32.sys_cpustring.GetString() );
+			common->Printf( "WARNING: unknown sys_cpustring '%s'\n", sdl.sys_cpustring.GetString() );
 			id = CPUID_GENERIC;
 		}
-		win32.cpuid = (cpuid_t) id;
+		sdl.cpuid = (cpuid_t) id;
 	}
 
-	common->Printf( "%s\n", win32.sys_cpustring.GetString() );
-	if ( ( win32.cpuid & CPUID_SSE2 ) == 0 ) {
+	common->Printf( "%s\n", sdl.sys_cpustring.GetString() );
+	if ( ( sdl.cpuid & CPUID_SSE2 ) == 0 ) {
 		common->Error( "SSE2 not supported!" );
 	}
 
-	win32.g_Joystick.Init();
+	sdl.g_Joystick.Init();
 }
 
 /*
@@ -1132,7 +1139,7 @@ Sys_GetProcessorId
 ================
 */
 cpuid_t Sys_GetProcessorId() {
-    return win32.cpuid;
+    return sdl.cpuid;
 }
 
 /*
@@ -1141,7 +1148,7 @@ Sys_GetProcessorString
 ================
 */
 const char *Sys_GetProcessorString() {
-	return win32.sys_cpustring.GetString();
+	return sdl.sys_cpustring.GetString();
 }
 
 //=======================================================================
@@ -1353,7 +1360,9 @@ int main( int argc, char *argv[] ) {
 
 	Sys_GetCurrentMemoryStatus( exeLaunchMemoryStats );
 
+#ifdef ID_PC_WIN
 	win32.hInstance = GetModuleHandle( NULL );
+#endif
 
 	for ( int i = 1; i < argc; i++ ) {
 		idStr::Append( sys_cmdline, sizeof( sys_cmdline ), argv[i] );
@@ -1391,17 +1400,19 @@ int main( int argc, char *argv[] ) {
 #endif
 
 #if 0
-	if ( win32.win_notaskkeys.GetInteger() ) {
-		DisableTaskKeys( TRUE, FALSE, /*( win32.win_notaskkeys.GetInteger() == 2 )*/ FALSE );
+	if ( sdl.win_notaskkeys.GetInteger() ) {
+		DisableTaskKeys( TRUE, FALSE, /*( sdl.win_notaskkeys.GetInteger() == 2 )*/ FALSE );
 	}
 #endif
 
+#ifdef ID_PC_WIN
 	// hide or show the early console as necessary
 	if ( win32.win_viewlog.GetInteger() ) {
 		Sys_ShowConsole( 1, true );
 	} else {
 		Sys_ShowConsole( 0, false );
 	}
+#endif
 
 #ifdef SET_THREAD_AFFINITY 
 	// give the main thread an affinity for the first cpu
@@ -1411,15 +1422,10 @@ int main( int argc, char *argv[] ) {
 	SDL_SetCursor( curSave );
 	SDL_FreeCursor( curWait );
 
-	SDL_RaiseWindow( win32.window );
+	SDL_RaiseWindow( sdl.window );
 
     // main game loop
 	while ( 1 ) {
-		// if "viewlog" has been modified, show or hide the log console
-		if ( win32.win_viewlog.IsModified() ) {
-			win32.win_viewlog.ClearModified();
-		}
-
 #ifdef DEBUG
 		Sys_MemFrame();
 #endif
