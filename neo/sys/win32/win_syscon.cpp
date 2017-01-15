@@ -37,7 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <io.h>
 #include <conio.h>
 
-#include "win_local.h"
+#include "../sdl/sdl_local.h"
 #include "rc/doom_resource.h"
 
 #define COPY_ID			1

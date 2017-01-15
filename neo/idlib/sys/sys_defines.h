@@ -79,6 +79,7 @@ If you have questions concerning this license or the applicable additional terms
 #endif
 
 #define ID_OPENGL
+#define ID_GL_HARDLINK
 
 /*
 ================================================================================================

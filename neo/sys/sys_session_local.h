@@ -30,8 +30,8 @@ If you have questions concerning this license or the applicable additional terms
 #undef private
 #undef protected
 
-#include "win32/win_achievements.h"
-#include "win32/win_signin.h"
+#include "sdl/sdl_achievements.h"
+#include "sdl/sdl_signin.h"
 
 #include "sys_lobby_backend.h"
 #include "sys_lobby.h"

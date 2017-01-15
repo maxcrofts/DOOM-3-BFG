@@ -97,6 +97,10 @@
     <Link>
       <GenerateDebugInformation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GenerateDebugInformation>
       <GenerateDebugInformation Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">..\external\SDL2-2.0.5\lib\x86\;$(DXSDK_DIR)\Lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\external\SDL2-2.0.5\lib\x86\;$(DXSDK_DIR)\Lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">SDL2.lib;SDL2main.lib;xinput.lib;dbghelp.lib;dinput8.lib;dsound.lib;dxguid.lib;DxErr.lib;glu32.lib;iphlpapi.lib;odbc32.lib;odbccp32.lib;opengl32.lib;winmm.lib;wsock32.lib;x3daudio.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">SDL2.lib;SDL2main.lib;xinput.lib;dbghelp.lib;dinput8.lib;dsound.lib;dxguid.lib;DxErr.lib;glu32.lib;iphlpapi.lib;odbc32.lib;odbccp32.lib;opengl32.lib;winmm.lib;wsock32.lib;x3daudio.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Deploy />
     <Deploy />
@@ -105,13 +109,13 @@
     <ClCompile />
     <ClCompile>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</TreatWarningAsError>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(DXSDK_DIR)\Include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\external\SDL2-2.0.5\include\;$(DXSDK_DIR)\Include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ClCompile>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</TreatWarningAsError>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</TreatWarningAsError>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(DXSDK_DIR)\Include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">$(DXSDK_DIR)\Include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\external\SDL2-2.0.5\include\;$(DXSDK_DIR)\Include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">..\external\SDL2-2.0.5\include\;$(DXSDK_DIR)\Include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">NDEBUG;%(PreprocessorDefinitions);ID_RETAIL</PreprocessorDefinitions>
     </ClCompile>
     <ImageXex />
@@ -130,6 +134,10 @@
     <Manifest>
       <EnableDPIAwareness Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</EnableDPIAwareness>
     </Manifest>
+    <Link>
+      <AdditionalLibraryDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\external\SDL2-2.0.5\lib\x86\;$(DXSDK_DIR)\Lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">SDL2.lib;SDL2main.lib;xinput.lib;dbghelp.lib;dinput8.lib;dsound.lib;dxguid.lib;DxErr.lib;glu32.lib;iphlpapi.lib;odbc32.lib;odbccp32.lib;opengl32.lib;winmm.lib;wsock32.lib;x3daudio.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="aas\AASFile.h" />
@@ -238,6 +246,11 @@
     <ClInclude Include="swf\SWF_Types.h" />
     <ClInclude Include="sys\LightweightCompression.h" />
     <ClInclude Include="sys\PacketProcessor.h" />
+    <ClInclude Include="sys\sdl\sdl_achievements.h" />
+    <ClInclude Include="sys\sdl\sdl_input.h" />
+    <ClInclude Include="sys\sdl\sdl_local.h" />
+    <ClInclude Include="sys\sdl\sdl_localuser.h" />
+    <ClInclude Include="sys\sdl\sdl_signin.h" />
     <ClInclude Include="sys\Snapshot.h" />
     <ClInclude Include="sys\SnapshotProcessor.h" />
     <ClInclude Include="sys\Snapshot_Jobs.h" />
@@ -263,12 +276,7 @@
     <ClInclude Include="sys\sys_stats.h" />
     <ClInclude Include="sys\sys_stats_misc.h" />
     <ClInclude Include="sys\sys_voicechat.h" />
-    <ClInclude Include="sys\win32\win_input.h" />
-    <ClInclude Include="sys\win32\win_achievements.h" />
-    <ClInclude Include="sys\win32\win_local.h" />
     <ClInclude Include="sys\win32\rc\doom_resource.h" />
-    <ClInclude Include="sys\win32\win_localuser.h" />
-    <ClInclude Include="sys\win32\win_signin.h" />
     <ClInclude Include="ui\BindWindow.h" />
     <ClInclude Include="ui\ChoiceWindow.h" />
     <ClInclude Include="ui\DeviceContext.h" />
@@ -453,6 +461,15 @@
     <ClCompile Include="swf\SWF_Zlib.cpp" />
     <ClCompile Include="sys\LightweightCompression.cpp" />
     <ClCompile Include="sys\PacketProcessor.cpp" />
+    <ClCompile Include="sys\sdl\sdl_achievements.cpp" />
+    <ClCompile Include="sys\sdl\sdl_glimp.cpp" />
+    <ClCompile Include="sys\sdl\sdl_input.cpp" />
+    <ClCompile Include="sys\sdl\sdl_localuser.cpp" />
+    <ClCompile Include="sys\sdl\sdl_main.cpp" />
+    <ClCompile Include="sys\sdl\sdl_savegame.cpp" />
+    <ClCompile Include="sys\sdl\sdl_session_local.cpp" />
+    <ClCompile Include="sys\sdl\sdl_shared.cpp" />
+    <ClCompile Include="sys\sdl\sdl_signin.cpp" />
     <ClCompile Include="sys\Snapshot.cpp" />
     <ClCompile Include="sys\SnapshotProcessor.cpp" />
     <ClCompile Include="sys\Snapshot_Jobs.cpp" />
@@ -477,22 +494,9 @@
     <ClCompile Include="sound\XAudio2\XA2_SoundSample.cpp" />
     <ClCompile Include="sound\XAudio2\XA2_SoundVoice.cpp" />
     <ClCompile Include="sys\sys_voicechat.cpp" />
-    <ClCompile Include="sys\win32\win_achievements.cpp" />
     <ClCompile Include="sys\win32\win_cpu.cpp" />
-    <ClCompile Include="sys\win32\win_glimp.cpp" />
-    <ClCompile Include="sys\win32\win_input.cpp" />
-    <ClCompile Include="sys\win32\win_localuser.cpp" />
-    <ClCompile Include="sys\win32\win_main.cpp" />
     <ClCompile Include="sys\win32\win_net.cpp" />
-    <ClCompile Include="sys\win32\win_qgl.cpp" />
-    <ClCompile Include="sys\win32\win_savegame.cpp" />
-    <ClCompile Include="sys\win32\win_session_local.cpp" />
-    <ClCompile Include="sys\win32\win_shared.cpp" />
-    <ClCompile Include="sys\win32\win_signin.cpp" />
-    <ClCompile Include="sys\win32\win_snd.cpp" />
     <ClCompile Include="sys\win32\win_syscon.cpp" />
-    <ClCompile Include="sys\win32\win_taskkeyhook.cpp" />
-    <ClCompile Include="sys\win32\win_wndproc.cpp" />
     <ClCompile Include="ui\BindWindow.cpp" />
     <ClCompile Include="ui\ChoiceWindow.cpp" />
     <ClCompile Include="ui\DeviceContext.cpp" />

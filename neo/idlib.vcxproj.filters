@@ -147,9 +147,6 @@
     <ClCompile Include="idlib\precompiled.cpp" />
     <ClCompile Include="idlib\Timer.cpp" />
     <ClCompile Include="idlib\Thread.cpp" />
-    <ClCompile Include="idlib\sys\win32\win_thread.cpp">
-      <Filter>Sys\Win32</Filter>
-    </ClCompile>
     <ClCompile Include="idlib\CommandLink.cpp" />
     <ClCompile Include="idlib\sys\sys_assert.cpp">
       <Filter>Sys</Filter>
@@ -165,6 +162,9 @@
     </ClCompile>
     <ClCompile Include="idlib\math\VecX.cpp">
       <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="idlib\sys\win32\win_thread.cpp">
+      <Filter>Sys\Win32</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
