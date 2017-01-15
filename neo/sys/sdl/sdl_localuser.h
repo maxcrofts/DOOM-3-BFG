@@ -35,15 +35,15 @@ typedef struct {
 
 /*
 ================================================
-idLocalUserWin 
+idLocalUserSDL 
 ================================================
 */
-class idLocalUserWin : public idLocalUser {
+class idLocalUserSDL : public idLocalUser {
 public:
 	static const int MAX_GAMERTAG = 64;			// max number of bytes for a gamertag
 	static const int MAX_GAMERTAG_CHARS = 16;	// max number of UTF-8 characters to show
 
-	idLocalUserWin() : inputDevice( 0 ) {}
+	idLocalUserSDL() : inputDevice( 0 ) {}
 
 	//==========================================================================================
 	// idLocalUser interface
@@ -58,7 +58,7 @@ public:
 	virtual void				PumpPlatform() {}
 
 	//==========================================================================================
-	// idLocalUserWin interface
+	// idLocalUserSDL interface
 	//==========================================================================================
 	void						SetInputDevice( int inputDevice_ ) { inputDevice = inputDevice_; }
 	void						SetGamerTag( const char * gamerTag_ ) { gamertag = gamerTag_; }

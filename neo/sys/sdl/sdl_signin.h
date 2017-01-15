@@ -32,14 +32,14 @@ If you have questions concerning this license or the applicable additional terms
 
 /*
 ================================================
-idSignInManagerWin 
+idSignInManagerSDL 
 ================================================
 */
-class idSignInManagerWin : public idSignInManagerBase {
+class idSignInManagerSDL : public idSignInManagerBase {
 public:
 
-			idSignInManagerWin() : dlcVersionChecked( false ) {}
-	virtual ~idSignInManagerWin() {}
+			idSignInManagerSDL() : dlcVersionChecked( false ) {}
+	virtual ~idSignInManagerSDL() {}
 
 	//==========================================================================================
 	// idSignInManagerBase interface
@@ -55,7 +55,7 @@ public:
 	bool							CreateNewUser( winUserState_t & state );
 
 private:
-	idStaticList< idLocalUserWin, MAX_INPUT_DEVICES >	localUsers;
+	idStaticList< idLocalUserSDL, MAX_INPUT_DEVICES >	localUsers;
 	bool												dlcVersionChecked;
 };
 

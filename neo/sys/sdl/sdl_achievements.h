@@ -30,12 +30,12 @@ If you have questions concerning this license or the applicable additional terms
 
 /*
 ================================================
-idAchievementSystemWin 
+idAchievementSystemSDL 
 ================================================
 */
-class idAchievementSystemWin : public idAchievementSystem {
+class idAchievementSystemSDL : public idAchievementSystem {
 public:
-			idAchievementSystemWin();
+			idAchievementSystemSDL();
 
 	bool	IsInitialized();
 	void	AchievementUnlock( idLocalUser * user, const int achievementID );

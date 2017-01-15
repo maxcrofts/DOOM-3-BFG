@@ -37,10 +37,10 @@ extern idCVar win_partyCount;
 
 /*
 ========================
-idLocalUserWin::Init
+idLocalUserSDL::Init
 ========================
 */
-void idLocalUserWin::Init( int inputDevice_, const char * gamertag_, int numLocalUsers ) {
+void idLocalUserSDL::Init( int inputDevice_, const char * gamertag_, int numLocalUsers ) {
 	if ( numLocalUsers == 1 ) {  // Check for 1, since this is now incremented before we get in here
 		// This is the master user
 		gamertag = gamertag_;
@@ -56,10 +56,10 @@ void idLocalUserWin::Init( int inputDevice_, const char * gamertag_, int numLoca
 
 /*
 ========================
-idLocalUserWin::IsProfileReady
+idLocalUserSDL::IsProfileReady
 ========================
 */
-bool idLocalUserWin::IsProfileReady() const {
+bool idLocalUserSDL::IsProfileReady() const {
 #ifdef _DEBUG
 	return win_userPersistent.GetBool();
 #else
@@ -69,10 +69,10 @@ bool idLocalUserWin::IsProfileReady() const {
 
 /*
 ========================
-idLocalUserWin::IsOnline
+idLocalUserSDL::IsOnline
 ========================
 */
-bool idLocalUserWin::IsOnline() const {
+bool idLocalUserSDL::IsOnline() const {
 #ifdef _DEBUG
 	return win_userOnline.GetBool();
 #else
@@ -82,10 +82,10 @@ bool idLocalUserWin::IsOnline() const {
 
 /*
 ========================
-idLocalUserWin::IsInParty
+idLocalUserSDL::IsInParty
 ========================
 */
-bool idLocalUserWin::IsInParty() const {
+bool idLocalUserSDL::IsInParty() const {
 #ifdef _DEBUG
 	return win_isInParty.GetBool();
 #else
@@ -95,10 +95,10 @@ bool idLocalUserWin::IsInParty() const {
 
 /*
 ========================
-idLocalUserWin::GetPartyCount
+idLocalUserSDL::GetPartyCount
 ========================
 */
-int idLocalUserWin::GetPartyCount() const {
+int idLocalUserSDL::GetPartyCount() const {
 	// TODO: Implement
 #ifdef _DEBUG
 	return win_partyCount.GetInteger();
@@ -109,10 +109,10 @@ int idLocalUserWin::GetPartyCount() const {
 
 /*
 ========================
-idLocalUserWin::VerifyUserState
+idLocalUserSDL::VerifyUserState
 ========================
 */
-bool idLocalUserWin::VerifyUserState( winUserState_t & state ) {
+bool idLocalUserSDL::VerifyUserState( winUserState_t & state ) {
 
 	if ( state.inputDevice != inputDevice ) {
 		return false;

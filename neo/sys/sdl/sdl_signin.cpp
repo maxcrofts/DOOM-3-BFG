@@ -41,18 +41,18 @@ idCVar win_partyCount( "win_partyCount", "0", CVAR_INTEGER, "debugginc var for p
 
 /*
 ========================
-idSignInManagerWin::Shutdown
+idSignInManagerSDL::Shutdown
 ========================
 */
-void idSignInManagerWin::Shutdown() {
+void idSignInManagerSDL::Shutdown() {
 }
 
 /*
 ========================
-idSignInManagerWin::Pump
+idSignInManagerSDL::Pump
 ========================
 */
-void idSignInManagerWin::Pump() {
+void idSignInManagerSDL::Pump() {
 	
 	// If we have more users than we need, then set to the lower amount
 	// (don't remove the master user though)
@@ -77,20 +77,20 @@ void idSignInManagerWin::Pump() {
 
 /*
 ========================
-idSignInManagerWin::RemoveLocalUserByIndex
+idSignInManagerSDL::RemoveLocalUserByIndex
 ========================
 */
-void idSignInManagerWin::RemoveLocalUserByIndex( int index ) {
+void idSignInManagerSDL::RemoveLocalUserByIndex( int index ) {
 	session->OnLocalUserSignout( &localUsers[index] );
 	localUsers.RemoveIndex( index );
 }
 
 /*
 ========================
-idSignInManagerWin::RegisterLocalUser
+idSignInManagerSDL::RegisterLocalUser
 ========================
 */
-void idSignInManagerWin::RegisterLocalUser( int inputDevice ) {
+void idSignInManagerSDL::RegisterLocalUser( int inputDevice ) {
 	if ( GetLocalUserByInputDevice( inputDevice ) != NULL ) {
 		return;
 	}
@@ -107,13 +107,13 @@ void idSignInManagerWin::RegisterLocalUser( int inputDevice ) {
 		int nameIndex = 0;
 		int numChars = 0;
 		name.Empty();
-		while ( nameIndex < nameLength && numChars++ < idLocalUserWin::MAX_GAMERTAG_CHARS ) {
+		while ( nameIndex < nameLength && numChars++ < idLocalUserSDL::MAX_GAMERTAG_CHARS ) {
 			uint32 c = idStr::UTF8Char( nameSource, nameIndex );
 			name.AppendUTF8Char( c );
 		}
 	}
 	
-	idLocalUserWin & localUser = *localUsers.Alloc();
+	idLocalUserSDL & localUser = *localUsers.Alloc();
 	
 	localUser.Init( inputDevice, name.c_str(), localUsers.Num() );
 	localUser.SetLocalUserHandle( GetUniqueLocalUserHandle( localUser.GetGamerTag() ) );
@@ -123,10 +123,10 @@ void idSignInManagerWin::RegisterLocalUser( int inputDevice ) {
 
 /*
 ========================
-idSignInManagerWin::CreateNewUser
+idSignInManagerSDL::CreateNewUser
 ========================
 */
-bool idSignInManagerWin::CreateNewUser( winUserState_t & state ) {
+bool idSignInManagerSDL::CreateNewUser( winUserState_t & state ) {
 	//idScopedGlobalHeap	everythingHereGoesInTheGlobalHeap;	// users obviously persist across maps
 
 	RemoveAllLocalUsers();
