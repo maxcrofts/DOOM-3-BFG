@@ -14,65 +14,6 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="renderer\jpeg-6\jcapimin.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jccoefct.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jccolor.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jcdctmgr.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jchuff.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jcinit.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jcmainct.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jcmarker.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jcmaster.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jcomapi.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jcparam.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jcphuff.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jcprepct.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jcsample.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jdapimin.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jdapistd.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jdatadst.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jdatasrc.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jdcoefct.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jdcolor.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jddctmgr.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jdhuff.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jdinput.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jdmainct.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jdmarker.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jdmaster.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jdmerge.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jdphuff.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jdpostct.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jdsample.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jdtrans.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jerror.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jfdctflt.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jfdctfst.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jfdctint.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jidctflt.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jidctfst.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jidctint.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jidctred.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jmemmgr.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jmemnobs.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jquant1.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jquant2.cpp" />
-    <ClCompile Include="renderer\jpeg-6\jutils.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="renderer\jpeg-6\jchuff.h" />
-    <ClInclude Include="renderer\jpeg-6\jconfig.h" />
-    <ClInclude Include="renderer\jpeg-6\jdct.h" />
-    <ClInclude Include="renderer\jpeg-6\jdhuff.h" />
-    <ClInclude Include="renderer\jpeg-6\jerror.h" />
-    <ClInclude Include="renderer\jpeg-6\jinclude.h" />
-    <ClInclude Include="renderer\jpeg-6\jmemsys.h" />
-    <ClInclude Include="renderer\jpeg-6\jmorecfg.h" />
-    <ClInclude Include="renderer\jpeg-6\jpegint.h" />
-    <ClInclude Include="renderer\jpeg-6\jpeglib.h" />
-    <ClInclude Include="renderer\jpeg-6\jversion.h" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B679FDA2-CB76-4348-906B-4CAA294195FD}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
