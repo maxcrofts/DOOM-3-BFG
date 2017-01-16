@@ -540,6 +540,9 @@
     <ClInclude Include="sys\sdl\sdl_signin.h">
       <Filter>Sys\SDL</Filter>
     </ClInclude>
+    <ClInclude Include="framework\miniz.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cm\CollisionModel_contacts.cpp">
@@ -1126,6 +1129,9 @@
     </ClCompile>
     <ClCompile Include="sys\win32\win_syscon.cpp">
       <Filter>Sys\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="framework\miniz.cpp">
+      <Filter>Framework</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -48,7 +48,7 @@ void R_LoadImage( const char *name, byte **pic, int *width, int *height, bool ma
  * You may also wish to include "jerror.h".
  */
 
-#include "jpeg-6/jpeglib.h"
+#include "jpeglib.h"
 
 // hooks from jpeg lib to our system
 
@@ -464,7 +464,7 @@ static void LoadJPG( const char *filename, unsigned char **pic, int *width, int 
 
   /* Step 2: specify data source (eg, a file) */
 
-  jpeg_stdio_src(&cinfo, fbuffer);
+  jpeg_mem_src(&cinfo, fbuffer, sizeof(fbuffer));
 
   /* Step 3: read file parameters with jpeg_read_header() */
 

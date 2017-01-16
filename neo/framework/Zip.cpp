@@ -38,8 +38,12 @@ Contains external code for building ZipFiles.
 #include "Zip.h"
 #include "Unzip.h"
 
-#undef STDC
-#include "zlib/zutil.h"
+#if MAX_MEM_LEVEL >= 8
+#define DEF_MEM_LEVEL 8
+#else
+#define DEF_MEM_LEVEL  MAX_MEM_LEVEL
+#endif
+#define Z_ASCII 1
 
 /* zip.c -- IO on .zip files using zlib
    Version 1.01e, February 12th, 2005

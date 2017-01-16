@@ -917,9 +917,11 @@ void idFile_SaveGamePipelined::DecompressBlock() {
 			bytesIO = 0;
 
 			if ( sgf_checksums.GetBool() ) {
+#if 0
 				if ( sgf_testCorruption.GetInteger() == numChecksums ) {
 					zStream.next_in[0] ^= 0xFF;
 				}
+#endif
 				zStream.avail_in -= sizeof( uint32 );
 				uint32 checksum = MD5_BlockChecksum( zStream.next_in, zStream.avail_in );
 				if (	!verify( zStream.next_in[zStream.avail_in + 0] == ( ( checksum >>  0 ) & 0xFF ) ) ||
