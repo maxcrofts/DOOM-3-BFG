@@ -4,9 +4,6 @@
     <Filter Include="jpeg-6">
       <UniqueIdentifier>{be59fb10-0a86-4e8d-a0e3-f6029f24da5d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="zlib">
-      <UniqueIdentifier>{2d5b407e-8075-4eda-b4d1-1327db0580c6}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="renderer\jpeg-6\jcapimin.cpp">
@@ -140,42 +137,6 @@
     </ClCompile>
     <ClCompile Include="renderer\jpeg-6\jutils.cpp">
       <Filter>jpeg-6</Filter>
-    </ClCompile>
-    <ClCompile Include="framework\zlib\adler32.c">
-      <Filter>zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="framework\zlib\compress.c">
-      <Filter>zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="framework\zlib\crc32.c">
-      <Filter>zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="framework\zlib\deflate.c">
-      <Filter>zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="framework\zlib\gzio.c">
-      <Filter>zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="framework\zlib\infback.c">
-      <Filter>zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="framework\zlib\inffast.c">
-      <Filter>zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="framework\zlib\inflate.c">
-      <Filter>zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="framework\zlib\inftrees.c">
-      <Filter>zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="framework\zlib\trees.c">
-      <Filter>zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="framework\zlib\uncompr.c">
-      <Filter>zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="framework\zlib\zutil.c">
-      <Filter>zlib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
