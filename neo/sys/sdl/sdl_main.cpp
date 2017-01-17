@@ -63,6 +63,7 @@ idCVar Win32Vars_t::win_allowMultipleInstances( "win_allowMultipleInstances", "0
 Win32Vars_t	win32;
 #endif
 
+static char		sys_exepath[MAX_OSPATH];
 static char		sys_cmdline[MAX_STRING_CHARS];
 
 static sysMemoryStats_t exeLaunchMemoryStats;
@@ -563,11 +564,7 @@ Sys_EXEPath
 ==============
 */
 const char *Sys_EXEPath() {
-	static char exe[ MAX_OSPATH ];
-	char *basePath = SDL_GetBasePath();
-	idStr::snPrintf( exe, sizeof( exe ) - 1, "%s", basePath );
-	SDL_free( basePath );
-	return exe;
+	return sys_exepath;
 }
 
 /*
@@ -1363,10 +1360,19 @@ int main( int argc, char *argv[] ) {
 	win32.hInstance = GetModuleHandle( NULL );
 #endif
 
+	idStr::Copynz( sys_exepath, argv[0], sizeof( sys_exepath ) );
+
+	idStr cmdLine;
 	for ( int i = 1; i < argc; i++ ) {
-		idStr::Append( sys_cmdline, sizeof( sys_cmdline ), argv[i] );
-		idStr::Append( sys_cmdline, sizeof( sys_cmdline ), " " );
+		idStr arg;
+		arg.Format( "\"%s\"", argv[i] );
+		if ( arg.Find( ' ' ) == -1 ) {
+			arg.Strip( '"' );
+		}
+		cmdLine.Append( arg + " " );
 	}
+	cmdLine.StripTrailingWhitespace();
+	idStr::Copynz( sys_cmdline, cmdLine.c_str(), sizeof( sys_cmdline ) );
 
 	// done before Com/Sys_Init since we need this for error output
 	Sys_CreateConsole();
