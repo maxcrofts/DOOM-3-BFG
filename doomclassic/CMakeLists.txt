@@ -1,3 +1,9 @@
+# compiler flags
+if(MSVC)
+    # enable multi-processor compilation
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+endif()
+
 # doomclassic
 set(DOOMCLASSIC_DOOM_FILES
     "doom/am_map.cpp"

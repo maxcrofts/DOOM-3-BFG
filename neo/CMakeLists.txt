@@ -166,6 +166,9 @@ set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${GAME_D3XP_FILES})
 
 # compiler flags
 if(MSVC)
+    # enable multi-processor compilation
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+
     # force to always compile with W4
     if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
         string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
