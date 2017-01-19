@@ -1,53 +1,6 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(doom3)
 
-if(WIN32)
-    set(PLATFORM_NAME "Win32")
-endif()
-
-if(MSVC)
-    # force static runtime libraries
-    foreach(flag
-        CMAKE_CXX_FLAGS_DEBUG
-        CMAKE_CXX_FLAGS_RELEASE
-    )
-        string(REPLACE "/MD"  "/MT" "${flag}" "${${flag}}")
-        set("${flag}" "${${flag}} /EHsc")
-    endforeach()
-endif()
-
-# doomclassic
-add_subdirectory("../doomclassic" "../doomclassic")
-
-# compiler flags
-if(MSVC)
-    # force to always compile with W4
-    if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
-        string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    else()
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-    endif()
-
-    # treat warnings as errors
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
-
-    # build fails with Visual Studio 2015 when /WX is enabled
-    if(MSVC_VERSION GREATER 1800)
-        # use Visual Studio 2013 warnings
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wv:18")
-    endif()
-elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
-endif()
-
-# we only want debug and release targets
-set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
-
-# set build directory
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../build/${PLATFORM_NAME}")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../build/${PLATFORM_NAME}")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../build/${PLATFORM_NAME}")
-
 # OpenGL
 find_package(OpenGL)
 
@@ -99,6 +52,53 @@ find_library(X3DAUDIO_LIB
     X3DAudio
     PATHS ${DIRECTX_LIBRARY_PATHS}
 )
+
+if(WIN32)
+    set(PLATFORM_NAME "Win32")
+endif()
+
+if(MSVC)
+    # force static runtime libraries
+    foreach(flag
+        CMAKE_CXX_FLAGS_DEBUG
+        CMAKE_CXX_FLAGS_RELEASE
+    )
+        string(REPLACE "/MD"  "/MT" "${flag}" "${${flag}}")
+        set("${flag}" "${${flag}} /EHsc")
+    endforeach()
+endif()
+
+# doomclassic
+add_subdirectory("../doomclassic" "../doomclassic")
+
+# compiler flags
+if(MSVC)
+    # force to always compile with W4
+    if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+        string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    else()
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+    endif()
+
+    # treat warnings as errors
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
+
+    # build fails with Visual Studio 2015 when /WX is enabled
+    if(MSVC_VERSION GREATER 1800)
+        # use Visual Studio 2013 warnings
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wv:18")
+    endif()
+elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
+endif()
+
+# we only want debug and release targets
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
+
+# set build directory
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../build/${PLATFORM_NAME}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../build/${PLATFORM_NAME}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../build/${PLATFORM_NAME}")
 
 # idLib
 add_subdirectory("idlib")
