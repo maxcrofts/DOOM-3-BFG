@@ -48,7 +48,7 @@ set(DOOM3BFG_FRAMEWORK_FILES
     "miniz.h"
     "PlayerProfile.cpp"
     "PlayerProfile.h"
-    "precompiled.cpp"
+    #"precompiled.cpp"
     "Serializer.h"
     "TokenParser.cpp"
     "TokenParser.h"

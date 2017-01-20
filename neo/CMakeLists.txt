@@ -13,6 +13,20 @@ function(prepend LIST CONTENT)
   set(${LIST} ${MODIFIED} PARENT_SCOPE)
 endfunction()
 
+macro(add_precompiled_header FILES USE_PCH PRECOMPILED_SOURCE)
+    if(MSVC)
+        set(SOURCES ${${USE_PCH}})
+
+        set_source_files_properties(${PRECOMPILED_SOURCE}
+            PROPERTIES COMPILE_FLAGS "/Yc\" \"")
+        set_source_files_properties(${SOURCES}
+            PROPERTIES COMPILE_FLAGS "/Yu\" \"")
+
+        # add precompiled header to FILES
+        list(APPEND ${FILES} ${PRECOMPILED_SOURCE})
+    endif()
+endmacro()
+
 if(MSVC)
     # force static runtime libraries
     foreach(flag
@@ -196,11 +210,31 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../build/${PLATFORM_NAME
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../build/${PLATFORM_NAME}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../build/${PLATFORM_NAME}")
 
+# precompiled headers
+set(IDLIB_USE_PRECOMPILED_HEADER ${IDLIB_FILES})
+list(REMOVE_ITEM IDLIB_USE_PRECOMPILED_HEADER
+    "${CMAKE_CURRENT_SOURCE_DIR}/SoftwareCache.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/geometry/RenderMatrix.cpp"
+)
+
+set(DOOM3BFG_USE_PRECOMPILED_HEADER ${DOOM3BFG_FILES})
+list(REMOVE_ITEM DOOM3BFG_USE_PRECOMPILED_HEADER
+    "${CMAKE_SOURCE_DIR}/framework/miniz.cpp"
+    "${CMAKE_SOURCE_DIR}/renderer/jobs/ShadowShared.cpp"
+    "${CMAKE_SOURCE_DIR}/renderer/jobs/dynamicshadowvolume/DynamicShadowVolume.cpp"
+    "${CMAKE_SOURCE_DIR}/renderer/jobs/prelightshadowvolume/PreLightShadowVolume.cpp"
+    "${CMAKE_SOURCE_DIR}/renderer/jobs/staticshadowvolume/StaticShadowVolume.cpp"
+)
+
+add_precompiled_header(IDLIB_FILES IDLIB_USE_PRECOMPILED_HEADER "${CMAKE_SOURCE_DIR}/idlib/precompiled.cpp")
+add_precompiled_header(DOOM3BFG_FILES DOOM3BFG_USE_PRECOMPILED_HEADER "${CMAKE_SOURCE_DIR}/framework/precompiled.cpp")
+source_group("" FILES "${CMAKE_SOURCE_DIR}/idlib/precompiled.cpp")
+source_group("Framework" FILES "${CMAKE_SOURCE_DIR}/framework/precompiled.cpp")
+
 add_library(idLib ${IDLIB_FILES})
 add_executable(Doom3BFG WIN32 ${DOOM3BFG_FILES})
 
 target_include_directories(Doom3BFG PUBLIC ${SDL2_INCLUDE_DIR} ${LIBJPEG_TURBO_INCLUDE_DIR})
-
 target_link_libraries(Doom3BFG idLib doomclassic timidity)
 target_link_libraries(Doom3BFG ${SDL2_LIB} ${SDL2MAIN_LIB} ${LIBJPEG_TURBO} ${OPENGL_LIBRARIES})
 

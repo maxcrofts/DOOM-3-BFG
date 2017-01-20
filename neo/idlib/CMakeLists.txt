@@ -17,7 +17,7 @@ set(IDLIB_FILES
     "ParallelJobList.cpp"
     "ParallelJobList.h"
     "ParallelJobList_JobHeaders.h"
-    "precompiled.cpp"
+    #"precompiled.cpp"
     "precompiled.h"
     "RectAllocator.cpp"
     "SoftwareCache.cpp"

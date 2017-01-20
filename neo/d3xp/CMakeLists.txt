@@ -47,7 +47,6 @@ set(GAME_D3XP_ROOT_FILES
     "PlayerIcon.h"
     "PlayerView.cpp"
     "PlayerView.h"
-    "precompiled.cpp"
     "PredictedValue.h"
     "PredictedValue_impl.h"
     "Projectile.cpp"
