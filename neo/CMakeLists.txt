@@ -63,21 +63,6 @@ find_library(SDL2MAIN_LIB
 
 set(SDL2_BIN "${SDL2_DIR}/lib/x86/SDL2.dll")
 
-# libjpeg-turbo
-find_path(LIBJPEG_TURBO_INCLUDE_DIR
-    jpeglib.h
-    PATHS "C:/libjpeg-turbo/include" "../external/libjpeg-turbo-1.5.1-vc/include"
-)
-
-get_filename_component(LIBJPEG_TURBO_DIR "${LIBJPEG_TURBO_INCLUDE_DIR}/.." ABSOLUTE)
-
-find_library(LIBJPEG_TURBO
-    jpeg
-    PATHS "${LIBJPEG_TURBO_DIR}/lib"
-)
-
-set(LIBJPEG_TURBO_BIN "${LIBJPEG_TURBO_DIR}/bin/jpeg62.dll")
-
 # DirectX
 find_path(DIRECTX_INCLUDE_DIRS
     d3d9.h
@@ -237,9 +222,9 @@ source_group("Framework" FILES "${CMAKE_SOURCE_DIR}/framework/precompiled.cpp")
 add_library(idLib ${IDLIB_FILES})
 add_executable(Doom3BFG WIN32 ${DOOM3BFG_FILES})
 
-target_include_directories(Doom3BFG PUBLIC ${SDL2_INCLUDE_DIR} ${LIBJPEG_TURBO_INCLUDE_DIR})
+target_include_directories(Doom3BFG PUBLIC ${SDL2_INCLUDE_DIR})
 target_link_libraries(Doom3BFG idLib doomclassic timidity)
-target_link_libraries(Doom3BFG ${SDL2_LIB} ${SDL2MAIN_LIB} ${LIBJPEG_TURBO} ${OPENGL_LIBRARIES})
+target_link_libraries(Doom3BFG ${SDL2_LIB} ${SDL2MAIN_LIB} ${OPENGL_LIBRARIES})
 
 if(WIN32)
     target_include_directories(Doom3BFG PUBLIC ${DIRECTX_INCLUDE_DIRS})
@@ -249,7 +234,6 @@ endif()
 # copy dlls to target dir
 foreach(dll
     ${SDL2_BIN}
-    ${LIBJPEG_TURBO_BIN}
 )
     add_custom_command(
         TARGET Doom3BFG

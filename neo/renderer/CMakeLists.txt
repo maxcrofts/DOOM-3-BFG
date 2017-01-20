@@ -75,6 +75,7 @@ set(DOOM3BFG_RENDERER_FILES
     "ScreenRect.cpp"
     "ScreenRect.h"
     "simplex.h"
+    "stb_image.h"
     "tr_backend_draw.cpp"
     "tr_backend_rendertools.cpp"
     "tr_frontend_addlights.cpp"

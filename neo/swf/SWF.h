@@ -339,13 +339,10 @@ private:
 
 	class idDecompressJPEG {
 	public:
-		idDecompressJPEG();
-		~idDecompressJPEG();
+		idDecompressJPEG() { }
+		~idDecompressJPEG() { }
 
 		byte * Load( const byte * input, int inputSize, int & width, int & height );
-
-	private:
-		void * vinfo;
 	};
 
 	idDecompressJPEG	jpeg;
