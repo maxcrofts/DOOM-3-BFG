@@ -5,7 +5,7 @@ if(MSVC)
 endif()
 
 # doomclassic
-set(DOOMCLASSIC_DOOM_FILES
+set(DOOMCLASSIC_FILES
     "doom/am_map.cpp"
     "doom/am_map.h"
     "doom/constructs.h"
@@ -140,40 +140,9 @@ set(DOOMCLASSIC_DOOM_FILES
     "doom/z_zone.cpp"
     "doom/z_zone.h"
 )
-source_group("Doom" FILES ${DOOMCLASSIC_DOOM_FILES})
-set(DOOMCLASSIC_FILES ${DOOMCLASSIC_FILES} ${DOOMCLASSIC_DOOM_FILES})
+source_group("Doom" FILES ${DOOMCLASSIC_FILES})
 
 add_library(doomclassic ${DOOMCLASSIC_FILES})
 target_include_directories(doomclassic PUBLIC ${DIRECTX_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR})
 
-# timidity
-set(TIMIDITY_FILES
-    "timidity/common.cpp"
-    "timidity/common.h"
-    "timidity/config.h"
-    "timidity/controls.cpp"
-    "timidity/controls.h"
-    "timidity/filter.cpp"
-    "timidity/filter.h"
-    "timidity/instrum.cpp"
-    "timidity/instrum.h"
-    "timidity/mix.cpp"
-    "timidity/mix.h"
-    "timidity/output.cpp"
-    "timidity/output.h"
-    "timidity/playmidi.cpp"
-    "timidity/playmidi.h"
-    "timidity/readmidi.cpp"
-    "timidity/readmidi.h"
-    "timidity/resample.cpp"
-    "timidity/resample.h"
-    "timidity/sdl_a.cpp"
-    "timidity/sdl_c.cpp"
-    "timidity/structs.h"
-    "timidity/tables.cpp"
-    "timidity/tables.h"
-    "timidity/timidity.cpp"
-    "timidity/timidity.h"
-)
-
-add_library(timidity ${TIMIDITY_FILES})
+add_subdirectory("timidity")
