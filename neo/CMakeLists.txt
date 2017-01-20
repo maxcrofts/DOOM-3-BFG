@@ -3,6 +3,9 @@ project(doom3)
 
 if(WIN32)
     set(PLATFORM_NAME "Win32")
+
+    string(REPLACE " " ";" GENERATOR_LIST ${CMAKE_GENERATOR})
+    list(GET GENERATOR_LIST 2 VS_VERSION)
 endif()
 
 # prepends CONTENT to each element of LIST
@@ -194,9 +197,9 @@ if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
 
     # build fails with Visual Studio 2015 when /WX is enabled
-    if(MSVC_VERSION GREATER 1800)
+    if(VS_VERSION GREATER 12)
         # use Visual Studio 2013 warnings
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wv:18")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wv:18 /wd4244 /wd4091")
     endif()
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
@@ -213,8 +216,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../build/${PLATFORM_NAME
 # precompiled headers
 set(IDLIB_USE_PRECOMPILED_HEADER ${IDLIB_FILES})
 list(REMOVE_ITEM IDLIB_USE_PRECOMPILED_HEADER
-    "${CMAKE_CURRENT_SOURCE_DIR}/SoftwareCache.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/geometry/RenderMatrix.cpp"
+    "${CMAKE_SOURCE_DIR}/idlib/SoftwareCache.cpp"
+    "${CMAKE_SOURCE_DIR}/idlib/geometry/RenderMatrix.cpp"
 )
 
 set(DOOM3BFG_USE_PRECOMPILED_HEADER ${DOOM3BFG_FILES})

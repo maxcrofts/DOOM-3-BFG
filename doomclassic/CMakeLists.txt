@@ -2,6 +2,11 @@
 if(MSVC)
     # enable multi-processor compilation
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+
+    # use Visual Studio 2013 warnings
+    if(VS_VERSION GREATER 12)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wv:18")
+    endif()
 endif()
 
 # doomclassic
