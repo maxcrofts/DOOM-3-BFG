@@ -513,6 +513,43 @@ Sys_DefaultBasePath
 ==============
 */
 const char *Sys_DefaultBasePath() {
+#ifdef ID_PC_WIN
+	// detect steam install
+	static char basePath[MAX_PATH];
+	memset( basePath, 0, MAX_PATH );
+
+	HKEY key;
+	DWORD cbData;
+	if ( RegOpenKeyEx( HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 208200", 0, KEY_READ|KEY_WOW64_64KEY, &key )  == ERROR_SUCCESS ) {
+		cbData = MAX_PATH;
+		if ( RegQueryValueEx( key, "InstallLocation", NULL, NULL, (LPBYTE)basePath, &cbData ) == ERROR_SUCCESS ) {
+			if ( cbData == MAX_PATH ) {
+				cbData--;
+			}
+			basePath[cbData] = '\0';
+		} else {
+			basePath[0] = 0;
+		}
+		RegCloseKey( key );
+	} else if ( RegOpenKeyEx( HKEY_LOCAL_MACHINE, "SOFTWARE\\Valve\\Steam", 0, KEY_READ|KEY_WOW64_32KEY, &key ) == ERROR_SUCCESS ) {
+		cbData = MAX_PATH;
+		if ( RegQueryValueEx( key, "InstallPath", NULL, NULL, (LPBYTE)basePath, &cbData ) == ERROR_SUCCESS ) {
+			if ( cbData == MAX_PATH ) {
+				cbData--;
+			}
+			basePath[cbData] = '\0';
+			idStr::Append( basePath, MAX_PATH, "\\steamapps\\common\\DOOM 3 BFG Edition" );
+		} else {
+			basePath[0] = 0;
+		}
+		RegCloseKey( key );
+	}
+
+	if ( basePath[0] != 0 && Sys_IsFolder( basePath ) == FOLDER_YES ) {
+		return basePath;
+	}
+#endif
+
 	return Sys_Cwd();
 }
 
