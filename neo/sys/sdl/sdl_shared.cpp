@@ -38,10 +38,6 @@ If you have questions concerning this license or the applicable additional terms
 #include <direct.h>
 #include <io.h>
 #include <conio.h>
-#undef StrCmpN
-#undef StrCmpNI
-#undef StrCmpI
-#include <atlbase.h>
 
 #include <comdef.h>
 #include <comutil.h>
