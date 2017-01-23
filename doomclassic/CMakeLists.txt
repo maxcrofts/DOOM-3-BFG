@@ -104,6 +104,7 @@ set(DOOMCLASSIC_FILES
     "doom/p_tick.cpp"
     "doom/p_tick.h"
     "doom/p_user.cpp"
+    "doom/Precompiled.h"
     "doom/r_bsp.cpp"
     "doom/r_bsp.h"
     "doom/r_data.cpp"
@@ -146,6 +147,9 @@ set(DOOMCLASSIC_FILES
     "doom/z_zone.h"
 )
 source_group("Doom" FILES ${DOOMCLASSIC_FILES})
+
+add_precompiled_header(DOOMCLASSIC_FILES DOOMCLASSIC_FILES "Precompiled.h" "doom/Precompiled.cpp")
+source_group("Doom" FILES "doom/Precompiled.cpp")
 
 add_library(doomclassic ${DOOMCLASSIC_FILES})
 target_include_directories(doomclassic PUBLIC ${DIRECTX_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR})

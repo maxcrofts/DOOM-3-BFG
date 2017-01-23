@@ -16,14 +16,12 @@ function(prepend LIST CONTENT)
   set(${LIST} ${MODIFIED} PARENT_SCOPE)
 endfunction()
 
-macro(add_precompiled_header FILES USE_PCH PRECOMPILED_SOURCE)
+macro(add_precompiled_header FILES USE_PCH PRECOMPILED_HEADER PRECOMPILED_SOURCE)
     if(MSVC)
         set(SOURCES ${${USE_PCH}})
 
-        set_source_files_properties(${PRECOMPILED_SOURCE}
-            PROPERTIES COMPILE_FLAGS "/Yc\" \"")
-        set_source_files_properties(${SOURCES}
-            PROPERTIES COMPILE_FLAGS "/Yu\" \"")
+        set_source_files_properties(${PRECOMPILED_SOURCE} PROPERTIES COMPILE_FLAGS "/Yc\"${PRECOMPILED_HEADER}\"")
+        set_source_files_properties(${SOURCES} PROPERTIES COMPILE_FLAGS "/Yu\"${PRECOMPILED_HEADER}\"")
 
         # add precompiled header to FILES
         list(APPEND ${FILES} ${PRECOMPILED_SOURCE})
@@ -214,8 +212,8 @@ list(REMOVE_ITEM DOOM3BFG_USE_PRECOMPILED_HEADER
     "${CMAKE_SOURCE_DIR}/renderer/jobs/staticshadowvolume/StaticShadowVolume.cpp"
 )
 
-add_precompiled_header(IDLIB_FILES IDLIB_USE_PRECOMPILED_HEADER "${CMAKE_SOURCE_DIR}/idlib/precompiled.cpp")
-add_precompiled_header(DOOM3BFG_FILES DOOM3BFG_USE_PRECOMPILED_HEADER "${CMAKE_SOURCE_DIR}/framework/precompiled.cpp")
+add_precompiled_header(IDLIB_FILES IDLIB_USE_PRECOMPILED_HEADER " " "${CMAKE_SOURCE_DIR}/idlib/precompiled.cpp")
+add_precompiled_header(DOOM3BFG_FILES DOOM3BFG_USE_PRECOMPILED_HEADER " " "${CMAKE_SOURCE_DIR}/framework/precompiled.cpp")
 source_group("" FILES "${CMAKE_SOURCE_DIR}/idlib/precompiled.cpp")
 source_group("Framework" FILES "${CMAKE_SOURCE_DIR}/framework/precompiled.cpp")
 
