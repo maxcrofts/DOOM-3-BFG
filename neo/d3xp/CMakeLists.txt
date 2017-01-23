@@ -1,4 +1,4 @@
-set(GAME_D3XP_ROOT_FILES
+set(GAME_D3XP_FILES
     "Achievements.cpp"
     "Achievements.h"
     "Actor.cpp"
@@ -68,9 +68,7 @@ set(GAME_D3XP_ROOT_FILES
     "WorldSpawn.cpp"
     "WorldSpawn.h"
 )
-prepend(GAME_D3XP_ROOT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/")
-set(GAME_D3XP_ROOT_FILES ${GAME_D3XP_ROOT_FILES} PARENT_SCOPE)
-set(GAME_D3XP_FILES ${GAME_D3XP_FILES} ${GAME_D3XP_ROOT_FILES})
+prepend(GAME_D3XP_FILES "${CMAKE_CURRENT_SOURCE_DIR}/")
 
 set(GAME_D3XP_AI_FILES
     "ai/AAS.cpp"

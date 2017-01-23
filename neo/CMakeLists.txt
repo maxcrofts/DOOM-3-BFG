@@ -91,6 +91,16 @@ source_group("Text" FILES ${IDLIB_TEXT_FILES})
 source_group("Sys" FILES ${IDLIB_SYS_FILES})
 source_group("Sys\\Win32" FILES ${IDLIB_SYS_WIN32_FILES})
 
+# Game-d3xp
+add_subdirectory("d3xp")
+source_group("" FILES ${GAME_D3XP_FILES})
+source_group("AI" FILES ${GAME_D3XP_AI_FILES})
+source_group("Animation" FILES ${GAME_D3XP_ANIMATION_FILES})
+source_group("GameSys" FILES ${GAME_D3XP_GAMESYS_FILES})
+source_group("Physics" FILES ${GAME_D3XP_PHYSICS_FILES})
+source_group("Script" FILES ${GAME_D3XP_SCRIPT_FILES})
+source_group("Menus" FILES ${GAME_D3XP_MENUS_FILES})
+
 # Doom3BFG
 add_subdirectory("aas")
 source_group("AAS" FILES ${DOOM3BFG_AAS_FILES})
@@ -153,17 +163,6 @@ if(WIN32)
     set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_SYS_WIN32_FILES})
 endif()
 
-# Game-d3xp
-add_subdirectory("d3xp")
-source_group("Game-d3xp" FILES ${GAME_D3XP_ROOT_FILES})
-source_group("Game-d3xp\\AI" FILES ${GAME_D3XP_AI_FILES})
-source_group("Game-d3xp\\Animation" FILES ${GAME_D3XP_ANIMATION_FILES})
-source_group("Game-d3xp\\GameSys" FILES ${GAME_D3XP_GAMESYS_FILES})
-source_group("Game-d3xp\\Physics" FILES ${GAME_D3XP_PHYSICS_FILES})
-source_group("Game-d3xp\\Script" FILES ${GAME_D3XP_SCRIPT_FILES})
-source_group("Game-d3xp\\Menus" FILES ${GAME_D3XP_MENUS_FILES})
-set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${GAME_D3XP_FILES})
-
 # compiler flags
 if(MSVC)
     # enable multi-processor compilation
@@ -213,12 +212,15 @@ list(REMOVE_ITEM DOOM3BFG_USE_PRECOMPILED_HEADER
 )
 
 add_precompiled_header(IDLIB_FILES IDLIB_USE_PRECOMPILED_HEADER "precompiled.h" "idlib/precompiled.cpp")
+add_precompiled_header(GAME_D3XP_FILES GAME_D3XP_FILES "../idlib/precompiled.h" "d3xp/precompiled.cpp")
 add_precompiled_header(DOOM3BFG_FILES DOOM3BFG_USE_PRECOMPILED_HEADER "../idlib/precompiled.h" "framework/precompiled.cpp")
 source_group("" FILES "idlib/precompiled.cpp")
+source_group("" FILES "d3xp/precompiled.cpp")
 source_group("Framework" FILES "framework/precompiled.cpp")
 
 add_library(idLib ${IDLIB_FILES})
-add_executable(Doom3BFG WIN32 ${DOOM3BFG_FILES})
+add_library(Game-d3xp OBJECT ${GAME_D3XP_FILES})
+add_executable(Doom3BFG WIN32 ${DOOM3BFG_FILES} $<TARGET_OBJECTS:Game-d3xp>)
 
 target_include_directories(Doom3BFG PUBLIC ${SDL2_INCLUDE_DIR})
 target_link_libraries(Doom3BFG idLib doomclassic timidity)
