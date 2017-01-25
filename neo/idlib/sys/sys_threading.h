@@ -40,7 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 
 	typedef CRITICAL_SECTION		mutexHandle_t;
 	typedef HANDLE					signalHandle_t;
-	typedef LONG					interlockedInt_t;
+	typedef int						interlockedInt_t;
 
 	// _ReadWriteBarrier() does not translate to any instructions but keeps the compiler
 	// from reordering read and write instructions across the barrier.
