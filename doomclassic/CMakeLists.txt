@@ -154,4 +154,9 @@ source_group("Doom" FILES "doom/Precompiled.cpp")
 add_library(doomclassic ${DOOMCLASSIC_FILES})
 target_include_directories(doomclassic PUBLIC ${SDL2_INCLUDE_DIR} ${DIRECTX_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR})
 
+if(MSVC)
+    # disable warning C4146: unary minus operator applied to unsigned type, result still unsigned
+    target_compile_options(doomclassic PRIVATE "/wd4146")
+endif()
+
 add_subdirectory("timidity")
