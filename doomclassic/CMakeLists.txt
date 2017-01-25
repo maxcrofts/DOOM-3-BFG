@@ -152,6 +152,6 @@ add_precompiled_header(DOOMCLASSIC_FILES DOOMCLASSIC_FILES "Precompiled.h" "doom
 source_group("Doom" FILES "doom/Precompiled.cpp")
 
 add_library(doomclassic ${DOOMCLASSIC_FILES})
-target_include_directories(doomclassic PUBLIC ${DIRECTX_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR})
+target_include_directories(doomclassic PUBLIC ${SDL2_INCLUDE_DIR} ${DIRECTX_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR})
 
 add_subdirectory("timidity")

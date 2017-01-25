@@ -29,7 +29,6 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SDL_LOCAL_H__
 #define __SDL_LOCAL_H__
 
-#include "SDL.h"
 #include "sdl_input.h"
 
 #ifdef ID_PC_WIN

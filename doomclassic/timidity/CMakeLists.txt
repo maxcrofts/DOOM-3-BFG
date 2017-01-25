@@ -30,3 +30,4 @@ set(TIMIDITY_FILES
 source_group("" FILES ${TIMIDITY_FILES})
 
 add_library(timidity ${TIMIDITY_FILES})
+target_include_directories(timidity PUBLIC ${SDL2_INCLUDE_DIR})
