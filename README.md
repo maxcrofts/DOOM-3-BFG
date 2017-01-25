@@ -1,16 +1,13 @@
-Doom 3 BFG Edition GPL Source Code
-==================================
+# Doom 3 BFG Edition Fork
 
 This file contains the following sections:
 
-GENERAL NOTES
-LICENSE
+* GENERAL NOTES
+* LICENSE
 
-GENERAL NOTES
-=============
+## GENERAL NOTES
 
-Game data and patching:
------------------------
+### Game data and patching
 
 This source release does not contain any game data, the game data is still
 covered by the original EULA and must be obeyed as usual.
@@ -20,111 +17,80 @@ You must patch the game to the latest version.
 Note that Doom 3 BFG Edition is available from the Steam store at
 http://store.steampowered.com/app/208200/
 
+### Steam
 
-Compiling on win32:
--------------------
+The Doom 3 BFG Edition GPL Source Code release does not include functionality
+for integrating with Steam. This includes roaming profiles, achievements,
+leaderboards, matchmaking, the overlay, or any other Steam features.
 
-A project file for Microsoft Visual Studio 2010 is provided in neo\doom3.sln
-We expect the solution file is compatible with the Express releases
+### Bink
 
-You will need the Microsoft DirectX SDK installed as well.
-If it does not reside in "C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)"
-you will need to update the project files accordingly.
+The Doom 3 BFG Edition GPL Source Code release does not include functionality
+for rendering Bink Videos.
 
+### Back End Rendering of Stencil Shadows
 
-Steam:
-------
-The Doom 3 BFG Edition GPL Source Code release does not include functionality for integrating with 
-Steam.  This includes roaming profiles, achievements, leaderboards, matchmaking, the overlay, or
-any other Steam features.
+The Doom 3 BFG Edition GPL Source Code release does not include functionality
+enabling rendering of stencil shadows via the "depth fail" method, a
+functionality commonly known as "Carmack's Reverse".
 
-
-Bink:
------
-
-The Doom 3 BFG Edition GPL Source Code release does not include functionality for rendering Bink Videos.
-
-
-Back End Rendering of Stencil Shadows:
---------------------------------------
-
-The Doom 3 BFG Edition GPL Source Code release does not include functionality enabling rendering
-of stencil shadows via the "depth fail" method, a functionality commonly known as "Carmack's Reverse".
-
-
-Other platforms, updated source code, security issues:
-------------------------------------------------------
-
-If you have obtained this source code several weeks after the time of release,
-it is likely that you can find modified and improved versions of the engine in
-various open source projects across the internet.
-
-Depending what is your interest with the source code, those may be a better starting point.
-
-
-LICENSE
-=======
+## LICENSE
 
 See COPYING.txt for the GNU GENERAL PUBLIC LICENSE
 
-ADDITIONAL TERMS:  The Doom 3 BFG Edition GPL Source Code is also subject to certain additional terms. You should have received a copy of these additional terms immediately following the terms and conditions of the GNU GPL which accompanied the Doom 3 BFG Edition GPL Source Code.  If not, please request a copy in writing from id Software at id Software LLC, c/o ZeniMax Media Inc., Suite 120, Rockville, Maryland 20850 USA.
+ADDITIONAL TERMS:  The Doom 3 BFG Edition GPL Source Code is also subject to
+certain additional terms. You should have received a copy of these additional
+terms immediately following the terms and conditions of the GNU GPL which
+accompanied the Doom 3 BFG Edition GPL Source Code.  If not, please request a
+copy in writing from id Software at id Software LLC, c/o ZeniMax Media Inc.,
+Suite 120, Rockville, Maryland 20850 USA.
 
-EXCLUDED CODE:  The code described below and contained in the Doom 3 BFG Edition GPL Source Code release is not part of the Program covered by the GPL and is expressly excluded from its terms.  You are solely responsible for obtaining from the copyright holder a license for such code and complying with the applicable license terms.
+EXCLUDED CODE:  The code described below and contained in the Doom 3 BFG
+Edition GPL Source Code release is not part of the Program covered by the GPL
+and is expressly excluded from its terms.  You are solely responsible for
+obtaining from the copyright holder a license for such code and complying with
+the applicable license terms.
 
-JPEG library
------------------------------------------------------------------------------
-neo/renderer/jpeg-6/*
+### stb_image library
 
-Copyright (C) 1991-1995, Thomas G. Lane
+neo/renderer/stb_image.h
 
-Permission is hereby granted to use, copy, modify, and distribute this
-software (or portions thereof) for any purpose, without fee, subject to these
-conditions:
-(1) If any part of the source code for this software is distributed, then this
-README file must be included, with this copyright and no-warranty notice
-unaltered; and any additions, deletions, or changes to the original files
-must be clearly indicated in accompanying documentation.
-(2) If only executable code is distributed, then the accompanying
-documentation must state that "this software is based in part on the work of
-the Independent JPEG Group".
-(3) Permission for use of this software is granted only if the user accepts
-full responsibility for any undesirable consequences; the authors accept
-NO LIABILITY for damages of any kind.
+This software is dual-licensed to the public domain and under the following
+license: you are granted a perpetual, irrevocable license to copy, modify,
+publish, and distribute this file as you see fit.
 
-These conditions apply to any software derived from or based on the IJG code,
-not just to the unmodified library.  If you use our work, you ought to
-acknowledge us.
+### miniz library
 
-NOTE: unfortunately the README that came with our copy of the library has
-been lost, so the one from release 6b is included instead. There are a few
-'glue type' modifications to the library to make it easier to use from
-the engine, but otherwise the dependency can be easily cleaned up to a
-better release of the library.
+neo/framework/miniz.cpp
+neo/framework/miniz.h
 
-zlib library
----------------------------------------------------------------------------
-neo/framework/zlib/*
+This is free and unencumbered software released into the public domain.
 
-Copyright (C) 1995-2005 Jean-loup Gailly and Mark Adler
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
 
-This software is provided 'as-is', without any express or implied
-warranty.  In no event will the authors be held liable for any damages
-arising from the use of this software.
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
 
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it
-freely, subject to the following restrictions:
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
 
-1. The origin of this software must not be misrepresented; you must not
- claim that you wrote the original software. If you use this software
- in a product, an acknowledgment in the product documentation would be
- appreciated but is not required.
-2. Altered source versions must be plainly marked as such, and must not be
- misrepresented as being the original software.
-3. This notice may not be removed or altered from any source distribution.
+For more information, please refer to <http://unlicense.org/>
 
-Base64 implementation
----------------------------------------------------------------------------
+### Base64 implementation
+
 neo/idlib/Base64.cpp
 
 Copyright (c) 1996 Lars Wirzenius.  All rights reserved.
@@ -156,33 +122,34 @@ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-IO for uncompress .zip files using zlib
----------------------------------------------------------------------------
+### IO for uncompress .zip files using zlib
+
 neo/framework/Unzip.cpp
 neo/framework/Unzip.h
 
 Copyright (C) 1998 Gilles Vollant
 zlib is Copyright (C) 1995-1998 Jean-loup Gailly and Mark Adler
 
-  This software is provided 'as-is', without any express or implied
-  warranty.  In no event will the authors be held liable for any damages
-  arising from the use of this software.
+This software is provided 'as-is', without any express or implied
+warranty.  In no event will the authors be held liable for any damages
+arising from the use of this software.
 
-  Permission is granted to anyone to use this software for any purpose,
-  including commercial applications, and to alter it and redistribute it
-  freely, subject to the following restrictions:
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it
+freely, subject to the following restrictions:
 
-  1. The origin of this software must not be misrepresented; you must not
-     claim that you wrote the original software. If you use this software
-     in a product, an acknowledgment in the product documentation would be
-     appreciated but is not required.
-  2. Altered source versions must be plainly marked as such, and must not be
-     misrepresented as being the original software.
-  3. This notice may not be removed or altered from any source distribution.
+1. The origin of this software must not be misrepresented; you must not
+   claim that you wrote the original software. If you use this software
+   in a product, an acknowledgment in the product documentation would be
+   appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be
+   misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
 
-MD4 Message-Digest Algorithm
------------------------------------------------------------------------------
+### MD4 Message-Digest Algorithm
+
 neo/idlib/hashing/MD4.cpp
+
 Copyright (C) 1991-2, RSA Data Security, Inc. Created 1991. All
 rights reserved.
 
@@ -204,21 +171,22 @@ without express or implied warranty of any kind.
 These notices must be retained in any copies of any part of this
 documentation and/or software.
 
-MD5 Message-Digest Algorithm
------------------------------------------------------------------------------
+### MD5 Message-Digest Algorithm
 neo/idlib/hashing/MD5.cpp
+
 This code implements the MD5 message-digest algorithm.
 The algorithm is due to Ron Rivest.  This code was
 written by Colin Plumb in 1993, no copyright is claimed.
 This code is in the public domain; do with it what you wish.
 
-CRC32 Checksum
------------------------------------------------------------------------------
+### CRC32 Checksum
+
 neo/idlib/hashing/CRC32.cpp
+
 Copyright (C) 1995-1998 Mark Adler
 
-OpenGL headers
----------------------------------------------------------------------------
+### OpenGL headers
+
 neo/renderer/OpenGL/glext.h
 neo/renderer/OpenGL/wglext.h
 
@@ -243,15 +211,15 @@ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
 
-Timidity
----------------------------------------------------------------------------
+### Timidity
+
 doomclassic/timidity/*
 
-Copyright (c) 1995 Tuukka Toivonen 
+Copyright (c) 1995 Tuukka Toivonen
 
 From http://www.cgs.fi/~tt/discontinued.html :
 
 If you'd like to continue hacking on TiMidity, feel free. I'm
-hereby extending the TiMidity license agreement: you can now 
+hereby extending the TiMidity license agreement: you can now
 select the most convenient license for your needs from (1) the
-GNU GPL, (2) the GNU LGPL, or (3) the Perl Artistic License.  
+GNU GPL, (2) the GNU LGPL, or (3) the Perl Artistic License.
