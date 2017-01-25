@@ -30,37 +30,11 @@ If you have questions concerning this license or the applicable additional terms
 
 /*
 ================================================================================================
+
+	Thread
+
 ================================================================================================
 */
-
-#define MS_VC_EXCEPTION 0x406D1388
-
-typedef struct tagTHREADNAME_INFO {
-	DWORD dwType;		// Must be 0x1000.
-	LPCSTR szName;		// Pointer to name (in user addr space).
-	DWORD dwThreadID;	// Thread ID (-1=caller thread).
-	DWORD dwFlags;		// Reserved for future use, must be zero.
-} THREADNAME_INFO;
-/*
-========================
-Sys_SetThreadName
-========================
-*/
-void Sys_SetThreadName( DWORD threadID, const char * name ) {
-	THREADNAME_INFO info;
-	info.dwType = 0x1000;
-	info.szName = name;
-	info.dwThreadID = threadID;
-	info.dwFlags = 0;
-
-	__try {
-		RaiseException( MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(DWORD), (const ULONG_PTR *)&info );
-	}
-	// this much is just to keep /analyze quiet
-	__except( GetExceptionCode() == MS_VC_EXCEPTION ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH ) {
-		info.dwFlags = 0;
-	}
-}
 
 /*
 ========================
@@ -68,58 +42,25 @@ Sys_SetCurrentThreadName
 ========================
 */
 void Sys_SetCurrentThreadName( const char * name ) {
-	Sys_SetThreadName( GetCurrentThreadId(), name );
+
 }
 
 /*
 ========================
-Sys_Createthread
+Sys_CreateThread
 ========================
 */
 uintptr_t Sys_CreateThread( xthread_t function, void *parms, xthreadPriority priority, const char *name, core_t core, int stackSize, bool suspended ) {
 
-	DWORD flags = ( suspended ? CREATE_SUSPENDED : 0 );
-	// Without this flag the 'dwStackSize' parameter to CreateThread specifies the "Stack Commit Size"
-	// and the "Stack Reserve Size" is set to the value specified at link-time.
-	// With this flag the 'dwStackSize' parameter to CreateThread specifies the "Stack Reserve Size"
-	// and the “Stack Commit Size” is set to the value specified at link-time.
-	// For various reasons (some of which historic) we reserve a large amount of stack space in the
-	// project settings. By setting this flag and by specifying 64 kB for the "Stack Commit Size" in
-	// the project settings we can create new threads with a much smaller reserved (and committed)
-	// stack space. It is very important that the "Stack Commit Size" is set to a small value in
-	// the project settings. If it is set to a large value we may be both reserving and committing
-	// a lot of memory by setting the STACK_SIZE_PARAM_IS_A_RESERVATION flag. There are some
-	// 50 threads allocated for normal game play. If, for instance, the commit size is set to 16 MB
-	// then by adding this flag we would be reserving and committing 50 x 16 = 800 MB of memory.
-	// On the other hand, if this flag is not set and the "Stack Reserve Size" is set to 16 MB in the
-	// project settings, then we would still be reserving 50 x 16 = 800 MB of virtual address space.
-	flags |= STACK_SIZE_PARAM_IS_A_RESERVATION;
-
-	DWORD threadId;
-	HANDLE handle = CreateThread(	NULL,	// LPSECURITY_ATTRIBUTES lpsa, //-V513
-									stackSize,
-									(LPTHREAD_START_ROUTINE)function,
-									parms,
-									flags,
-									&threadId);
-	if ( handle == 0 ) {
-		idLib::common->FatalError( "CreateThread error: %i", GetLastError() );
+	SDL_Thread *thread = SDL_CreateThread( (SDL_ThreadFunction)function, name, parms );
+	if ( thread == NULL ) {
+		idLib::common->FatalError( "CreateThread error: %i", SDL_GetError() );
 		return (uintptr_t)0;
 	}
-	Sys_SetThreadName( threadId, name );
-	if ( priority == THREAD_HIGHEST ) {
-		SetThreadPriority( (HANDLE)handle, THREAD_PRIORITY_HIGHEST );		//  we better sleep enough to do this
-	} else if ( priority == THREAD_ABOVE_NORMAL ) {
-		SetThreadPriority( (HANDLE)handle, THREAD_PRIORITY_ABOVE_NORMAL );
-	} else if ( priority == THREAD_BELOW_NORMAL ) {
-		SetThreadPriority( (HANDLE)handle, THREAD_PRIORITY_BELOW_NORMAL );
-	} else if ( priority == THREAD_LOWEST ) {
-		SetThreadPriority( (HANDLE)handle, THREAD_PRIORITY_LOWEST );
-	}
 
-	// Under Windows, we don't set the thread affinity and let the OS deal with scheduling
+	// we don't set the thread affinity and let the OS deal with scheduling
 
-	return (uintptr_t)handle;
+	return (uintptr_t)thread;
 }
 
 
@@ -129,7 +70,7 @@ Sys_GetCurrentThreadID
 ========================
 */
 uintptr_t Sys_GetCurrentThreadID() {
-	return GetCurrentThreadId();
+	return SDL_ThreadID();
 }
 
 /*
@@ -138,7 +79,7 @@ Sys_WaitForThread
 ========================
 */
 void Sys_WaitForThread( uintptr_t threadHandle ) {
-	WaitForSingleObject( (HANDLE)threadHandle, INFINITE );
+	SDL_WaitThread( (SDL_Thread *)threadHandle, NULL );
 }
 
 /*
@@ -150,8 +91,7 @@ void Sys_DestroyThread( uintptr_t threadHandle ) {
 	if ( threadHandle == 0 ) {
 		return;
 	}
-	WaitForSingleObject( (HANDLE)threadHandle, INFINITE );
-	CloseHandle( (HANDLE)threadHandle );
+	SDL_DetachThread( (SDL_Thread *)threadHandle );
 }
 
 /*
@@ -160,7 +100,7 @@ Sys_Yield
 ========================
 */
 void Sys_Yield() {
-	SwitchToThread();
+
 }
 
 /*
@@ -173,11 +113,33 @@ void Sys_Yield() {
 
 /*
 ========================
+Signal::Signal
+========================
+*/
+Signal::Signal( bool manualReset ) :
+	manualReset( manualReset ),
+	signaled( false ),
+	mutex( SDL_CreateMutex() ),
+	condition( SDL_CreateCond() ) {
+}
+
+/*
+========================
+Signal::~Signal
+========================
+*/
+Signal::~Signal() {
+	SDL_DestroyMutex( mutex );
+	SDL_DestroyCond( condition );
+}
+
+/*
+========================
 Sys_SignalCreate
 ========================
 */
 void Sys_SignalCreate( signalHandle_t & handle, bool manualReset ) {
-	handle = CreateEvent( NULL, manualReset, FALSE, NULL );
+	handle = new Signal( manualReset );
 }
 
 /*
@@ -186,7 +148,7 @@ Sys_SignalDestroy
 ========================
 */
 void Sys_SignalDestroy( signalHandle_t &handle ) {
-	CloseHandle( handle );
+	delete handle;
 }
 
 /*
@@ -195,7 +157,16 @@ Sys_SignalRaise
 ========================
 */
 void Sys_SignalRaise( signalHandle_t & handle ) {
-	SetEvent( handle );
+	SDL_LockMutex( handle->mutex );
+	if ( handle->manualReset ) {
+		handle->signaled = true;
+		SDL_UnlockMutex( handle->mutex );
+		SDL_CondBroadcast( handle->condition );
+	} else {
+		handle->signaled = true;
+		SDL_UnlockMutex( handle->mutex );
+		SDL_CondSignal( handle->condition );
+	}
 }
 
 /*
@@ -204,8 +175,9 @@ Sys_SignalClear
 ========================
 */
 void Sys_SignalClear( signalHandle_t & handle ) {
-	// events are created as auto-reset so this should never be needed
-	ResetEvent( handle );
+	SDL_LockMutex( handle->mutex );
+	handle->signaled = false;
+	SDL_UnlockMutex( handle->mutex );
 }
 
 /*
@@ -214,9 +186,29 @@ Sys_SignalWait
 ========================
 */
 bool Sys_SignalWait( signalHandle_t & handle, int timeout ) {
-	DWORD result = WaitForSingleObject( handle, timeout == idSysSignal::WAIT_INFINITE ? INFINITE : timeout );
-	assert( result == WAIT_OBJECT_0 || ( timeout != idSysSignal::WAIT_INFINITE && result == WAIT_TIMEOUT ) );
-	return ( result == WAIT_OBJECT_0 );
+	SDL_LockMutex( handle->mutex );
+	bool result = true;
+	if ( handle->signaled ) {
+		if ( !handle->manualReset ) {
+			handle->signaled = false;
+		}
+	} else {
+		if ( timeout == idSysSignal::WAIT_INFINITE ) {
+			while ( !handle->signaled ) {
+				SDL_CondWait( handle->condition, handle->mutex );
+			}
+		} else {
+			while ( !handle->signaled ) {
+				if ( SDL_CondWaitTimeout( handle->condition, handle->mutex, timeout ) == SDL_MUTEX_MAXWAIT ) {
+					result = false;
+					break;
+				}
+			}
+		}
+	}
+	SDL_UnlockMutex( handle->mutex );
+	assert( result || ( timeout != idSysSignal::WAIT_INFINITE && !result ) );
+	return result;
 }
 
 /*
@@ -233,7 +225,7 @@ Sys_MutexCreate
 ========================
 */
 void Sys_MutexCreate( mutexHandle_t & handle ) {
-	InitializeCriticalSection( &handle );
+	handle = SDL_CreateMutex();
 }
 
 /*
@@ -242,7 +234,7 @@ Sys_MutexDestroy
 ========================
 */
 void Sys_MutexDestroy( mutexHandle_t & handle ) {
-	DeleteCriticalSection( &handle );
+	SDL_DestroyMutex( handle );
 }
 
 /*
@@ -251,11 +243,12 @@ Sys_MutexLock
 ========================
 */
 bool Sys_MutexLock( mutexHandle_t & handle, bool blocking ) {
-	if ( TryEnterCriticalSection( &handle ) == 0 ) {
-		if ( !blocking ) {
+	if ( !blocking ) {
+		if ( SDL_TryLockMutex( handle ) == 0 ) {
 			return false;
 		}
-		EnterCriticalSection( &handle );
+	} else {
+		SDL_LockMutex( handle );
 	}
 	return true;
 }
@@ -266,5 +259,5 @@ Sys_MutexUnlock
 ========================
 */
 void Sys_MutexUnlock( mutexHandle_t & handle ) {
-	LeaveCriticalSection( & handle );
+	SDL_UnlockMutex( handle );
 }

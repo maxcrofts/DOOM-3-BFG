@@ -38,9 +38,29 @@ If you have questions concerning this license or the applicable additional terms
 ================================================================================================
 */
 
-	typedef CRITICAL_SECTION		mutexHandle_t;
-	typedef HANDLE					signalHandle_t;
+	class Signal;
+
+	typedef SDL_mutex *				mutexHandle_t;
+	typedef Signal *				signalHandle_t;
 	typedef int						interlockedInt_t;
+
+	class Signal {
+	public:
+									Signal( bool manualReset );
+		virtual						~Signal();
+
+		friend void					Sys_SignalCreate( signalHandle_t & handle, bool manualReset );
+		friend void					Sys_SignalDestroy( signalHandle_t & handle );
+		friend void					Sys_SignalRaise( signalHandle_t & handle );
+		friend void					Sys_SignalClear( signalHandle_t & handle );
+		friend bool					Sys_SignalWait( signalHandle_t & handle, int timeout );
+
+	private:
+		bool						manualReset;
+		bool						signaled;
+		SDL_mutex *					mutex;
+		SDL_cond *					condition;
+	};
 
 	// _ReadWriteBarrier() does not translate to any instructions but keeps the compiler
 	// from reordering read and write instructions across the barrier.

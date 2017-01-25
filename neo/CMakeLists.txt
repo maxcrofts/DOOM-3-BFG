@@ -89,7 +89,7 @@ source_group("Hashing" FILES ${IDLIB_HASHING_FILES})
 source_group("Math" FILES ${IDLIB_MATH_FILES})
 source_group("Text" FILES ${IDLIB_TEXT_FILES})
 source_group("Sys" FILES ${IDLIB_SYS_FILES})
-source_group("Sys\\Win32" FILES ${IDLIB_SYS_WIN32_FILES})
+source_group("Sys\\SDL" FILES ${IDLIB_SYS_SDL_FILES})
 
 # Game-d3xp
 add_subdirectory("d3xp")
