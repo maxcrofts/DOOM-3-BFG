@@ -82,29 +82,11 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-	class idSysThreadLocalStorage {
-	public:
-		idSysThreadLocalStorage() { 
-			tlsIndex = TlsAlloc();
-		}
-		idSysThreadLocalStorage( const ptrdiff_t &val ) {
-			tlsIndex = TlsAlloc();
-			TlsSetValue( tlsIndex, (LPVOID)val );
-		}
-		~idSysThreadLocalStorage() {
-			TlsFree( tlsIndex );
-		}
-		operator ptrdiff_t() {
-			return (ptrdiff_t)TlsGetValue( tlsIndex );
-		}
-		const ptrdiff_t & operator = ( const ptrdiff_t &val ) {
-			TlsSetValue( tlsIndex, (LPVOID)val );
-			return val;
-		}	
-		DWORD	tlsIndex;
-	};
-
-#define ID_TLS idSysThreadLocalStorage
+#if _MSC_VER < 1900
+#define ID_TLS __declspec(thread) ptrdiff_t
+#else
+#define ID_TLS thread_local ptrdiff_t
+#endif
 
 
 #endif // __TYPEINFOGEN__
