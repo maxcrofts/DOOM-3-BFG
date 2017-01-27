@@ -78,21 +78,6 @@ find_library(SDL2MAIN_LIB
 
 set(SDL2_BIN "${SDL2_DIR}/lib/x86/SDL2.dll")
 
-# DirectX
-find_path(DIRECTX_INCLUDE_DIRS
-    d3d9.h
-    PATHS "$ENV{DXSDK_DIR}/Include" "$ENV{PROGRAMFILES}/Microsoft DirectX SDK*/Include"
-)
-
-get_filename_component(DIRECTX_DIR "${DIRECTX_INCLUDE_DIRS}/.." ABSOLUTE)
-
-set(DIRECTX_LIBRARY_PATHS "${DIRECTX_DIR}/Lib/x86" "${DIRECTX_DIR}/Lib")
-
-find_library(X3DAUDIO_LIB
-    X3DAudio
-    PATHS ${DIRECTX_LIBRARY_PATHS}
-)
-
 # doomclassic
 add_subdirectory("../doomclassic" "../doomclassic")
 
