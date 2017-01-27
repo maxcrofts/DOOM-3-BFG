@@ -48,29 +48,9 @@ Sys_GetClockTicks
 ================
 */
 double Sys_GetClockTicks() {
-#if 0
-
 	LARGE_INTEGER li;
-
 	QueryPerformanceCounter( &li );
-	return = (double ) li.LowPart + (double) 0xFFFFFFFF * li.HighPart;
-
-#else
-
-	unsigned long lo, hi;
-
-	__asm {
-		push ebx
-		xor eax, eax
-		cpuid
-		rdtsc
-		mov lo, eax
-		mov hi, edx
-		pop ebx
-	}
-	return (double ) lo + (double) 0xFFFFFFFF * hi;
-
-#endif
+	return (double) li.LowPart + (double) 0xFFFFFFFF * li.HighPart;
 }
 
 /*
@@ -79,42 +59,9 @@ Sys_ClockTicksPerSecond
 ================
 */
 double Sys_ClockTicksPerSecond() {
-	static double ticks = 0;
-#if 0
-
-	if ( !ticks ) {
-		LARGE_INTEGER li;
-		QueryPerformanceFrequency( &li );
-		ticks = li.QuadPart;
-	}
-
-#else
-
-	if ( !ticks ) {
-		HKEY hKey;
-		LPBYTE ProcSpeed;
-		DWORD buflen, ret;
-
-		if ( !RegOpenKeyEx( HKEY_LOCAL_MACHINE, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", 0, KEY_READ, &hKey ) ) {
-			ProcSpeed = 0;
-			buflen = sizeof( ProcSpeed );
-			ret = RegQueryValueEx( hKey, "~MHz", NULL, NULL, (LPBYTE) &ProcSpeed, &buflen );
-			// If we don't succeed, try some other spellings.
-			if ( ret != ERROR_SUCCESS ) {
-				ret = RegQueryValueEx( hKey, "~Mhz", NULL, NULL, (LPBYTE) &ProcSpeed, &buflen );
-			}
-			if ( ret != ERROR_SUCCESS ) {
-				ret = RegQueryValueEx( hKey, "~mhz", NULL, NULL, (LPBYTE) &ProcSpeed, &buflen );
-			}
-			RegCloseKey( hKey );
-			if ( ret == ERROR_SUCCESS ) {
-				ticks = (double) ((unsigned long)ProcSpeed) * 1000000;
-			}
-		}
-	}
-
-#endif
-	return ticks;
+	LARGE_INTEGER li;
+	QueryPerformanceFrequency( &li );
+	return li.QuadPart;
 }
 
 
@@ -132,34 +79,6 @@ HasCPUID
 ================
 */
 static bool HasCPUID() {
-	__asm 
-	{
-		pushfd						// save eflags
-		pop		eax
-		test	eax, 0x00200000		// check ID bit
-		jz		set21				// bit 21 is not set, so jump to set_21
-		and		eax, 0xffdfffff		// clear bit 21
-		push	eax					// save new value in register
-		popfd						// store new value in flags
-		pushfd
-		pop		eax
-		test	eax, 0x00200000		// check ID bit
-		jz		good
-		jmp		err					// cpuid not supported
-set21:
-		or		eax, 0x00200000		// set ID bit
-		push	eax					// store new value
-		popfd						// store new value in EFLAGS
-		pushfd
-		pop		eax
-		test	eax, 0x00200000		// if bit 21 is on
-		jnz		good
-		jmp		err
-	}
-
-err:
-	return false;
-good:
 	return true;
 }
 
@@ -174,6 +93,9 @@ CPUID
 ================
 */
 static void CPUID( int func, unsigned regs[4] ) {
+#if 1
+	__cpuid( (int *)regs, func );
+#else
 	unsigned regEAX, regEBX, regECX, regEDX;
 
 	__asm pusha
@@ -190,6 +112,7 @@ static void CPUID( int func, unsigned regs[4] ) {
 	regs[_REG_EBX] = regEBX;
 	regs[_REG_ECX] = regECX;
 	regs[_REG_EDX] = regEDX;
+#endif
 }
 
 
@@ -339,149 +262,11 @@ static bool HasSSE3() {
 
 /*
 ================
-LogicalProcPerPhysicalProc
-================
-*/
-#define NUM_LOGICAL_BITS   0x00FF0000     // EBX[23:16] Bit 16-23 in ebx contains the number of logical
-                                          // processors per physical processor when execute cpuid with 
-                                          // eax set to 1
-static unsigned char LogicalProcPerPhysicalProc() {
-	unsigned int regebx = 0;
-	__asm {
-		mov eax, 1
-		cpuid
-		mov regebx, ebx
-	}
-	return (unsigned char) ((regebx & NUM_LOGICAL_BITS) >> 16);
-}
-
-/*
-================
-GetAPIC_ID
-================
-*/
-#define INITIAL_APIC_ID_BITS  0xFF000000  // EBX[31:24] Bits 24-31 (8 bits) return the 8-bit unique 
-                                          // initial APIC ID for the processor this code is running on.
-                                          // Default value = 0xff if HT is not supported
-static unsigned char GetAPIC_ID() {
-	unsigned int regebx = 0;
-	__asm {
-		mov eax, 1
-		cpuid
-		mov regebx, ebx
-	}
-	return (unsigned char) ((regebx & INITIAL_APIC_ID_BITS) >> 24);
-}
-
-/*
-================
-CPUCount
-
-	logicalNum is the number of logical CPU per physical CPU
-    physicalNum is the total number of physical processor
-	returns one of the HT_* flags
-================
-*/
-#define HT_NOT_CAPABLE				0
-#define HT_ENABLED					1
-#define HT_DISABLED					2
-#define HT_SUPPORTED_NOT_ENABLED	3
-#define HT_CANNOT_DETECT			4
-
-int CPUCount( int &logicalNum, int &physicalNum ) {
-	int statusFlag;
-	SYSTEM_INFO info;
-
-	physicalNum = 1;
-	logicalNum = 1;
-	statusFlag = HT_NOT_CAPABLE;
-
-	info.dwNumberOfProcessors = 0;
-	GetSystemInfo (&info);
-
-	// Number of physical processors in a non-Intel system
-	// or in a 32-bit Intel system with Hyper-Threading technology disabled
-	physicalNum = info.dwNumberOfProcessors;  
-
-	unsigned char HT_Enabled = 0;
-
-	logicalNum = LogicalProcPerPhysicalProc();
-
-	if ( logicalNum >= 1 ) {	// > 1 doesn't mean HT is enabled in the BIOS
-		HANDLE hCurrentProcessHandle;
-		DWORD  dwProcessAffinity;
-		DWORD  dwSystemAffinity;
-		DWORD  dwAffinityMask;
-
-		// Calculate the appropriate  shifts and mask based on the 
-		// number of logical processors.
-
-		unsigned char i = 1, PHY_ID_MASK  = 0xFF, PHY_ID_SHIFT = 0;
-
-		while( i < logicalNum ) {
-			i *= 2;
- 			PHY_ID_MASK  <<= 1;
-			PHY_ID_SHIFT++;
-		}
-		
-		hCurrentProcessHandle = GetCurrentProcess();
-		GetProcessAffinityMask( hCurrentProcessHandle, &dwProcessAffinity, &dwSystemAffinity );
-
-		// Check if available process affinity mask is equal to the
-		// available system affinity mask
-		if ( dwProcessAffinity != dwSystemAffinity ) {
-			statusFlag = HT_CANNOT_DETECT;
-			physicalNum = -1;
-			return statusFlag;
-		}
-
-		dwAffinityMask = 1;
-		while ( dwAffinityMask != 0 && dwAffinityMask <= dwProcessAffinity ) {
-			// Check if this CPU is available
-			if ( dwAffinityMask & dwProcessAffinity ) {
-				if ( SetProcessAffinityMask( hCurrentProcessHandle, dwAffinityMask ) ) {
-					unsigned char APIC_ID, LOG_ID, PHY_ID;
-
-					Sleep( 0 ); // Give OS time to switch CPU
-
-					APIC_ID = GetAPIC_ID();
-					LOG_ID  = APIC_ID & ~PHY_ID_MASK;
-					PHY_ID  = APIC_ID >> PHY_ID_SHIFT;
-
-					if ( LOG_ID != 0 ) {
-						HT_Enabled = 1;
-					}
-				}
-			}
-			dwAffinityMask = dwAffinityMask << 1;
-		}
-	        
-		// Reset the processor affinity
-		SetProcessAffinityMask( hCurrentProcessHandle, dwProcessAffinity );
-	    
-		if ( logicalNum == 1 ) {  // Normal P4 : HT is disabled in hardware
-			statusFlag = HT_DISABLED;
-		} else {
-			if ( HT_Enabled ) {
-				// Total physical processors in a Hyper-Threading enabled system.
-				physicalNum /= logicalNum;
-				statusFlag = HT_ENABLED;
-			} else {
-				statusFlag = HT_SUPPORTED_NOT_ENABLED;
-			}
-		}
-	}
-	return statusFlag;
-}
-
-/*
-================
 HasHTT
 ================
 */
 static bool HasHTT() {
 	unsigned regs[4];
-	int logicalNum, physicalNum, HTStatusFlag;
 
 	// get CPU feature bits
 	CPUID( 1, regs );
@@ -491,22 +276,15 @@ static bool HasHTT() {
 		return false;
 	}
 
-	HTStatusFlag = CPUCount( logicalNum, physicalNum );
-	if ( HTStatusFlag != HT_ENABLED ) {
-		return false;
-	}
 	return true;
 }
 
 /*
 ================
-HasHTT
+HasDAZ
 ================
 */
 static bool HasDAZ() {
-	__declspec(align(16)) unsigned char FXSaveArea[512];
-	unsigned char *FXArea = FXSaveArea;
-	DWORD dwMask = 0;
 	unsigned regs[4];
 
 	// get CPU feature bits
@@ -517,15 +295,7 @@ static bool HasDAZ() {
 		return false;
 	}
 
-	memset( FXArea, 0, sizeof( FXSaveArea ) );
-
-	__asm {
-		mov		eax, FXArea
-		FXSAVE	[eax]
-	}
-
-	dwMask = *(DWORD *)&FXArea[28];						// Read the MXCSR Mask
-	return ( ( dwMask & ( 1 << 6 ) ) == ( 1 << 6 ) );	// Return if the DAZ bit is set
+	return true;
 }
 
 /*
@@ -856,6 +626,7 @@ Sys_FPU_StackIsEmpty
 ===============
 */
 bool Sys_FPU_StackIsEmpty() {
+#if 0
 	__asm {
 		mov			eax, statePtr
 		fnstenv		[eax]
@@ -866,6 +637,7 @@ bool Sys_FPU_StackIsEmpty() {
 	}
 	return false;
 empty:
+#endif
 	return true;
 }
 
@@ -875,6 +647,7 @@ Sys_FPU_ClearStack
 ===============
 */
 void Sys_FPU_ClearStack() {
+#if 0
 	__asm {
 		mov			eax, statePtr
 		fnstenv		[eax]
@@ -890,6 +663,7 @@ void Sys_FPU_ClearStack() {
 		jmp			emptyStack
 	done:
 	}
+#endif
 }
 
 /*
@@ -900,6 +674,7 @@ Sys_FPU_GetState
 ===============
 */
 const char *Sys_FPU_GetState() {
+#if 0
 	double fpuStack[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	double *fpuStackPtr = fpuStack;
 	int i, numValues;
@@ -996,6 +771,8 @@ const char *Sys_FPU_GetState() {
 	Sys_FPU_PrintStateFlags( ptr, ctrl, stat, tags, inof, inse, opof, opse );
 
 	return fpuString;
+#endif
+	return "";
 }
 
 /*
@@ -1004,6 +781,7 @@ Sys_FPU_EnableExceptions
 ===============
 */
 void Sys_FPU_EnableExceptions( int exceptions ) {
+#if 0
 	__asm {
 		mov			eax, statePtr
 		mov			ecx, exceptions
@@ -1016,6 +794,7 @@ void Sys_FPU_EnableExceptions( int exceptions ) {
 		mov			word ptr [eax], bx
 		fldcw		word ptr [eax]
 	}
+#endif
 }
 
 /*
@@ -1024,6 +803,13 @@ Sys_FPU_SetPrecision
 ===============
 */
 void Sys_FPU_SetPrecision( int precision ) {
+#if 1
+	int precisionBitTable[3] = { _PC_24, _PC_53, _PC_64 };
+	int precisionBits = precisionBitTable[precision];
+	int precisionMask = _MCW_PC;
+
+	_controlfp( precisionBits, precisionMask );
+#else
 	short precisionBitTable[4] = { 0, 1, 3, 0 };
 	short precisionBits = precisionBitTable[precision & 3] << 8;
 	short precisionMask = ~( ( 1 << 9 ) | ( 1 << 8 ) );
@@ -1038,6 +824,7 @@ void Sys_FPU_SetPrecision( int precision ) {
 		mov			word ptr [eax], bx
 		fldcw		word ptr [eax]
 	}
+#endif
 }
 
 /*
@@ -1046,6 +833,7 @@ Sys_FPU_SetRounding
 ================
 */
 void Sys_FPU_SetRounding( int rounding ) {
+#if 0
 	short roundingBitTable[4] = { 0, 1, 2, 3 };
 	short roundingBits = roundingBitTable[rounding & 3] << 10;
 	short roundingMask = ~( ( 1 << 11 ) | ( 1 << 10 ) );
@@ -1060,6 +848,7 @@ void Sys_FPU_SetRounding( int rounding ) {
 		mov			word ptr [eax], bx
 		fldcw		word ptr [eax]
 	}
+#endif
 }
 
 /*
@@ -1068,6 +857,9 @@ Sys_FPU_SetDAZ
 ================
 */
 void Sys_FPU_SetDAZ( bool enable ) {
+#if 1
+	_MM_SET_DENORMALS_ZERO_MODE( enable ? _MM_DENORMALS_ZERO_ON : _MM_DENORMALS_ZERO_OFF );
+#else
 	DWORD dwData;
 
 	_asm {
@@ -1081,6 +873,7 @@ void Sys_FPU_SetDAZ( bool enable ) {
 		mov		dwData, eax
 		LDMXCSR	dword ptr dwData
 	}
+#endif
 }
 
 /*
@@ -1089,6 +882,9 @@ Sys_FPU_SetFTZ
 ================
 */
 void Sys_FPU_SetFTZ( bool enable ) {
+#if 1
+	_MM_SET_FLUSH_ZERO_MODE( enable ? _MM_FLUSH_ZERO_ON : _MM_FLUSH_ZERO_OFF );
+#else
 	DWORD dwData;
 
 	_asm {
@@ -1102,4 +898,5 @@ void Sys_FPU_SetFTZ( bool enable ) {
 		mov		dwData, eax
 		LDMXCSR	dword ptr dwData
 	}
+#endif
 }
