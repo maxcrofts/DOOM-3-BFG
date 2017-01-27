@@ -656,6 +656,7 @@ void Sym_GetFuncInfo( long addr, idStr &module, idStr &funcName ) {
 
 #endif
 
+#if 0
 /*
 ==================
 GetFuncAddr
@@ -697,6 +698,7 @@ address_t GetCallerAddr( long _ebp ) {
 label:
 	return res;
 }
+#endif
 
 /*
 ==================
@@ -706,7 +708,7 @@ Sys_GetCallStack
 ==================
 */
 void Sys_GetCallStack( address_t *callStack, const int callStackSize ) {
-#if 1 //def _DEBUG
+#if 0 //def _DEBUG
 	int i;
 	long m_ebp;
 
