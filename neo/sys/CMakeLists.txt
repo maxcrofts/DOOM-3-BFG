@@ -11,6 +11,7 @@ set(DOOM3BFG_SYS_FILES
     "SnapshotProcessor.h"
     "sys_achievements.cpp"
     "sys_achievements.h"
+    "sys_cpu.cpp"
     "sys_dedicated_server_search.cpp"
     "sys_dedicated_server_search.h"
     "sys_lobby.cpp"
@@ -80,7 +81,6 @@ if(WIN32)
     set(DOOM3BFG_SYS_RC_RES_FILES ${DOOM3BFG_SYS_RC_RES_FILES} PARENT_SCOPE)
 
     set(DOOM3BFG_SYS_WIN32_FILES
-        "win32/win_cpu.cpp"
         "win32/win_net.cpp"
         "win32/win_syscon.cpp"
     )
