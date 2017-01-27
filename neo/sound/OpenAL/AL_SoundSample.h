@@ -35,26 +35,16 @@ idSoundSample_OpenAL
 ================================================
 */
 class idSampleInfo;
-class idSoundSample_OpenAL
-{
+class idSoundSample_OpenAL {
 public:
-	idSoundSample_OpenAL();
+					idSoundSample_OpenAL();
 	
 	// Loads and initializes the resource based on the name.
-	virtual void	 LoadResource();
+	virtual void	LoadResource();
 	
-	void			SetName( const char* n )
-	{
-		name = n;
-	}
-	const char* 	GetName() const
-	{
-		return name;
-	}
-	ID_TIME_T		GetTimestamp() const
-	{
-		return timestamp;
-	}
+	void			SetName( const char* n ) { name = n; }
+	const char* 	GetName() const { return name; }
+	ID_TIME_T		GetTimestamp() const { return timestamp; }
 	
 	// turns it into a beep
 	void			MakeDefault();
@@ -62,71 +52,26 @@ public:
 	// frees all data
 	void			FreeData();
 	
-	int				LengthInMsec() const
-	{
-		return SamplesToMsec( NumSamples(), SampleRate() );
-	}
-	int				SampleRate() const
-	{
-		return format.basic.samplesPerSec;
-	}
-	int				NumSamples() const
-	{
-		return playLength;
-	}
-	int				NumChannels() const
-	{
-		return format.basic.numChannels;
-	}
-	int				BufferSize() const
-	{
-		return totalBufferSize;
-	}
+	int				LengthInMsec() const { return SamplesToMsec( NumSamples(), SampleRate() ); }
+	int				SampleRate() const { return format.basic.samplesPerSec; }
+	int				NumSamples() const { return playLength; }
+	int				NumChannels() const { return format.basic.numChannels; }
+	int				BufferSize() const { return totalBufferSize; }
 	
-	bool			IsCompressed() const
-	{
-		return ( format.basic.formatTag != idWaveFile::FORMAT_PCM );
-	}
+	bool			IsCompressed() const { return ( format.basic.formatTag != idWaveFile::FORMAT_PCM ); }
 	
-	bool			IsDefault() const
-	{
-		return timestamp == FILE_NOT_FOUND_TIMESTAMP;
-	}
-	bool			IsLoaded() const
-	{
-		return loaded;
-	}
+	bool			IsDefault() const { return timestamp == FILE_NOT_FOUND_TIMESTAMP; }
+	bool			IsLoaded() const { return loaded; }
 	
-	void			SetNeverPurge()
-	{
-		neverPurge = true;
-	}
-	bool			GetNeverPurge() const
-	{
-		return neverPurge;
-	}
+	void			SetNeverPurge() { neverPurge = true; }
+	bool			GetNeverPurge() const { return neverPurge; }
 	
-	void			SetLevelLoadReferenced()
-	{
-		levelLoadReferenced = true;
-	}
-	void			ResetLevelLoadReferenced()
-	{
-		levelLoadReferenced = false;
-	}
-	bool			GetLevelLoadReferenced() const
-	{
-		return levelLoadReferenced;
-	}
+	void			SetLevelLoadReferenced() { levelLoadReferenced = true; }
+	void			ResetLevelLoadReferenced() { levelLoadReferenced = false; }
+	bool			GetLevelLoadReferenced() const { return levelLoadReferenced; }
 	
-	int				GetLastPlayedTime() const
-	{
-		return lastPlayedTime;
-	}
-	void			SetLastPlayedTime( int t )
-	{
-		lastPlayedTime = t;
-	}
+	int				GetLastPlayedTime() const { return lastPlayedTime; }
+	void			SetLastPlayedTime( int t ) { lastPlayedTime = t; }
 	
 	float			GetAmplitude( int timeMS ) const;
 	
@@ -162,8 +107,7 @@ protected:
 	bool			LoadGeneratedSample( const idStr& name );
 	void			WriteGeneratedSample( idFile* fileOut );
 	
-	struct MS_ADPCM_decodeState_t
-	{
+	struct MS_ADPCM_decodeState_t {
 		uint8 hPredictor;
 		int16 coef1;
 		int16 coef2;
@@ -176,8 +120,7 @@ protected:
 	int32			MS_ADPCM_nibble( MS_ADPCM_decodeState_t* state, int8 nybble );
 	int				MS_ADPCM_decode( uint8** audio_buf, uint32* audio_len );
 	
-	struct sampleBuffer_t
-	{
+	struct sampleBuffer_t {
 		void* buffer;
 		int bufferSize;
 		int numSamples;
@@ -216,8 +159,7 @@ This reverse-inheritance purportedly makes working on
 multiple platforms easier.
 ================================================
 */
-class idSoundSample : public idSoundSample_OpenAL
-{
+class idSoundSample : public idSoundSample_OpenAL {
 public:
 };
 

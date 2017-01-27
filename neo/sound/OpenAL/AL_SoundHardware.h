@@ -33,18 +33,15 @@ class idSoundSample_OpenAL;
 class idSoundVoice_OpenAL;
 class idSoundHardware_OpenAL;
 
-
-
 /*
 ================================================
 idSoundHardware_OpenAL
 ================================================
 */
 
-class idSoundHardware_OpenAL
-{
+class idSoundHardware_OpenAL {
 public:
-	idSoundHardware_OpenAL();
+					idSoundHardware_OpenAL();
 	
 	void			Init();
 	void			Shutdown();
@@ -55,19 +52,10 @@ public:
 	void			FreeVoice( idSoundVoice* voice );
 	
 	// listDevices needs this
-	ALCdevice* 		GetOpenALDevice() const
-	{
-		return openalDevice;
-	};
+	ALCdevice* 		GetOpenALDevice() const { return openalDevice; };
 	
-	int				GetNumZombieVoices() const
-	{
-		return zombieVoices.Num();
-	}
-	int				GetNumFreeVoices() const
-	{
-		return freeVoices.Num();
-	}
+	int				GetNumZombieVoices() const { return zombieVoices.Num(); }
+	int				GetNumFreeVoices() const { return freeVoices.Num(); }
 	
 	// OpenAL info
 	static void		PrintDeviceList( const char* list );
@@ -110,8 +98,7 @@ private:
 idSoundHardware
 ================================================
 */
-class idSoundHardware : public idSoundHardware_OpenAL
-{
+class idSoundHardware : public idSoundHardware_OpenAL {
 };
 
 #endif

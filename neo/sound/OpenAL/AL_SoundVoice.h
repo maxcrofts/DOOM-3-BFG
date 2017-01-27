@@ -36,32 +36,14 @@ static const int MAX_QUEUED_BUFFERS = 3;
 idSoundVoice_OpenAL
 ================================================
 */
-class idSoundVoice_OpenAL : public idSoundVoice_Base
-{
+class idSoundVoice_OpenAL : public idSoundVoice_Base {
 public:
-	idSoundVoice_OpenAL();
-	~idSoundVoice_OpenAL();
-	
-	void					SetPosition( const idVec3& p )
-	{
-		idSoundVoice_Base::SetPosition( p );
-		
-		alSource3f( openalSource, AL_POSITION, -p.y, p.z, -p.x );
-	}
-	
-	void					SetGain( float gain )
-	{
-		idSoundVoice_Base::SetGain( gain );
-		
-		alSourcef( openalSource, AL_GAIN, ( gain ) < ( 1.0f ) ? ( gain ) : ( 1.0f ) );
-	}
-	
-	void		SetPitch( float p )
-	{
-		idSoundVoice_Base::SetPitch( p );
-		
-		alSourcef( openalSource, AL_PITCH, p );
-	}
+							idSoundVoice_OpenAL();
+							~idSoundVoice_OpenAL();
+
+	void					SetPosition( const idVec3 & p );
+	void					SetGain( float g );
+	void					SetPitch( float p );
 	
 	void					Create( const idSoundSample* leadinSample, const idSoundSample* loopingSample );
 	
@@ -86,10 +68,7 @@ public:
 	// returns true if we can re-use this voice
 	bool					CompatibleFormat( idSoundSample_OpenAL* s );
 	
-	uint32					GetSampleRate() const
-	{
-		return sampleRate;
-	}
+	uint32					GetSampleRate() const { return sampleRate; }
 	
 	// callback function
 	void					OnBufferStart( idSoundSample_OpenAL* sample, int bufferNumber );
@@ -136,13 +115,27 @@ private:
 	bool					paused;
 };
 
+ID_INLINE void idSoundVoice_OpenAL::SetPosition( const idVec3& p ) {
+	idSoundVoice_Base::SetPosition( p );
+	alSource3f( openalSource, AL_POSITION, -p.y, p.z, -p.x );
+}
+	
+ID_INLINE void idSoundVoice_OpenAL::SetGain( float gain ) {
+	idSoundVoice_Base::SetGain( gain );
+	alSourcef( openalSource, AL_GAIN, ( gain ) < ( 1.0f ) ? ( gain ) : ( 1.0f ) );
+}
+	
+ID_INLINE void idSoundVoice_OpenAL::SetPitch( float p ) {
+	idSoundVoice_Base::SetPitch( p );
+	alSourcef( openalSource, AL_PITCH, p );
+}
+
 /*
 ================================================
 idSoundVoice
 ================================================
 */
-class idSoundVoice : public idSoundVoice_OpenAL
-{
+class idSoundVoice : public idSoundVoice_OpenAL {
 };
 
 #endif
