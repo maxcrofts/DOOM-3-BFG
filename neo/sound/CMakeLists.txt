@@ -13,13 +13,13 @@ set(DOOM3BFG_SOUND_FILES
 prepend(DOOM3BFG_SOUND_FILES "${CMAKE_CURRENT_SOURCE_DIR}/")
 set(DOOM3BFG_SOUND_FILES ${DOOM3BFG_SOUND_FILES} PARENT_SCOPE)
 
-set(DOOM3BFG_SOUND_XAUDIO2_FILES
-    "XAudio2/XA2_SoundHardware.cpp"
-    "XAudio2/XA2_SoundHardware.h"
-    "XAudio2/XA2_SoundSample.cpp"
-    "XAudio2/XA2_SoundSample.h"
-    "XAudio2/XA2_SoundVoice.cpp"
-    "XAudio2/XA2_SoundVoice.h"
+set(DOOM3BFG_SOUND_OPENAL_FILES
+    "OpenAL/AL_SoundHardware.cpp"
+    "OpenAL/AL_SoundHardware.h"
+    "OpenAL/AL_SoundSample.cpp"
+    "OpenAL/AL_SoundSample.h"
+    "OpenAL/AL_SoundVoice.cpp"
+    "OpenAL/AL_SoundVoice.h"
 )
-prepend(DOOM3BFG_SOUND_XAUDIO2_FILES "${CMAKE_CURRENT_SOURCE_DIR}/")
-set(DOOM3BFG_SOUND_XAUDIO2_FILES ${DOOM3BFG_SOUND_XAUDIO2_FILES} PARENT_SCOPE)
+prepend(DOOM3BFG_SOUND_OPENAL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/")
+set(DOOM3BFG_SOUND_OPENAL_FILES ${DOOM3BFG_SOUND_OPENAL_FILES} PARENT_SCOPE)

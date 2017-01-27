@@ -42,6 +42,23 @@ endif()
 # OpenGL
 find_package(OpenGL)
 
+# OpenAL
+find_path(OPENAL_INCLUDE_DIR
+    al.h
+    PATHS "../external/openal-soft-1.17.2-bin/include/AL"
+)
+
+get_filename_component(OPENAL_INCLUDE_DIR "${OPENAL_INCLUDE_DIR}/.." ABSOLUTE)
+
+get_filename_component(OPENAL_DIR "${OPENAL_INCLUDE_DIR}/.." ABSOLUTE)
+
+find_library(OPENAL_LIB
+    OpenAL32
+    PATHS "${OPENAL_DIR}/libs/Win32"
+)
+
+set(OPENAL_BIN "${OPENAL_DIR}/bin/Win32/OpenAL32.dll")
+
 # SDL2
 find_path(SDL2_INCLUDE_DIR
     SDL.h
@@ -137,8 +154,8 @@ set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_RENDERER_OPENGL_FILES})
 add_subdirectory("sound")
 source_group("Sound" FILES ${DOOM3BFG_SOUND_FILES})
 set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_SOUND_FILES})
-source_group("Sound\\XAudio2" FILES ${DOOM3BFG_SOUND_XAUDIO2_FILES})
-set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_SOUND_XAUDIO2_FILES})
+source_group("Sound\\OpenAL" FILES ${DOOM3BFG_SOUND_OPENAL_FILES})
+set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_SOUND_OPENAL_FILES})
 
 add_subdirectory("swf")
 source_group("SWF" FILES ${DOOM3BFG_SWF_FILES})
@@ -183,6 +200,9 @@ if(MSVC)
         # use Visual Studio 2013 warnings
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wv:18 /wd4244 /wd4091")
     endif()
+
+    # OpenAL fix
+    set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO")
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
 endif()
@@ -224,18 +244,18 @@ add_executable(Doom3BFG WIN32 ${DOOM3BFG_FILES} $<TARGET_OBJECTS:Game-d3xp>)
 
 target_include_directories(idLib PUBLIC ${SDL2_INCLUDE_DIR})
 target_include_directories(Game-d3xp PUBLIC ${SDL2_INCLUDE_DIR})
-target_include_directories(Doom3BFG PUBLIC ${SDL2_INCLUDE_DIR})
+target_include_directories(Doom3BFG PUBLIC ${SDL2_INCLUDE_DIR} ${OPENAL_INCLUDE_DIR})
 target_link_libraries(Doom3BFG idLib doomclassic timidity)
-target_link_libraries(Doom3BFG ${SDL2_LIB} ${SDL2MAIN_LIB} ${OPENGL_LIBRARIES})
+target_link_libraries(Doom3BFG ${SDL2_LIB} ${SDL2MAIN_LIB} ${OPENGL_LIBRARIES} ${OPENAL_LIB})
 
 if(WIN32)
-    target_include_directories(Doom3BFG PUBLIC ${DIRECTX_INCLUDE_DIRS})
-    target_link_libraries(Doom3BFG Dbghelp.lib winmm.lib ${X3DAUDIO_LIB})
+    target_link_libraries(Doom3BFG Dbghelp.lib winmm.lib)
 endif()
 
 # copy dlls to target dir
 foreach(dll
     ${SDL2_BIN}
+    ${OPENAL_BIN}
 )
     add_custom_command(
         TARGET Doom3BFG

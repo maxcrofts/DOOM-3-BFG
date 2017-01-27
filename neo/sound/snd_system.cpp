@@ -344,11 +344,11 @@ void idSoundSystemLocal::StopAllSounds() {
 
 /*
 ========================
-idSoundSystemLocal::GetIXAudio2
+idSoundSystemLocal::GetOpenALDevice
 ========================
 */
-void * idSoundSystemLocal::GetIXAudio2() const {
-	return (void *)hardware.GetIXAudio2();
+void * idSoundSystemLocal::GetOpenALDevice() const {
+	return (void *)hardware.GetOpenALDevice();
 }
 
 /*

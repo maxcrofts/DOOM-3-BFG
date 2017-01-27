@@ -313,7 +313,7 @@ public:
 	virtual void			FreeStreamBuffers() = 0;
 
 	// video playback needs to get this
-	virtual void *			GetIXAudio2() const = 0;
+	virtual void *			GetOpenALDevice() const = 0;
 
 	// for the sound level meter window
 	virtual cinData_t		ImageForTime( const int milliseconds, const bool waveform ) = 0;
