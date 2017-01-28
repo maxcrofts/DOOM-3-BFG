@@ -2,7 +2,11 @@ cmake_minimum_required(VERSION 2.8.12)
 project(doom3)
 
 if(WIN32)
-    set(PLATFORM_NAME "Win32")
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(PLATFORM_NAME "Win64")
+    else()
+        set(PLATFORM_NAME "Win32")
+    endif()
 
     string(REPLACE " " ";" GENERATOR_LIST ${CMAKE_GENERATOR})
     list(GET GENERATOR_LIST 2 VS_VERSION)
@@ -54,10 +58,10 @@ get_filename_component(OPENAL_DIR "${OPENAL_INCLUDE_DIR}/.." ABSOLUTE)
 
 find_library(OPENAL_LIB
     OpenAL32
-    PATHS "${OPENAL_DIR}/libs/Win32"
+    PATHS "${OPENAL_DIR}/libs/${PLATFORM_NAME}"
 )
 
-set(OPENAL_BIN "${OPENAL_DIR}/bin/Win32/OpenAL32.dll")
+set(OPENAL_BIN "${OPENAL_DIR}/bin/${PLATFORM_NAME}/OpenAL32.dll")
 
 # SDL2
 find_path(SDL2_INCLUDE_DIR
@@ -67,16 +71,29 @@ find_path(SDL2_INCLUDE_DIR
 
 get_filename_component(SDL2_DIR "${SDL2_INCLUDE_DIR}/.." ABSOLUTE)
 
-find_library(SDL2_LIB
-    SDL2
-    PATHS "${SDL2_DIR}/lib/x86"
-)
-find_library(SDL2MAIN_LIB
-    SDL2main
-    PATHS "${SDL2_DIR}/lib/x86"
-)
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    find_library(SDL2_LIB
+        SDL2
+        PATHS "${SDL2_DIR}/lib/x64"
+    )
+    find_library(SDL2MAIN_LIB
+        SDL2main
+        PATHS "${SDL2_DIR}/lib/x64"
+    )
 
-set(SDL2_BIN "${SDL2_DIR}/lib/x86/SDL2.dll")
+    set(SDL2_BIN "${SDL2_DIR}/lib/x64/SDL2.dll")
+else()
+    find_library(SDL2_LIB
+        SDL2
+        PATHS "${SDL2_DIR}/lib/x86"
+    )
+    find_library(SDL2MAIN_LIB
+        SDL2main
+        PATHS "${SDL2_DIR}/lib/x86"
+    )
+
+    set(SDL2_BIN "${SDL2_DIR}/lib/x86/SDL2.dll")
+endif()
 
 # doomclassic
 add_subdirectory("../doomclassic" "../doomclassic")
