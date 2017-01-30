@@ -25,17 +25,17 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#ifndef __SDL_ACHIEVEMENTS_H__
-#define __SDL_ACHIEVEMENTS_H__
+#ifndef __STUB_ACHIEVEMENTS_H__
+#define __STUB_ACHIEVEMENTS_H__
 
 /*
 ================================================
-idAchievementSystemSDL 
+idAchievementSystemStub 
 ================================================
 */
-class idAchievementSystemSDL : public idAchievementSystem {
+class idAchievementSystemStub : public idAchievementSystem {
 public:
-			idAchievementSystemSDL();
+			idAchievementSystemStub();
 
 	bool	IsInitialized();
 	void	AchievementUnlock( idLocalUser * user, const int achievementID );
@@ -46,4 +46,4 @@ public:
 	bool	GetAchievementState( idLocalUser * user, idArray< bool, idAchievementSystem::MAX_ACHIEVEMENTS > & achievements ) const;
 };
 
-#endif // __SDL_ACHIEVEMENTS_H__
+#endif // __STUB_ACHIEVEMENTS_H__

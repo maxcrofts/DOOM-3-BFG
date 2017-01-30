@@ -25,79 +25,87 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
+
 #pragma hdrstop
 #include "../../idlib/precompiled.h"
 
-#include "sdl_achievements.h"
-#include "../sys_session_local.h"
+#include "../sdl/sdl_local.h"
 
-extern idCVar achievements_Verbose;
+#define	COMMAND_HISTORY	64
 
-#define STEAM_ACHIEVEMENT_PREFIX		"ach_"
+typedef struct {
+	char		errorString[80];
+
+	char		consoleText[512], returnedText[512];
+	bool		quitOnClose;
+	int			windowWidth, windowHeight;
+
+	idEditField	historyEditLines[COMMAND_HISTORY];
+
+	int			nextHistoryLine;// the last line in the history buffer, not masked
+	int			historyLine;	// the line being displayed from history buffer
+								// will be <= nextHistoryLine
+
+	idEditField	consoleField;
+
+} SysConData;
+
+static SysConData scd;
 
 /*
-========================
-idAchievementSystemSDL::idAchievementSystemSDL
-========================
+====================
+Sys_CreateConsole
+====================
 */
-idAchievementSystemSDL::idAchievementSystemSDL() {
+void Sys_CreateConsole() {
 }
 
 /*
-========================
-idAchievementSystemSDL::IsInitialized
-========================
+====================
+Sys_DestroyConsole
+====================
 */
-bool idAchievementSystemSDL::IsInitialized() {
-	return false;
+void Sys_DestroyConsole() {
 }
 
 /*
-================================
-idAchievementSystemSDL::AchievementUnlock
-================================
+====================
+Sys_ShowConsole
+====================
 */
-void idAchievementSystemSDL::AchievementUnlock( idLocalUser * user, int achievementID ) {
+void Sys_ShowConsole( int visLevel, bool quitOnClose ) {
+	scd.quitOnClose = quitOnClose;
 }
 
 /*
-========================
-idAchievementSystemSDL::AchievementLock
-========================
+====================
+Sys_ConsoleInput
+====================
 */
-void idAchievementSystemSDL::AchievementLock( idLocalUser * user, const int achievementID ) {
+char *Sys_ConsoleInput() {	
+	if ( scd.consoleText[0] == 0 ) {
+		return NULL;
+	}
+		
+	strcpy( scd.returnedText, scd.consoleText );
+	scd.consoleText[0] = 0;
+	
+	return scd.returnedText;
 }
 
 /*
-========================
-idAchievementSystemSDL::AchievementLockAll
-========================
+====================
+Conbuf_AppendText
+====================
 */
-void idAchievementSystemSDL::AchievementLockAll( idLocalUser * user, const int maxId ) {
+void Conbuf_AppendText( const char *pMsg ) {
 }
 
 /*
-========================
-idAchievementSystemSDL::GetAchievementDescription
-========================
+====================
+Win_SetErrorText
+====================
 */
-bool idAchievementSystemSDL::GetAchievementDescription( idLocalUser * user, const int achievementID, achievementDescription_t & data ) const {
-	return false;
-}
-
-/*
-========================
-idAchievementSystemSDL::GetAchievementState
-========================
-*/
-bool idAchievementSystemSDL::GetAchievementState( idLocalUser * user, idArray< bool, idAchievementSystem::MAX_ACHIEVEMENTS > & achievements ) const {
-	return false;
-}
-
-/*
-================================
-idAchievementSystemSDL::Pump
-================================
-*/
-void idAchievementSystemSDL::Pump() {
+void Win_SetErrorText( const char *buf ) {
+	idStr::Copynz( scd.errorString, buf, sizeof( scd.errorString ) );
 }

@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #undef private
 #undef protected
 
-#include "sdl/sdl_achievements.h"
+#include "stub/stub_achievements.h"
 #include "sdl/sdl_signin.h"
 
 #include "sys_lobby_backend.h"

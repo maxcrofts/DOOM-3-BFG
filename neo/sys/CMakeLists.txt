@@ -48,8 +48,6 @@ prepend(DOOM3BFG_SYS_FILES "${CMAKE_CURRENT_SOURCE_DIR}/")
 set(DOOM3BFG_SYS_FILES ${DOOM3BFG_SYS_FILES} PARENT_SCOPE)
 
 set(DOOM3BFG_SYS_SDL_FILES
-    "sdl/sdl_achievements.cpp"
-    "sdl/sdl_achievements.h"
     "sdl/sdl_glimp.cpp"
     "sdl/sdl_input.cpp"
     "sdl/sdl_local.h"
@@ -57,13 +55,20 @@ set(DOOM3BFG_SYS_SDL_FILES
     "sdl/sdl_localuser.h"
     "sdl/sdl_main.cpp"
     "sdl/sdl_savegame.cpp"
-    "sdl/sdl_session_local.cpp"
     "sdl/sdl_shared.cpp"
     "sdl/sdl_signin.cpp"
     "sdl/sdl_signin.h"
 )
 prepend(DOOM3BFG_SYS_SDL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/")
 set(DOOM3BFG_SYS_SDL_FILES ${DOOM3BFG_SYS_SDL_FILES} PARENT_SCOPE)
+
+set(DOOM3BFG_SYS_STUB_FILES
+    "stub/stub_achievements.cpp"
+    "stub/stub_achievements.h"
+    "stub/stub_session_local.cpp"
+)
+prepend(DOOM3BFG_SYS_STUB_FILES "${CMAKE_CURRENT_SOURCE_DIR}/")
+set(DOOM3BFG_SYS_STUB_FILES ${DOOM3BFG_SYS_STUB_FILES} PARENT_SCOPE)
 
 if(WIN32)
     set(DOOM3BFG_SYS_RC_FILES

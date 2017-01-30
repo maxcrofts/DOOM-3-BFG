@@ -42,8 +42,8 @@ Contains the windows implementation of the network session
 #include "../sys_savegame.h"
 #include "../sys_lobby_backend_direct.h"
 #include "../sys_voicechat.h"
-#include "sdl_achievements.h"
-#include "sdl_local.h"
+#include "../stub/stub_achievements.h"
+#include "../sdl/sdl_local.h"
 
 /*
 ========================
@@ -56,15 +56,15 @@ extern idCVar net_port;
 
 /*
 ========================
-idSessionLocalSDL::idSessionLocalSDL
+idSessionLocalStub::idSessionLocalStub
 ========================
 */
-class idSessionLocalSDL : public idSessionLocal {
+class idSessionLocalStub : public idSessionLocal {
 friend class idLobbyToSessionCBLocal;
 
 public:
-	idSessionLocalSDL();
-	virtual ~idSessionLocalSDL();
+	idSessionLocalStub();
+	virtual ~idSessionLocalStub();
 
 	// idSessionLocal interface
 	virtual void		Initialize();
@@ -151,7 +151,7 @@ private:
 	idLobbyToSessionCBLocal	* lobbyToSessionCB;
 };
 
-idSessionLocalSDL sessionLocalWin;
+idSessionLocalStub sessionLocalWin;
 idSession * session = &sessionLocalWin;
 
 /*
@@ -161,13 +161,13 @@ idLobbyToSessionCBLocal
 */
 class idLobbyToSessionCBLocal : public idLobbyToSessionCB {
 public:
-	idLobbyToSessionCBLocal( idSessionLocalSDL * sessionLocalWin_ ) : sessionLocalWin( sessionLocalWin_ ) { }
+	idLobbyToSessionCBLocal( idSessionLocalStub * sessionLocalWin_ ) : sessionLocalWin( sessionLocalWin_ ) { }
 
 	virtual bool CanJoinLocalHost() const { sessionLocalWin->EnsurePort(); return sessionLocalWin->canJoinLocalHost; }
 	virtual class idLobbyBackend * GetLobbyBackend( idLobbyBackend::lobbyBackendType_t type ) const { return sessionLocalWin->lobbyBackends[ type ]; }
 
 private:
-	idSessionLocalSDL *			sessionLocalWin;
+	idSessionLocalStub *			sessionLocalWin;
 };
 
 idLobbyToSessionCBLocal lobbyToSessionCBLocal( &sessionLocalWin );
@@ -184,10 +184,10 @@ public:
 
 /*
 ========================
-idSessionLocalSDL::idSessionLocalSDL
+idSessionLocalStub::idSessionLocalStub
 ========================
 */
-idSessionLocalSDL::idSessionLocalSDL() {
+idSessionLocalStub::idSessionLocalStub() {
 	signInManager		= new (TAG_SYSTEM) idSignInManagerSDL;
 	saveGameManager		= new (TAG_SAVEGAMES) idSaveGameManager();
 	voiceChat			= new (TAG_SYSTEM) idVoiceChatMgrWin();
@@ -200,20 +200,20 @@ idSessionLocalSDL::idSessionLocalSDL() {
 
 /*
 ========================
-idSessionLocalSDL::idSessionLocalSDL
+idSessionLocalStub::idSessionLocalStub
 ========================
 */
-idSessionLocalSDL::~idSessionLocalSDL() {
+idSessionLocalStub::~idSessionLocalStub() {
 	delete voiceChat;
 	delete lobbyToSessionCB;
 }
 
 /*
 ========================
-idSessionLocalSDL::Initialize
+idSessionLocalStub::Initialize
 ========================
 */
-void idSessionLocalSDL::Initialize() {
+void idSessionLocalStub::Initialize() {
 	idSessionLocal::Initialize();
 
 	// The shipping path doesn't load title storage
@@ -228,16 +228,16 @@ void idSessionLocalSDL::Initialize() {
 	GetGameLobby().Initialize( idLobby::TYPE_GAME, sessionCallbacks );
 	GetGameStateLobby().Initialize( idLobby::TYPE_GAME_STATE, sessionCallbacks );
 
-	achievementSystem = new (TAG_SYSTEM) idAchievementSystemSDL();
+	achievementSystem = new (TAG_SYSTEM) idAchievementSystemStub();
 	achievementSystem->Init();
 }
 
 /*
 ========================
-idSessionLocalSDL::Shutdown
+idSessionLocalStub::Shutdown
 ========================
 */
-void idSessionLocalSDL::Shutdown() {
+void idSessionLocalStub::Shutdown() {
 	NET_VERBOSE_PRINT( "NET: Shutdown\n" );
 	idSessionLocal::Shutdown();
 
@@ -257,10 +257,10 @@ void idSessionLocalSDL::Shutdown() {
 
 /*
 ========================
-idSessionLocalSDL::InitializeSoundRelatedSystems
+idSessionLocalStub::InitializeSoundRelatedSystems
 ========================
 */
-void idSessionLocalSDL::InitializeSoundRelatedSystems() {
+void idSessionLocalStub::InitializeSoundRelatedSystems() {
 	if ( voiceChat != NULL ) {
 		voiceChat->Init( NULL );
 	}
@@ -268,10 +268,10 @@ void idSessionLocalSDL::InitializeSoundRelatedSystems() {
 
 /*
 ========================
-idSessionLocalSDL::ShutdownSoundRelatedSystems
+idSessionLocalStub::ShutdownSoundRelatedSystems
 ========================
 */
-void idSessionLocalSDL::ShutdownSoundRelatedSystems() {
+void idSessionLocalStub::ShutdownSoundRelatedSystems() {
 	if ( voiceChat != NULL ) {
 		voiceChat->Shutdown();
 	}
@@ -279,93 +279,93 @@ void idSessionLocalSDL::ShutdownSoundRelatedSystems() {
 
 /*
 ========================
-idSessionLocalSDL::PlatformPump
+idSessionLocalStub::PlatformPump
 ========================
 */
-void idSessionLocalSDL::PlatformPump() {
+void idSessionLocalStub::PlatformPump() {
 }
 
 /*
 ========================
-idSessionLocalSDL::InviteFriends
+idSessionLocalStub::InviteFriends
 ========================
 */
-void idSessionLocalSDL::InviteFriends() {
+void idSessionLocalStub::InviteFriends() {
 }
 
 /*
 ========================
-idSessionLocalSDL::InviteParty
+idSessionLocalStub::InviteParty
 ========================
 */
-void idSessionLocalSDL::InviteParty() {
+void idSessionLocalStub::InviteParty() {
 }
 
 /*
 ========================
-idSessionLocalSDL::ShowPartySessions
+idSessionLocalStub::ShowPartySessions
 ========================
 */
-void idSessionLocalSDL::ShowPartySessions() {
+void idSessionLocalStub::ShowPartySessions() {
 }
 
 /*
 ========================
-idSessionLocalSDL::ShowSystemMarketplaceUI
+idSessionLocalStub::ShowSystemMarketplaceUI
 ========================
 */
-void idSessionLocalSDL::ShowSystemMarketplaceUI() const {
+void idSessionLocalStub::ShowSystemMarketplaceUI() const {
 }
 
 /*
 ========================
-idSessionLocalSDL::ListServers
+idSessionLocalStub::ListServers
 ========================
 */
-void idSessionLocalSDL::ListServers( const idCallback & callback ) { 
+void idSessionLocalStub::ListServers( const idCallback & callback ) { 
 	ListServersCommon();
 }
 
 /*
 ========================
-idSessionLocalSDL::CancelListServers
+idSessionLocalStub::CancelListServers
 ========================
 */
-void idSessionLocalSDL::CancelListServers() {
+void idSessionLocalStub::CancelListServers() {
 }
 
 /*
 ========================
-idSessionLocalSDL::NumServers
+idSessionLocalStub::NumServers
 ========================
 */
-int idSessionLocalSDL::NumServers() const {
+int idSessionLocalStub::NumServers() const {
 	return 0;
 }
 
 /*
 ========================
-idSessionLocalSDL::ServerInfo
+idSessionLocalStub::ServerInfo
 ========================
 */
-const serverInfo_t * idSessionLocalSDL::ServerInfo( int i ) const {
+const serverInfo_t * idSessionLocalStub::ServerInfo( int i ) const {
 	return NULL;
 }
 
 /*
 ========================
-idSessionLocalSDL::ConnectToServer
+idSessionLocalStub::ConnectToServer
 ========================
 */
-void idSessionLocalSDL::ConnectToServer( int i ) {
+void idSessionLocalStub::ConnectToServer( int i ) {
 }
 
 /*
 ========================
-idSessionLocalSDL::Connect_f
+idSessionLocalStub::Connect_f
 ========================
 */
-void idSessionLocalSDL::Connect_f( const idCmdArgs &args ) {
+void idSessionLocalStub::Connect_f( const idCmdArgs &args ) {
 	if ( args.Argc() < 2 ) {
 		idLib::Printf( "Usage: Connect to IP.  Use with net_port. \n");
 		return;
@@ -396,26 +396,26 @@ CONSOLE_COMMAND( connect, "Connect to the specified IP", NULL ) {
 
 /*
 ========================
-idSessionLocalSDL::ShowServerGamerCardUI
+idSessionLocalStub::ShowServerGamerCardUI
 ========================
 */
-void idSessionLocalSDL::ShowServerGamerCardUI( int i ) {
+void idSessionLocalStub::ShowServerGamerCardUI( int i ) {
 }
 
 /*
 ========================
-idSessionLocalSDL::ShowLobbyUserGamerCardUI(
+idSessionLocalStub::ShowLobbyUserGamerCardUI(
 ========================
 */
-void idSessionLocalSDL::ShowLobbyUserGamerCardUI( lobbyUserID_t lobbyUserID ) {
+void idSessionLocalStub::ShowLobbyUserGamerCardUI( lobbyUserID_t lobbyUserID ) {
 }
 
 /*
 ========================
-idSessionLocalSDL::ProcessInputEvent
+idSessionLocalStub::ProcessInputEvent
 ========================
 */
-bool idSessionLocalSDL::ProcessInputEvent( const sysEvent_t * ev ) {
+bool idSessionLocalStub::ProcessInputEvent( const sysEvent_t * ev ) {
 	if ( GetSignInManager().ProcessInputEvent( ev ) ) {
 		return true;
 	}
@@ -424,71 +424,71 @@ bool idSessionLocalSDL::ProcessInputEvent( const sysEvent_t * ev ) {
 
 /*
 ========================
-idSessionLocalSDL::IsSystemUIShowing
+idSessionLocalStub::IsSystemUIShowing
 ========================
 */
-bool idSessionLocalSDL::IsSystemUIShowing() const {
+bool idSessionLocalStub::IsSystemUIShowing() const {
 	return !sdl.activeApp || isSysUIShowing; // If the user alt+tabs away, treat it the same as bringing up the steam overlay
 }
 
 /*
 ========================
-idSessionLocalSDL::SetSystemUIShowing
+idSessionLocalStub::SetSystemUIShowing
 ========================
 */
-void idSessionLocalSDL::SetSystemUIShowing( bool show ) {
+void idSessionLocalStub::SetSystemUIShowing( bool show ) {
 	isSysUIShowing = show;
 }
 
 /*
 ========================
-idSessionLocalSDL::HandleServerQueryRequest
+idSessionLocalStub::HandleServerQueryRequest
 ========================
 */
-void idSessionLocalSDL::HandleServerQueryRequest( lobbyAddress_t & remoteAddr, idBitMsg & msg, int msgType ) {
+void idSessionLocalStub::HandleServerQueryRequest( lobbyAddress_t & remoteAddr, idBitMsg & msg, int msgType ) {
 	NET_VERBOSE_PRINT( "HandleServerQueryRequest from %s\n", remoteAddr.ToString() );
 }
 
 /*
 ========================
-idSessionLocalSDL::HandleServerQueryAck
+idSessionLocalStub::HandleServerQueryAck
 ========================
 */
-void idSessionLocalSDL::HandleServerQueryAck( lobbyAddress_t & remoteAddr, idBitMsg & msg ) {
+void idSessionLocalStub::HandleServerQueryAck( lobbyAddress_t & remoteAddr, idBitMsg & msg ) {
 	NET_VERBOSE_PRINT( "HandleServerQueryAck from %s\n", remoteAddr.ToString() );
 
 }
 
 /*
 ========================
-idSessionLocalSDL::ClearBootableInvite
+idSessionLocalStub::ClearBootableInvite
 ========================
 */
-void idSessionLocalSDL::ClearBootableInvite() {
+void idSessionLocalStub::ClearBootableInvite() {
 }
 
 /*
 ========================
-idSessionLocalSDL::ClearPendingInvite
+idSessionLocalStub::ClearPendingInvite
 ========================
 */
-void idSessionLocalSDL::ClearPendingInvite() {
+void idSessionLocalStub::ClearPendingInvite() {
 }
 
 /*
 ========================
-idSessionLocalSDL::HandleBootableInvite
+idSessionLocalStub::HandleBootableInvite
 ========================
 */
-void idSessionLocalSDL::HandleBootableInvite( int64 lobbyId ) {
+void idSessionLocalStub::HandleBootableInvite( int64 lobbyId ) {
 }
 
 /*
 ========================
-idSessionLocalSDL::HasPendingBootableInvite
+idSessionLocalStub::HasPendingBootableInvite
 ========================
 */
-bool idSessionLocalSDL::HasPendingBootableInvite() {
+bool idSessionLocalStub::HasPendingBootableInvite() {
 	return false;
 }
 
@@ -497,7 +497,7 @@ bool idSessionLocalSDL::HasPendingBootableInvite() {
 idSessionLocal::SetDiscSwapMPInvite
 ========================
 */
-void idSessionLocalSDL::SetDiscSwapMPInvite( void * parm ) {
+void idSessionLocalStub::SetDiscSwapMPInvite( void * parm ) {
 }
 
 /*
@@ -505,56 +505,56 @@ void idSessionLocalSDL::SetDiscSwapMPInvite( void * parm ) {
 idSessionLocal::GetDiscSwapMPInviteParms
 ========================
 */
-void * idSessionLocalSDL::GetDiscSwapMPInviteParms() {
+void * idSessionLocalStub::GetDiscSwapMPInviteParms() {
 	return NULL;
 }
 
 /*
 ========================
-idSessionLocalSDL::EnumerateDownloadableContent
+idSessionLocalStub::EnumerateDownloadableContent
 ========================
 */
-void idSessionLocalSDL::EnumerateDownloadableContent() {
+void idSessionLocalStub::EnumerateDownloadableContent() {
 }
 
 /*
 ========================
-idSessionLocalSDL::LeaderboardUpload
+idSessionLocalStub::LeaderboardUpload
 ========================
 */
-void idSessionLocalSDL::LeaderboardUpload( lobbyUserID_t lobbyUserID, const leaderboardDefinition_t * leaderboard, const column_t * stats, const idFile_Memory * attachment ) {
+void idSessionLocalStub::LeaderboardUpload( lobbyUserID_t lobbyUserID, const leaderboardDefinition_t * leaderboard, const column_t * stats, const idFile_Memory * attachment ) {
 }
 
 /*
 ========================
-idSessionLocalSDL::LeaderboardFlush
+idSessionLocalStub::LeaderboardFlush
 ========================
 */
-void idSessionLocalSDL::LeaderboardFlush() {
+void idSessionLocalStub::LeaderboardFlush() {
 }
 
 /*
 ========================
-idSessionLocalSDL::LeaderboardDownload
+idSessionLocalStub::LeaderboardDownload
 ========================
 */
-void idSessionLocalSDL::LeaderboardDownload( int sessionUserIndex, const leaderboardDefinition_t * leaderboard, int startingRank, int numRows, const idLeaderboardCallback & callback ) {
+void idSessionLocalStub::LeaderboardDownload( int sessionUserIndex, const leaderboardDefinition_t * leaderboard, int startingRank, int numRows, const idLeaderboardCallback & callback ) {
 }
 
 /*
 ========================
-idSessionLocalSDL::LeaderboardDownloadAttachment
+idSessionLocalStub::LeaderboardDownloadAttachment
 ========================
 */
-void idSessionLocalSDL::LeaderboardDownloadAttachment( int sessionUserIndex, const leaderboardDefinition_t * leaderboard, int64 attachmentID ) {
+void idSessionLocalStub::LeaderboardDownloadAttachment( int sessionUserIndex, const leaderboardDefinition_t * leaderboard, int64 attachmentID ) {
 }
 
 /*
 ========================
-idSessionLocalSDL::EnsurePort
+idSessionLocalStub::EnsurePort
 ========================
 */
-void idSessionLocalSDL::EnsurePort() {	
+void idSessionLocalStub::EnsurePort() {	
 	// Init the port using reqular windows sockets
 	if ( port.IsOpen() ) {
 		return;		// Already initialized
@@ -571,20 +571,20 @@ void idSessionLocalSDL::EnsurePort() {
 
 /*
 ========================
-idSessionLocalSDL::GetPort
+idSessionLocalStub::GetPort
 ========================
 */
-idNetSessionPort & idSessionLocalSDL::GetPort( bool dedicated ) { 
+idNetSessionPort & idSessionLocalStub::GetPort( bool dedicated ) { 
 	EnsurePort(); 
 	return port; 
 }
 
 /*
 ========================
-idSessionLocalSDL::CreateLobbyBackend
+idSessionLocalStub::CreateLobbyBackend
 ========================
 */
-idLobbyBackend * idSessionLocalSDL::CreateLobbyBackend( const idMatchParameters & p, float skillLevel, idLobbyBackend::lobbyBackendType_t lobbyType ) {
+idLobbyBackend * idSessionLocalStub::CreateLobbyBackend( const idMatchParameters & p, float skillLevel, idLobbyBackend::lobbyBackendType_t lobbyType ) {
 	idLobbyBackend * lobbyBackend = CreateLobbyInternal( lobbyType );
 	lobbyBackend->StartHosting( p, skillLevel, lobbyType );
 	return lobbyBackend;
@@ -592,10 +592,10 @@ idLobbyBackend * idSessionLocalSDL::CreateLobbyBackend( const idMatchParameters 
 
 /*
 ========================
-idSessionLocalSDL::FindLobbyBackend
+idSessionLocalStub::FindLobbyBackend
 ========================
 */
-idLobbyBackend * idSessionLocalSDL::FindLobbyBackend( const idMatchParameters & p, int numPartyUsers, float skillLevel, idLobbyBackend::lobbyBackendType_t lobbyType ) {
+idLobbyBackend * idSessionLocalStub::FindLobbyBackend( const idMatchParameters & p, int numPartyUsers, float skillLevel, idLobbyBackend::lobbyBackendType_t lobbyType ) {
 	idLobbyBackend * lobbyBackend = CreateLobbyInternal( lobbyType );
 	lobbyBackend->StartFinding( p, numPartyUsers, skillLevel );
 	return lobbyBackend;
@@ -603,10 +603,10 @@ idLobbyBackend * idSessionLocalSDL::FindLobbyBackend( const idMatchParameters & 
 
 /*
 ========================
-idSessionLocalSDL::JoinFromConnectInfo
+idSessionLocalStub::JoinFromConnectInfo
 ========================
 */
-idLobbyBackend * idSessionLocalSDL::JoinFromConnectInfo( const lobbyConnectInfo_t & connectInfo, idLobbyBackend::lobbyBackendType_t lobbyType ) {
+idLobbyBackend * idSessionLocalStub::JoinFromConnectInfo( const lobbyConnectInfo_t & connectInfo, idLobbyBackend::lobbyBackendType_t lobbyType ) {
 	idLobbyBackend * lobbyBackend = CreateLobbyInternal( lobbyType );
 	lobbyBackend->JoinFromConnectInfo( connectInfo );
 	return lobbyBackend;
@@ -614,10 +614,10 @@ idLobbyBackend * idSessionLocalSDL::JoinFromConnectInfo( const lobbyConnectInfo_
 
 /*
 ========================
-idSessionLocalSDL::DestroyLobbyBackend
+idSessionLocalStub::DestroyLobbyBackend
 ========================
 */
-void idSessionLocalSDL::DestroyLobbyBackend( idLobbyBackend * lobbyBackend ) {
+void idSessionLocalStub::DestroyLobbyBackend( idLobbyBackend * lobbyBackend ) {
     assert( lobbyBackend != NULL );
     assert( lobbyBackends[lobbyBackend->GetLobbyType()] == lobbyBackend );
 
@@ -629,10 +629,10 @@ void idSessionLocalSDL::DestroyLobbyBackend( idLobbyBackend * lobbyBackend ) {
 
 /*
 ========================
-idSessionLocalSDL::PumpLobbies
+idSessionLocalStub::PumpLobbies
 ========================
 */
-void idSessionLocalSDL::PumpLobbies() {
+void idSessionLocalStub::PumpLobbies() {
 	assert( lobbyBackends[idLobbyBackend::TYPE_PARTY] == NULL || lobbyBackends[idLobbyBackend::TYPE_PARTY]->GetLobbyType() == idLobbyBackend::TYPE_PARTY );
 	assert( lobbyBackends[idLobbyBackend::TYPE_GAME] == NULL || lobbyBackends[idLobbyBackend::TYPE_GAME]->GetLobbyType() == idLobbyBackend::TYPE_GAME );
 	assert( lobbyBackends[idLobbyBackend::TYPE_GAME_STATE] == NULL || lobbyBackends[idLobbyBackend::TYPE_GAME_STATE]->GetLobbyType() == idLobbyBackend::TYPE_GAME_STATE );
@@ -647,10 +647,10 @@ void idSessionLocalSDL::PumpLobbies() {
 
 /*
 ========================
-idSessionLocalSDL::CreateLobbyInternal
+idSessionLocalStub::CreateLobbyInternal
 ========================
 */
-idLobbyBackend * idSessionLocalSDL::CreateLobbyInternal( idLobbyBackend::lobbyBackendType_t lobbyType ) {
+idLobbyBackend * idSessionLocalStub::CreateLobbyInternal( idLobbyBackend::lobbyBackendType_t lobbyType ) {
 	EnsurePort();
 	idLobbyBackend * lobbyBackend = new (TAG_NETWORKING) idLobbyBackendDirect();
 
@@ -664,26 +664,26 @@ idLobbyBackend * idSessionLocalSDL::CreateLobbyInternal( idLobbyBackend::lobbyBa
 
 /*
 ========================
-idSessionLocalSDL::JoinAfterSwap
+idSessionLocalStub::JoinAfterSwap
 ========================
 */
-void idSessionLocalSDL::JoinAfterSwap( void * joinID ) {
+void idSessionLocalStub::JoinAfterSwap( void * joinID ) {
 }
 
 /*
 ========================
-idSessionLocalSDL::GetLobbyAddressFromNetAddress
+idSessionLocalStub::GetLobbyAddressFromNetAddress
 ========================
 */
-bool idSessionLocalSDL::GetLobbyAddressFromNetAddress( const netadr_t & netAddr, lobbyAddress_t & outAddr ) const {
+bool idSessionLocalStub::GetLobbyAddressFromNetAddress( const netadr_t & netAddr, lobbyAddress_t & outAddr ) const {
 	return false;
 }
 
 /*
 ========================
-idSessionLocalSDL::GetNetAddressFromLobbyAddress
+idSessionLocalStub::GetNetAddressFromLobbyAddress
 ========================
 */
-bool idSessionLocalSDL::GetNetAddressFromLobbyAddress( const lobbyAddress_t & lobbyAddress, netadr_t & outNetAddr ) const {
+bool idSessionLocalStub::GetNetAddressFromLobbyAddress( const lobbyAddress_t & lobbyAddress, netadr_t & outNetAddr ) const {
 	return false;
 }
