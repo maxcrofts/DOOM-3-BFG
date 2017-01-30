@@ -50,8 +50,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "r_data.h"
 
-#include <vector>
-
 //
 // Graphics.
 // DOOM graphics for walls and ::g->sprites
@@ -251,7 +249,8 @@ void R_GenerateLookup (int texnum)
     //  that are covered by more than one patch.
     // Fill in the lump / offset, so columns
     //  with only a single patch are all done.
-    std::vector<byte> patchcount(texture->width, 0);
+    idList<byte> patchcount;
+    patchcount.AssureSize(texture->width, 0);
     patch = texture->patches;
 		
     for (i=0 , patch = texture->patches;
@@ -378,7 +377,8 @@ void R_InitTextures (void)
     nummappatches = LONG ( *((int *)names) );
     name_p = names+4;
     
-	std::vector<int> patchlookup(nummappatches);
+    idList<int> patchlookup;
+    patchlookup.AssureSize(nummappatches);
 
     for (i=0 ; i<nummappatches ; i++)
     {
@@ -688,7 +688,8 @@ void R_PrecacheLevel (void)
 	return;
     
     // Precache flats.
-	std::vector<char> flatpresent(::g->numflats, 0);
+    idList<char> flatpresent;
+    flatpresent.AssureSize(::g->numflats, 0);
     
     for (i=0 ; i < ::g->numsectors ; i++)
     {
@@ -709,7 +710,8 @@ void R_PrecacheLevel (void)
     }
     
     // Precache textures.
-    std::vector<char> texturepresent(::g->s_numtextures, 0);
+    idList<char> texturepresent;
+    texturepresent.AssureSize(::g->s_numtextures, 0);
 	
     for (i=0 ; i < ::g->numsides ; i++)
     {
@@ -743,7 +745,8 @@ void R_PrecacheLevel (void)
     }
     
     // Precache ::g->sprites.
-    std::vector<char> spritepresent(::g->numsprites, 0);
+    idList<char> spritepresent;
+    spritepresent.AssureSize(::g->numsprites, 0);
 	
     for (th = ::g->thinkercap.next ; th != &::g->thinkercap ; th=th->next)
     {

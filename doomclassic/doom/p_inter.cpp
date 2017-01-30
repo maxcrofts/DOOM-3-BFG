@@ -990,7 +990,7 @@ P_DamageMobj
 		float baseShake_Low = 0.5f;
 		int baseShake_Low_Dur = 100;
 		int damageClamp = Min( damage, 100 ); 
-		float damageFloat = std::min( (float)damageClamp / 100.0f, 100.0f );
+		float damageFloat = Min( (float)damageClamp / 100.0f, 100.0f );
 		float additional = 0.5f * damageFloat;
 		int additional_time = 500.0f * damageFloat;
 

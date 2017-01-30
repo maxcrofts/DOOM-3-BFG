@@ -80,8 +80,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "framework/Common.h"
 #include "sys/sys_lobby.h"
 
-#include <limits>
-
 
 extern bool waitingForWipe;
 
@@ -217,7 +215,7 @@ Converts a degree value to DOOM format angle value.
 */
 fixed_t DegreesToDoomAngleTurn( float degrees ) {
 	const float anglefrac = degrees / 360.0f;
-	const fixed_t doomangle = anglefrac * std::numeric_limits<unsigned short>::max();
+	const fixed_t doomangle = anglefrac * MAX_UNSIGNED_TYPE(unsigned short);
 
 	return doomangle;
 }

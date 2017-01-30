@@ -35,7 +35,6 @@ If you have questions concerning this license or the applicable additional terms
 #include <string.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <vector>
 
 #include "doomtype.h"
 #include "m_swap.h"
@@ -131,7 +130,7 @@ void W_AddFile ( const char *filename)
     idFile *		handle;
     int			length;
     int			startlump;
-    std::vector<filelump_t>	fileinfo( 1 );
+    idList<filelump_t>	fileinfo;
     
     // open the file and add to directory
     if ( (handle = fileSystem->OpenFileRead(filename)) == 0)
@@ -169,9 +168,9 @@ void W_AddFile ( const char *filename)
 		header.numlumps = LONG(header.numlumps);
 		header.infotableofs = LONG(header.infotableofs);
 		length = header.numlumps*sizeof(filelump_t);
-		fileinfo.resize(header.numlumps);
+		fileinfo.Resize(header.numlumps);
 		handle->Seek(  header.infotableofs, FS_SEEK_SET );
-		handle->Read( &fileinfo[0], length );
+		handle->Read( fileinfo.Ptr(), length );
 		numlumps += header.numlumps;
     }
 
@@ -190,7 +189,7 @@ void W_AddFile ( const char *filename)
 
 	::g->wadFileHandles[ ::g->numWadFiles++ ] = handle;
 
-	filelump_t * filelumpPointer = &fileinfo[0];
+	filelump_t * filelumpPointer = fileinfo.Ptr();
 	for (i=startlump ; i<numlumps ; i++,lump_p++, filelumpPointer++)
 	{
 		lump_p->handle = handle;

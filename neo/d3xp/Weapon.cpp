@@ -2311,13 +2311,13 @@ bool idWeapon::GetMuzzlePositionWithHacks( idVec3 & origin, idMat3 & axis ) {
 	}
 	if ( weaponIconName == "guis/assets/hud/icons/rocketlauncher_new.tga" ) {
 		// joint doesn't point straight, so rotate it
-		std::swap( axis[0], axis[2] );
+		SwapValues( axis[0], axis[2] );
 	}
 	if ( weaponIconName == "guis/assets/hud/icons/shotgun_new.tga" ) {
 		// joint doesn't point straight, so rotate it
 		const jointHandle_t bodJoint = animator.GetJointHandle( "trigger" );
 		GetGlobalJointTransform( true, bodJoint, discardedOrigin, axis );
-		std::swap( axis[0], axis[2] );
+		SwapValues( axis[0], axis[2] );
 		axis[0] = -axis[0];
 	}
 	
@@ -2326,7 +2326,7 @@ bool idWeapon::GetMuzzlePositionWithHacks( idVec3 & origin, idMat3 & axis ) {
 	if ( weaponDef != NULL ) {
 		if ( ( idStr::Icmp( "weapon_shotgun_double", weaponDef->GetName() ) == 0 ) || ( idStr::Icmp( "weapon_shotgun_double_mp", weaponDef->GetName() ) == 0 ) ) {
 			// joint doesn't point straight, so rotate it
-			std::swap( axis[0], axis[2] );
+			SwapValues( axis[0], axis[2] );
 		} else if ( idStr::Icmp( "weapon_grabber", weaponDef->GetName() ) == 0 ) {
 			idVec3 forward = axis[0];
 			forward.Normalize();

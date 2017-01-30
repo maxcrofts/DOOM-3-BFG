@@ -6086,13 +6086,8 @@ void idPlayer::UpdateViewAngles() {
 
 	// clamp the pitch
 	if ( noclip ) {
-		if ( viewAngles.pitch > 89.0f ) {
-			// don't let the player look down more than 89 degrees while noclipping
-			viewAngles.pitch = 89.0f;
-		} else if ( viewAngles.pitch < -89.0f ) {
-			// don't let the player look up more than 89 degrees while noclipping
-			viewAngles.pitch = -89.0f;
-		}
+		// don't let the player look up or down more than 89 degrees while noclipping
+		viewAngles.pitch = idMath::ClampFloat( -89.0f, 89.0f, viewAngles.pitch );
 	} else if ( mountedObject ) {
 		int yaw_min, yaw_max, varc;
 
@@ -6110,10 +6105,7 @@ void idPlayer::UpdateViewAngles() {
 		viewAngles.pitch = idMath::ClampFloat( -varc, varc, viewAngles.pitch );
 	} else {
 		// don't let the player look up or down more than 90 degrees normally
-		const float restrict = 1.0f;
-
-		viewAngles.pitch = std::min( viewAngles.pitch, pm_maxviewpitch.GetFloat() * restrict );
-		viewAngles.pitch = std::max( viewAngles.pitch, pm_minviewpitch.GetFloat() * restrict );
+		viewAngles.pitch = idMath::ClampFloat( pm_minviewpitch.GetFloat(), pm_maxviewpitch.GetFloat(), viewAngles.pitch );
 	}
 
 	UpdateDeltaViewAngles( viewAngles );
@@ -7227,7 +7219,7 @@ void idPlayer::RunPhysics_RemoteClientCorrection() {
 		const float serverSpeedSquared = physicsObj.GetLinearVelocity().LengthSqr();
 		const float clientSpeedSquared = usercmd.speedSquared;
 
-		if ( std::abs( serverSpeedSquared - clientSpeedSquared ) > pm_clientAuthoritative_minSpeedSquared.GetFloat() ) {
+		if ( idMath::Abs( serverSpeedSquared - clientSpeedSquared ) > pm_clientAuthoritative_minSpeedSquared.GetFloat() ) {
 			idVec3 normalizedVelocity = physicsObj.GetLinearVelocity();
 
 			const float VELOCITY_EPSILON = 0.001f;
