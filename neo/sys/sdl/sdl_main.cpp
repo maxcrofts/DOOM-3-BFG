@@ -48,20 +48,15 @@ If you have questions concerning this license or the applicable additional terms
 #include "sdl_local.h"
 #include "../../renderer/tr_local.h"
 
-idCVar SDLVars_t::sys_arch( "sys_arch", "", CVAR_SYSTEM | CVAR_INIT, "" );
-idCVar SDLVars_t::sys_cpustring( "sys_cpustring", "detect", CVAR_SYSTEM | CVAR_INIT, "" );
-idCVar SDLVars_t::in_mouse( "in_mouse", "1", CVAR_SYSTEM | CVAR_BOOL, "enable mouse input" );
-idCVar SDLVars_t::sys_username( "sys_username", "", CVAR_SYSTEM | CVAR_INIT, "system user name" );
+idCVar sys_arch( "sys_arch", "", CVAR_SYSTEM | CVAR_INIT, "" );
+idCVar sys_cpustring( "sys_cpustring", "detect", CVAR_SYSTEM | CVAR_INIT, "" );
+idCVar in_mouse( "in_mouse", "1", CVAR_SYSTEM | CVAR_BOOL, "enable mouse input" );
+idCVar sys_username( "sys_username", "", CVAR_SYSTEM | CVAR_INIT, "system user name" );
+idCVar sys_outputEditString( "sys_outputEditString", "1", CVAR_SYSTEM | CVAR_BOOL, "" );
+idCVar sys_viewlog( "sys_viewlog", "0", CVAR_SYSTEM | CVAR_INTEGER, "" );
+idCVar sys_allowMultipleInstances( "sys_allowMultipleInstances", "0", CVAR_SYSTEM | CVAR_BOOL, "allow multiple instances running concurrently" );
 
 SDLVars_t sdl;
-
-#ifdef ID_PC_WIN
-idCVar Win32Vars_t::win_outputEditString( "win_outputEditString", "1", CVAR_SYSTEM | CVAR_BOOL, "" );
-idCVar Win32Vars_t::win_viewlog( "win_viewlog", "0", CVAR_SYSTEM | CVAR_INTEGER, "" );
-idCVar Win32Vars_t::win_allowMultipleInstances( "win_allowMultipleInstances", "0", CVAR_SYSTEM | CVAR_BOOL, "allow multiple instances running concurrently" );
-
-Win32Vars_t	win32;
-#endif
 
 static char		sys_exepath[MAX_OSPATH];
 static char		sys_cmdline[MAX_STRING_CHARS];
@@ -342,7 +337,7 @@ void Sys_Printf( const char *fmt, ... ) {
 
 	OutputDebugString( msg );
 
-	if ( win32.win_outputEditString.GetBool() && idLib::IsMainThread() ) {
+	if ( sys_outputEditString.GetBool() && idLib::IsMainThread() ) {
 		Conbuf_AppendText( msg );
 	}
 }
@@ -495,24 +490,10 @@ sysFolder_t Sys_IsFolder( const char *path ) {
 
 /*
 ==============
-Sys_Cwd
+Sys_SteamPath
 ==============
 */
-const char *Sys_Cwd() {
-	static char cwd[MAX_OSPATH];
-
-	_getcwd( cwd, sizeof( cwd ) - 1 );
-	cwd[MAX_OSPATH-1] = 0;
-
-	return cwd;
-}
-
-/*
-==============
-Sys_DefaultBasePath
-==============
-*/
-const char *Sys_DefaultBasePath() {
+const char *Sys_DefaultSteamPath() {
 #ifdef ID_PC_WIN
 	// detect steam install
 	static char basePath[MAX_PATH];
@@ -550,7 +531,22 @@ const char *Sys_DefaultBasePath() {
 	}
 #endif
 
-	return Sys_Cwd();
+	return NULL;
+}
+
+/*
+==============
+Sys_DefaultBasePath
+==============
+*/
+const char *Sys_DefaultBasePath() {
+	static char cwd[MAX_OSPATH];
+
+	char *basePath = SDL_GetBasePath();
+	idStr::Copynz( cwd, basePath, MAX_OSPATH );
+	SDL_free( basePath );
+
+	return cwd;
 }
 
 // Vista shit
@@ -1045,7 +1041,7 @@ returns true if there is a copy of D3 running already
 */
 bool Sys_AlreadyRunning() {
 #ifndef DEBUG
-	if ( !win32.win_allowMultipleInstances.GetBool() ) {
+	if ( !sys_allowMultipleInstances.GetBool() ) {
 		hProcessMutex = ::CreateMutex( NULL, FALSE, "DOOM3" );
 		if ( ::GetLastError() == ERROR_ALREADY_EXISTS || ::GetLastError() == ERROR_ACCESS_DENIED ) {
 			return true;
@@ -1069,12 +1065,12 @@ void Sys_Init() {
 	//
 	// User name
 	//
-	sdl.sys_username.SetString( Sys_GetCurrentUser() );
+	sys_username.SetString( Sys_GetCurrentUser() );
 
 	//
 	// CPU type
 	//
-	if ( !idStr::Icmp( sdl.sys_cpustring.GetString(), "detect" ) ) {
+	if ( !idStr::Icmp( sys_cpustring.GetString(), "detect" ) ) {
 		idStr string;
 
 		common->Printf( "%1.0f MHz ", Sys_ClockTicksPerSecond() / 1000000.0f );
@@ -1114,10 +1110,10 @@ void Sys_Init() {
 		}
 		string.StripTrailing( " & " );
 		string.StripTrailing( " with " );
-		sdl.sys_cpustring.SetString( string );
+		sys_cpustring.SetString( string );
 	} else {
 		common->Printf( "forcing CPU type to " );
-		idLexer src( sdl.sys_cpustring.GetString(), idStr::Length( sdl.sys_cpustring.GetString() ), "sys_cpustring" );
+		idLexer src( sys_cpustring.GetString(), idStr::Length( sys_cpustring.GetString() ), "sys_cpustring" );
 		idToken token;
 
 		int id = CPUID_NONE;
@@ -1143,18 +1139,18 @@ void Sys_Init() {
 			}
 		}
 		if ( id == CPUID_NONE ) {
-			common->Printf( "WARNING: unknown sys_cpustring '%s'\n", sdl.sys_cpustring.GetString() );
+			common->Printf( "WARNING: unknown sys_cpustring '%s'\n", sys_cpustring.GetString() );
 			id = CPUID_GENERIC;
 		}
 		sdl.cpuid = (cpuid_t) id;
 	}
 
-	common->Printf( "%s\n", sdl.sys_cpustring.GetString() );
+	common->Printf( "%s\n", sys_cpustring.GetString() );
 	if ( ( sdl.cpuid & CPUID_SSE2 ) == 0 ) {
 		common->Error( "SSE2 not supported!" );
 	}
 
-	sdl.g_Joystick.Init();
+	Sys_InitJoystick();
 }
 
 /*
@@ -1181,7 +1177,7 @@ Sys_GetProcessorString
 ================
 */
 const char *Sys_GetProcessorString() {
-	return sdl.sys_cpustring.GetString();
+	return sys_cpustring.GetString();
 }
 
 //=======================================================================
@@ -1365,10 +1361,6 @@ int main( int argc, char *argv[] ) {
 
 	Sys_GetCurrentMemoryStatus( exeLaunchMemoryStats );
 
-#ifdef ID_PC_WIN
-	win32.hInstance = GetModuleHandle( NULL );
-#endif
-
 	idStr::Copynz( sys_exepath, argv[0], sizeof( sys_exepath ) );
 
 	idStr cmdLine;
@@ -1421,7 +1413,7 @@ int main( int argc, char *argv[] ) {
 
 #ifdef ID_PC_WIN
 	// hide or show the early console as necessary
-	if ( win32.win_viewlog.GetInteger() ) {
+	if ( sys_viewlog.GetInteger() ) {
 		Sys_ShowConsole( 1, true );
 	} else {
 		Sys_ShowConsole( 0, false );

@@ -25,37 +25,25 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-/*
-** SDL_GLIMP.CPP
-**
-** This file contains ALL SDL specific stuff having to do with the
-** OpenGL refresh.  When a port is being made the following functions
-** must be implemented by the port:
-**
-** GLimp_SwapBuffers
-** GLimp_Init
-** GLimp_Shutdown
-** GLimp_SetGamma
-*/
+
 #pragma hdrstop
 #include "../../idlib/precompiled.h"
 
 #ifdef ID_PC_WIN
 #include "SDL_syswm.h"
+#define	WINDOW_STYLE (WS_OVERLAPPED|WS_BORDER|WS_CAPTION|WS_VISIBLE|WS_THICKFRAME|WS_SYSMENU)
 #endif
 
 #include "sdl_local.h"
 #include "../win32/rc/doom_resource.h"
 #include "../../renderer/tr_local.h"
 
-
 idCVar r_useOpenGL32( "r_useOpenGL32", "1", CVAR_INTEGER, "0 = OpenGL 2.0, 1 = OpenGL 3.2 compatibility profile, 2 = OpenGL 3.2 core profile", 0, 2 );
 
-
 /*
-========================
+====================
 GLimp_TestSwapBuffers
-========================
+====================
 */
 void GLimp_TestSwapBuffers( const idCmdArgs &args ) {
 	idLib::Printf( "GLimp_TimeSwapBuffers\n" );
@@ -88,13 +76,12 @@ void GLimp_TestSwapBuffers( const idCmdArgs &args ) {
 	}
 }
 
-
 /*
-========================
+====================
 GLimp_SetGamma
 
 The renderer calls this when the user adjusts r_gamma or r_brightness
-========================
+====================
 */
 void GLimp_SetGamma( unsigned short red[256], unsigned short green[256], unsigned short blue[256] ) {
 	if ( SDL_SetWindowGammaRamp( sdl.window, red, green, blue ) == -1 ) {
@@ -102,11 +89,10 @@ void GLimp_SetGamma( unsigned short red[256], unsigned short green[256], unsigne
 	}
 }
 
-
 /*
-========================
+====================
 GetDisplayCoordinates
-========================
+====================
 */
 static bool GetDisplayCoordinates( const int deviceNum, int & x, int & y, int & width, int & height ) {
 	idStr deviceName = idStr( SDL_GetDisplayName( deviceNum ) );
@@ -299,7 +285,6 @@ static bool GLimp_GetWindowDimensions( const glimpParms_t parms, int &x, int &y,
 	return true;
 }
 
-
 /*
 ====================
 EventFilter
@@ -340,25 +325,62 @@ static int EventFilter( void *data, SDL_Event *event ) {
 }
 
 /*
-=======================
-GLimp_CreateWindow
+====================
+GLimp_SetScreenParms
 
-Responsible for creating the SDL window.
-If fullscreen, it won't have a border
-=======================
+Sets up the screen based on passed parms.. 
+====================
 */
-static bool GLimp_CreateWindow( glimpParms_t parms ) {
-	int				x, y, w, h;
+bool GLimp_SetScreenParms( glimpParms_t parms ) {
+	int x, y, w, h;
 	if ( !GLimp_GetWindowDimensions( parms, x, y, w, h ) ) {
 		return false;
 	}
 
-	Uint32 flags = SDL_WINDOW_HIDDEN|SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE;
-	if ( parms.fullScreen == -1 ) {
-		flags |= SDL_WINDOW_BORDERLESS;
-	} else if ( parms.fullScreen == 1 ) {
-		flags |= SDL_WINDOW_FULLSCREEN;
+	if ( parms.fullScreen > 0 ) {
+		SDL_SetWindowSize( sdl.window, w, h );
+		SDL_SetWindowPosition( sdl.window, x, y );
+
+		SDL_SetWindowFullscreen( sdl.window, SDL_WINDOW_FULLSCREEN );
+	} else {
+		SDL_SetWindowFullscreen( sdl.window, 0 );
+
+		SDL_SetWindowSize( sdl.window, w, h );
+		SDL_SetWindowPosition( sdl.window, x, y );
+		SDL_SetWindowBordered( sdl.window, ( parms.fullScreen == 0 ? SDL_TRUE : SDL_FALSE ) );
+
+#ifdef ID_PC_WIN
+		SDL_SysWMinfo info;
+		SDL_VERSION( &info.version );
+		if( SDL_GetWindowWMInfo( sdl.window, &info ) ) {
+			SetWindowLongPtr( info.info.win.window, GWL_STYLE, WINDOW_STYLE );
+			SetClassLongPtr( info.info.win.window, GCLP_HBRBACKGROUND, COLOR_GRAYTEXT );
+		}
+#endif
 	}
+
+	sdl.cdsFullscreen = ( parms.fullScreen > 0 ? parms.fullScreen : 0 );
+
+	glConfig.isFullscreen = parms.fullScreen;
+	glConfig.pixelAspect = 1.0f;	// FIXME: some monitor modes may be distorted
+
+	glConfig.isFullscreen = parms.fullScreen;
+	glConfig.nativeScreenWidth = parms.width;
+	glConfig.nativeScreenHeight = parms.height;
+
+	return true;
+}
+
+/*
+====================
+GLimp_CreateWindow
+
+Responsible for creating the SDL window.
+If fullscreen, it won't have a border
+====================
+*/
+static bool GLimp_CreateWindow( glimpParms_t parms ) {
+	unsigned int flags = SDL_WINDOW_HIDDEN|SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE;
 
 	SDL_GL_SetAttribute( SDL_GL_MULTISAMPLEBUFFERS, ( ( parms.multiSamples > 1 ) ? 1 : 0 ) );
 	SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES, parms.multiSamples );
@@ -383,44 +405,22 @@ static bool GLimp_CreateWindow( glimpParms_t parms ) {
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, glProfile );
 	}
 
-	sdl.window = SDL_CreateWindow(
-		GAME_NAME,
-		x, y, w, h,
-		flags);
+	sdl.window = SDL_CreateWindow( GAME_NAME, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, flags);
 	
 	if ( !sdl.window ) {
 		common->Printf( "^3GLimp_CreateWindow() - Couldn't create window^0\n" );
 		return false;
 	}
 
-	SDL_AddEventWatch( EventFilter, NULL );
-
-#ifdef ID_PC_WIN
-	SDL_SysWMinfo info;
-	SDL_VERSION( &info.version );
-	if( SDL_GetWindowWMInfo( sdl.window, &info ) ) {
-		if ( !parms.fullScreen ) {
-			SetWindowLongPtr( info.info.win.window, GWL_STYLE, WINDOW_STYLE );
-			SetClassLongPtr( info.info.win.window, GCLP_HBRBACKGROUND, COLOR_GRAYTEXT );
-		}
-	}
-#endif
-
+	GLimp_SetScreenParms( parms );
 	SDL_ShowWindow( sdl.window );
+
+	int x, y, w, h;
 	SDL_GetWindowPosition( sdl.window, &x, &y );
+	SDL_GetWindowSize( sdl.window, &w, &h );
 	common->Printf( "...created window @ %d,%d (%dx%d)\n", x, y, w, h );
 
-#if 0
-	// Check to see if we can get a stereo pixel format, even if we aren't going to use it,
-	// so the menu option can be 
-	if ( GLW_ChoosePixelFormat( sdl.hDC, parms.multiSamples, true ) != -1 ) {
-		glConfig.stereoPixelFormatAvailable = true;
-	} else {
-		glConfig.stereoPixelFormatAvailable = false;
-	}
-#endif
-
-	glConfig.stereoPixelFormatAvailable = false;
+	SDL_AddEventWatch( EventFilter, NULL );
 
 	common->Printf( "Initializing OpenGL driver\n" );
 
@@ -444,6 +444,10 @@ static bool GLimp_CreateWindow( glimpParms_t parms ) {
 	}
 	common->Printf( "succeeded\n" );
 
+	// Check to see if we can get a stereo pixel format, even if we aren't going to use it,
+	// so the menu option can be 
+	qglGetBooleanv( GL_STEREO, (GLboolean *) & glConfig.stereoPixelFormatAvailable );
+
 	SDL_RaiseWindow( sdl.window );
 
 	glConfig.isFullscreen = parms.fullScreen;
@@ -452,7 +456,7 @@ static bool GLimp_CreateWindow( glimpParms_t parms ) {
 }
 
 /*
-===================
+====================
 GLimp_Init
 
 This is the platform specific OpenGL initialization function.  It
@@ -464,7 +468,7 @@ when it returns to the ref.
 
 If there is any failure, the renderer will revert back to safe
 parameters and try again.
-===================
+====================
 */
 bool GLimp_Init( glimpParms_t parms ) {
 	SDL_DisplayMode desktopDisplayMode;
@@ -507,69 +511,20 @@ bool GLimp_Init( glimpParms_t parms ) {
 
 	glConfig.physicalScreenWidthInCentimeters = 100.0f;
 
-
-	// check logging
-	GLimp_EnableLogging( ( r_logFile.GetInteger() != 0 ) );
-
 	return true;
 }
 
 /*
-===================
-GLimp_SetScreenParms
-
-Sets up the screen based on passed parms.. 
-===================
-*/
-bool GLimp_SetScreenParms( glimpParms_t parms ) {
-	int x, y, w, h;
-	if ( !GLimp_GetWindowDimensions( parms, x, y, w, h ) ) {
-		return false;
-	}
-
-	if ( parms.fullScreen > 0 ) {
-		SDL_SetWindowSize( sdl.window, w, h );
-		SDL_SetWindowPosition( sdl.window, x, y );
-		SDL_SetWindowFullscreen( sdl.window, SDL_WINDOW_FULLSCREEN );
-	} else {
-		SDL_SetWindowFullscreen( sdl.window, 0 );
-		SDL_SetWindowSize( sdl.window, w, h );
-		SDL_SetWindowPosition( sdl.window, x, y );
-
-#ifdef ID_PC_WIN
-		SDL_SysWMinfo info;
-		SDL_VERSION( &info.version );
-		if( SDL_GetWindowWMInfo( sdl.window, &info ) ) {
-			SetWindowLongPtr( info.info.win.window, GWL_STYLE, WINDOW_STYLE );
-			SetClassLongPtr( info.info.win.window, GCLP_HBRBACKGROUND, COLOR_GRAYTEXT );
-		}
-#endif
-	}
-
-	sdl.cdsFullscreen = ( parms.fullScreen > 0 ? parms.fullScreen : 0 );
-
-	glConfig.isFullscreen = parms.fullScreen;
-	glConfig.pixelAspect = 1.0f;	// FIXME: some monitor modes may be distorted
-
-	glConfig.isFullscreen = parms.fullScreen;
-	glConfig.nativeScreenWidth = parms.width;
-	glConfig.nativeScreenHeight = parms.height;
-
-	return true;
-}
-
-/*
-===================
+====================
 GLimp_Shutdown
 
 This routine does all OS specific shutdown procedures for the OpenGL
 subsystem.
-===================
+====================
 */
 void GLimp_Shutdown() {
 	common->Printf( "Shutting down OpenGL subsystem\n" );
 
-//	SDL_QuitSubSystem( SDL_INIT_VIDEO );
 	SDL_GL_DeleteContext( sdl.glContext );
 	SDL_DestroyWindow( sdl.window );
 
@@ -577,19 +532,12 @@ void GLimp_Shutdown() {
 	if ( sdl.cdsFullscreen ) {
 		sdl.cdsFullscreen = 0;
 	}
-
-	// close the thread so the handle doesn't dangle
-	if ( sdl.renderThreadHandle ) {
-		common->Printf( "...closing smp thread\n" );
-		CloseHandle( sdl.renderThreadHandle );
-		sdl.renderThreadHandle = NULL;
-	}
 }
 
 /*
-=====================
+====================
 GLimp_SwapBuffers
-=====================
+====================
 */
 void GLimp_SwapBuffers() {
 	static bool swapControlTearAvailable = true;
@@ -624,132 +572,30 @@ void GLimp_SwapBuffers() {
 }
 
 /*
-===========================================================
-
-SMP acceleration
-
-===========================================================
-*/
-
-/*
-===================
+====================
 GLimp_ActivateContext
-===================
+====================
 */
 void GLimp_ActivateContext() {
 	SDL_GL_MakeCurrent( sdl.window, sdl.glContext );
 }
 
 /*
-===================
+====================
 GLimp_DeactivateContext
-===================
+====================
 */
 void GLimp_DeactivateContext() {
 	qglFinish();
 	SDL_GL_MakeCurrent( sdl.window, NULL );
 }
 
-
-//#define	DEBUG_PRINTS
-
 /*
-===================
-GLimp_BackEndSleep
-===================
-*/
-void *GLimp_BackEndSleep() {
-	void	*data;
-
-#ifdef DEBUG_PRINTS
-OutputDebugString( "-->GLimp_BackEndSleep\n" );
-#endif
-	ResetEvent( sdl.renderActiveEvent );
-
-	// after this, the front end can exit GLimp_FrontEndSleep
-	SetEvent( sdl.renderCompletedEvent );
-
-	WaitForSingleObject( sdl.renderCommandsEvent, INFINITE );
-
-	ResetEvent( sdl.renderCompletedEvent );
-	ResetEvent( sdl.renderCommandsEvent );
-
-	data = sdl.smpData;
-
-	// after this, the main thread can exit GLimp_WakeRenderer
-	SetEvent( sdl.renderActiveEvent );
-
-#ifdef DEBUG_PRINTS
-OutputDebugString( "<--GLimp_BackEndSleep\n" );
-#endif
-	return data;
-}
-
-/*
-===================
-GLimp_FrontEndSleep
-===================
-*/
-void GLimp_FrontEndSleep() {
-#ifdef DEBUG_PRINTS
-OutputDebugString( "-->GLimp_FrontEndSleep\n" );
-#endif
-	WaitForSingleObject( sdl.renderCompletedEvent, INFINITE );
-
-#ifdef DEBUG_PRINTS
-OutputDebugString( "<--GLimp_FrontEndSleep\n" );
-#endif
-}
-
-volatile bool	renderThreadActive;
-
-/*
-===================
-GLimp_WakeBackEnd
-===================
-*/
-void GLimp_WakeBackEnd( void *data ) {
-	int		r;
-
-#ifdef DEBUG_PRINTS
-OutputDebugString( "-->GLimp_WakeBackEnd\n" );
-#endif
-	sdl.smpData = data;
-
-	if ( renderThreadActive ) {
-		common->FatalError( "GLimp_WakeBackEnd: already active" );
-	}
-
-	r = WaitForSingleObject( sdl.renderActiveEvent, 0 );
-	if ( r == WAIT_OBJECT_0 ) {
-		common->FatalError( "GLimp_WakeBackEnd: already signaled" );
-	}
-
-	r = WaitForSingleObject( sdl.renderCommandsEvent, 0 );
-	if ( r == WAIT_OBJECT_0 ) {
-		common->FatalError( "GLimp_WakeBackEnd: commands already signaled" );
-	}
-
-	// after this, the renderer can continue through GLimp_RendererSleep
-	SetEvent( sdl.renderCommandsEvent );
-
-	r = WaitForSingleObject( sdl.renderActiveEvent, 5000 );
-
-	if ( r == WAIT_TIMEOUT ) {
-		common->FatalError( "GLimp_WakeBackEnd: WAIT_TIMEOUT" );
-	}
-
-#ifdef DEBUG_PRINTS
-OutputDebugString( "<--GLimp_WakeBackEnd\n" );
-#endif
-}
-
-/*
-===================
+====================
 GLimp_ExtensionPointer
 
 Returns a function pointer for an OpenGL extension entry point
-===================
+====================
 */
 GLExtension_t GLimp_ExtensionPointer( const char *name ) {
 	void	(*proc)();
@@ -764,9 +610,9 @@ GLExtension_t GLimp_ExtensionPointer( const char *name ) {
 }
 
 /*
-==================
+====================
 GLimp_EnableLogging
-==================
+====================
 */
 void GLimp_EnableLogging( bool enable ) {
 

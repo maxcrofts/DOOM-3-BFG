@@ -285,6 +285,7 @@ idCVar	idFileSystemLocal::fs_buildResources( "fs_buildresources", "0", CVAR_SYST
 idCVar	idFileSystemLocal::fs_game( "fs_game", "", CVAR_SYSTEM | CVAR_INIT | CVAR_SERVERINFO, "mod path" );
 idCVar  idFileSystemLocal::fs_game_base( "fs_game_base", "", CVAR_SYSTEM | CVAR_INIT | CVAR_SERVERINFO, "alternate mod path, searched after the main fs_game path, before the basedir" );
 
+idCVar	fs_steampath( "fs_steampath", "", CVAR_SYSTEM | CVAR_INIT, "" );
 idCVar	fs_basepath( "fs_basepath", "", CVAR_SYSTEM | CVAR_INIT, "" );
 idCVar	fs_savepath( "fs_savepath", "", CVAR_SYSTEM | CVAR_INIT, "" );
 idCVar	fs_resourceLoadPriority( "fs_resourceLoadPriority", "1", CVAR_SYSTEM , "if 1, open requests will be honored from resource files first; if 0, the resource files are checked after normal search paths" );
@@ -2475,6 +2476,10 @@ idFileSystemLocal::SetupGameDirectories
 ================
 */
 void idFileSystemLocal::SetupGameDirectories( const char *gameName ) {
+	// setup steampath
+	if ( fs_steampath.GetString()[0] ) {
+		AddGameDirectory( fs_steampath.GetString(), gameName );
+	}
 	// setup basepath
 	if ( fs_basepath.GetString()[0] ) {
 		AddGameDirectory( fs_basepath.GetString(), gameName );
@@ -2596,12 +2601,16 @@ void idFileSystemLocal::Init() {
 	// we have to specially handle this, because normal command
 	// line variable sets don't happen until after the filesystem
 	// has already been initialized
+	common->StartupVariable( "fs_steampath" );
 	common->StartupVariable( "fs_basepath" );
 	common->StartupVariable( "fs_savepath" );
 	common->StartupVariable( "fs_game" );
 	common->StartupVariable( "fs_game_base" );
 	common->StartupVariable( "fs_copyfiles" );
 
+	if ( fs_steampath.GetString()[0] == '\0' ) {
+		fs_steampath.SetString( Sys_DefaultSteamPath() );
+	}
 	if ( fs_basepath.GetString()[0] == '\0' ) {
 		fs_basepath.SetString( Sys_DefaultBasePath() );
 	}

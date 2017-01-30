@@ -29,12 +29,6 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SDL_LOCAL_H__
 #define __SDL_LOCAL_H__
 
-#include "sdl_input.h"
-
-#ifdef ID_PC_WIN
-#define	WINDOW_STYLE	(WS_OVERLAPPED|WS_BORDER|WS_CAPTION|WS_VISIBLE|WS_THICKFRAME|WS_SYSMENU)
-#endif
-
 void	Sys_QueEvent( sysEventType_t type, int value, int value2, int ptrLength, void *ptr, int inputDeviceNum );
 
 void	Sys_CreateConsole();
@@ -63,6 +57,14 @@ uint64 Sys_Microseconds();
 
 void Conbuf_AppendText( const char *msg );
 
+extern idCVar		sys_arch;
+extern idCVar		sys_cpustring;
+extern idCVar		in_mouse;
+extern idCVar		sys_username;
+extern idCVar		sys_outputEditString;
+extern idCVar		sys_viewlog;
+extern idCVar		sys_allowMultipleInstances;
+
 typedef struct {
 	SDL_Window		*window;
 	SDL_GLContext	glContext;
@@ -78,50 +80,13 @@ typedef struct {
 	// can know the exact time of an event (not really needed now that we use async direct input)
 	int				sysMsgTime;
 
-	bool			windowClassRegistered;
-
 	int				desktopBitsPixel;
 	int				desktopWidth, desktopHeight;
 
 	int				cdsFullscreen;	// 0 = not fullscreen, otherwise monitor number
 
-	idFileHandle	log_fp;
-
-	unsigned short	oldHardwareGamma[3][256];
-	// desktop gamma is saved here for restoration at exit
-
-	static idCVar	sys_arch;
-	static idCVar	sys_cpustring;
-	static idCVar	in_mouse;
-	static idCVar	sys_username;
-
-	idJoystickSDL	g_Joystick;
-
-	void			*renderCommandsEvent;
-	void			*renderCompletedEvent;
-	void			*renderActiveEvent;
-	void			*renderThreadHandle;
-	unsigned long	renderThreadId;
-	void			(*glimpRenderThread)();
-	void			*smpData;
-	int				wglErrors;
-	// SMP acceleration vars
-
 } SDLVars_t;
 
 extern SDLVars_t	sdl;
-
-#ifdef ID_PC_WIN
-typedef struct {
-	HINSTANCE		hInstance;
-	
-	static idCVar	win_outputEditString;
-	static idCVar	win_viewlog;
-	static idCVar	win_allowMultipleInstances;
-
-} Win32Vars_t;
-
-extern Win32Vars_t	win32;
-#endif
 
 #endif /* !__SDL_LOCAL_H__ */

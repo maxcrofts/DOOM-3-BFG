@@ -53,6 +53,8 @@ If you have questions concerning this license or the applicable additional terms
 #define	COMMAND_HISTORY	64
 
 typedef struct {
+	HINSTANCE	hInstance;
+
 	HWND		hWnd;
 	HWND		hwndBuffer;
 
@@ -109,7 +111,7 @@ static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 				PostQuitMessage( 0 );
 			} else {
 				Sys_ShowConsole( 0, false );
-				win32.win_viewlog.SetBool( false );
+				sys_viewlog.SetBool( false );
 			}
 			return 0;
 		case WM_CTLCOLORSTATIC:
@@ -286,14 +288,16 @@ void Sys_CreateConsole() {
 	int DEDSTYLE = WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX;
 	int i;
 
+	s_wcd.hInstance = GetModuleHandle( NULL );
+
 	memset( &wc, 0, sizeof( wc ) );
 
 	wc.style         = 0;
 	wc.lpfnWndProc   = (WNDPROC) ConWndProc;
 	wc.cbClsExtra    = 0;
 	wc.cbWndExtra    = 0;
-	wc.hInstance     = win32.hInstance;
-	wc.hIcon         = LoadIcon( win32.hInstance, MAKEINTRESOURCE(IDI_ICON1));
+	wc.hInstance     = s_wcd.hInstance;
+	wc.hIcon         = LoadIcon( s_wcd.hInstance, MAKEINTRESOURCE(IDI_ICON1));
 	wc.hCursor       = LoadCursor (NULL,IDC_ARROW);
 	wc.hbrBackground = (struct HBRUSH__ *)COLOR_WINDOW;
 	wc.lpszMenuName  = 0;
@@ -317,8 +321,6 @@ void Sys_CreateConsole() {
 	s_wcd.windowWidth = rect.right - rect.left + 1;
 	s_wcd.windowHeight = rect.bottom - rect.top + 1;
 
-	//s_wcd.hbmLogo = LoadBitmap( win32.hInstance, MAKEINTRESOURCE( IDB_BITMAP_LOGO) );
-
 	s_wcd.hWnd = CreateWindowEx( 0,
 							   DEDCLASS,
 							   GAME_NAME,
@@ -326,7 +328,7 @@ void Sys_CreateConsole() {
 							   ( swidth - 600 ) / 2, ( sheight - 450 ) / 2 , rect.right - rect.left + 1, rect.bottom - rect.top + 1,
 							   NULL,
 							   NULL,
-							   win32.hInstance,
+							   s_wcd.hInstance,
 							   NULL );
 
 	if ( s_wcd.hWnd == NULL ) {
@@ -351,7 +353,7 @@ void Sys_CreateConsole() {
 												6, 400, 528, 20,
 												s_wcd.hWnd, 
 												( HMENU ) INPUT_ID,	// child window ID
-												win32.hInstance, NULL );
+												s_wcd.hInstance, NULL );
 
 	//
 	// create the buttons
@@ -360,21 +362,21 @@ void Sys_CreateConsole() {
 												5, 425, 72, 24,
 												s_wcd.hWnd, 
 												( HMENU ) COPY_ID,	// child window ID
-												win32.hInstance, NULL );
+												s_wcd.hInstance, NULL );
 	SendMessage( s_wcd.hwndButtonCopy, WM_SETTEXT, 0, ( LPARAM ) "copy" );
 
 	s_wcd.hwndButtonClear = CreateWindow( "button", NULL, BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 												82, 425, 72, 24,
 												s_wcd.hWnd, 
 												( HMENU ) CLEAR_ID,	// child window ID
-												win32.hInstance, NULL );
+												s_wcd.hInstance, NULL );
 	SendMessage( s_wcd.hwndButtonClear, WM_SETTEXT, 0, ( LPARAM ) "clear" );
 
 	s_wcd.hwndButtonQuit = CreateWindow( "button", NULL, BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 												462, 425, 72, 24,
 												s_wcd.hWnd, 
 												( HMENU ) QUIT_ID,	// child window ID
-												win32.hInstance, NULL );
+												s_wcd.hInstance, NULL );
 	SendMessage( s_wcd.hwndButtonQuit, WM_SETTEXT, 0, ( LPARAM ) "quit" );
 
 
@@ -386,14 +388,14 @@ void Sys_CreateConsole() {
 												6, 40, 526, 354,
 												s_wcd.hWnd, 
 												( HMENU ) EDIT_ID,	// child window ID
-												win32.hInstance, NULL );
+												s_wcd.hInstance, NULL );
 	SendMessage( s_wcd.hwndBuffer, WM_SETFONT, ( WPARAM ) s_wcd.hfBufferFont, 0 );
 
 	s_wcd.SysInputLineWndProc = ( WNDPROC ) SetWindowLong( s_wcd.hwndInputLine, GWL_WNDPROC, ( long ) InputLineWndProc );
 	SendMessage( s_wcd.hwndInputLine, WM_SETFONT, ( WPARAM ) s_wcd.hfBufferFont, 0 );
 
 // don't show it now that we have a splash screen up
-	if ( win32.win_viewlog.GetBool() ) {
+	if ( sys_viewlog.GetBool() ) {
 		ShowWindow( s_wcd.hWnd, SW_SHOWDEFAULT);
 		UpdateWindow( s_wcd.hWnd );
 		SetForegroundWindow( s_wcd.hWnd );
@@ -543,7 +545,7 @@ void Win_SetErrorText( const char *buf ) {
 													6, 5, 526, 30,
 													s_wcd.hWnd, 
 													( HMENU ) ERRORBOX_ID,	// child window ID
-													win32.hInstance, NULL );
+													s_wcd.hInstance, NULL );
 		SendMessage( s_wcd.hwndErrorBox, WM_SETFONT, ( WPARAM ) s_wcd.hfBufferFont, 0 );
 		SetWindowText( s_wcd.hwndErrorBox, s_wcd.errorString );
 

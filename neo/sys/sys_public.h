@@ -515,6 +515,7 @@ static const int MAX_MOUSE_EVENTS = 256;
 int				Sys_PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] );
 
 // joystick input polling
+bool			Sys_InitJoystick();
 void			Sys_SetRumble( int device, int low, int hi );
 int				Sys_PollJoystickInputEvents( int deviceNum );
 int				Sys_ReturnJoystickInputEvent( const int n, int &action, int &value );
@@ -539,6 +540,7 @@ ID_TIME_T		Sys_FileTimeStamp( idFileHandle fp );
 const char *	Sys_TimeStampToStr( ID_TIME_T timeStamp );
 const char *	Sys_SecToStr( int sec );
 
+const char *	Sys_DefaultSteamPath();
 const char *	Sys_DefaultBasePath();
 const char *	Sys_DefaultSavePath();
 

@@ -36,8 +36,8 @@ static const int MAX_PLAYERS			= 8;
 
 static const int MAX_REDUNDANT_CMDS	= 3;
 
-static const int MAX_LOCAL_PLAYERS		= 2;
-static const int MAX_INPUT_DEVICES		= 4;
+static const int MAX_LOCAL_PLAYERS		= 1;
+static const int MAX_INPUT_DEVICES		= 1;
 enum matchFlags_t {
 	MATCH_STATS						= BIT( 0 ),		// Match will upload leaderboard/achievement scores
 	MATCH_ONLINE					= BIT( 1 ),		// Match will require users to be online

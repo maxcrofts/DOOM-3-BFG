@@ -52,7 +52,6 @@ set(DOOM3BFG_SYS_SDL_FILES
     "sdl/sdl_achievements.h"
     "sdl/sdl_glimp.cpp"
     "sdl/sdl_input.cpp"
-    "sdl/sdl_input.h"
     "sdl/sdl_local.h"
     "sdl/sdl_localuser.cpp"
     "sdl/sdl_localuser.h"
