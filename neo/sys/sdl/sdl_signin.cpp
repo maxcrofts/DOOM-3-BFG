@@ -32,6 +32,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "../sys_session_local.h"
 #include "sdl_signin.h"
 
+idCVar ui_name( "ui_name", "Player", CVAR_GAME | CVAR_ARCHIVE, "player name" );
+
 #ifdef _DEBUG
 idCVar win_userPersistent( "win_userPersistent", "1", CVAR_BOOL, "debugging cvar for profile persistence status" );
 idCVar win_userOnline( "win_userOnline", "1", CVAR_BOOL, "debugging cvar for profile online status" );
@@ -95,11 +97,7 @@ void idSignInManagerSDL::RegisterLocalUser( int inputDevice ) {
 		return;
 	}
 	
-	static char machineName[128];
-	DWORD len = 128;
-	::GetComputerName( machineName, &len );
-
-	const char * nameSource = machineName;
+	const char * nameSource = ui_name.GetString();
 
 	idStr name( nameSource );
 	int nameLength = name.Length();
