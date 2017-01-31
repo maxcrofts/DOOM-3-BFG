@@ -309,7 +309,7 @@ int I_StartSound2 ( int id, int player, mobj_t *origin, mobj_t *listener_origin,
 		if ( origin == listener_origin ) {
 			sound->localSound = true;
 		} else {
-		sound->localSound = false;
+			sound->localSound = false;
 			x = (ALfloat)(origin->x >> FRACBITS);
 			z = (ALfloat)(origin->y >> FRACBITS);
 		}
@@ -454,21 +454,21 @@ void I_UpdateSound( void ) {
 	// Update listener orientation and position
 	mobj_t *playerObj = ::g->players[0].mo;
 	if ( playerObj ) {
-			angle_t	pAngle = playerObj->angle;
-			fixed_t fx, fz;
+		angle_t	pAngle = playerObj->angle;
+		fixed_t fx, fz;
 
-			pAngle >>= ANGLETOFINESHIFT;
+		pAngle >>= ANGLETOFINESHIFT;
 
-			fx = finecosine[pAngle];
-			fz = finesine[pAngle];
+		fx = finecosine[pAngle];
+		fz = finesine[pAngle];
 
-			doom_Listener.OrientFront.x = (float)(fx) / 65535.f;
-			doom_Listener.OrientFront.y = 0.f;
-			doom_Listener.OrientFront.z = (float)(fz) / 65535.f;
+		doom_Listener.OrientFront.x = (float)(fx) / 65535.f;
+		doom_Listener.OrientFront.y = 0.f;
+		doom_Listener.OrientFront.z = (float)(fz) / 65535.f;
 
-			doom_Listener.Position.x = (float)(playerObj->x >> FRACBITS);
-			doom_Listener.Position.y = 0.f;
-			doom_Listener.Position.z = (float)(playerObj->y >> FRACBITS);
+		doom_Listener.Position.x = (float)(playerObj->x >> FRACBITS);
+		doom_Listener.Position.y = 0.f;
+		doom_Listener.Position.z = (float)(playerObj->y >> FRACBITS);
 	} else {
 		doom_Listener.OrientFront.x = 0.f;
 		doom_Listener.OrientFront.y = 0.f;
@@ -607,7 +607,7 @@ void I_ShutdownSoundHardware() {
 			alSourcei( sound->alSourceVoice, AL_BUFFER, 0 );
 			alDeleteSources( 1, &sound->alSourceVoice );
 		}
-		}
+	}
 
 	// Delete OpenAL buffers for all sounds
 	for ( int i = 0; i < NUMSFX; i++ ) {
@@ -756,7 +756,7 @@ void I_ShutdownMusic(void)
 
 		if ( alMusicBuffer ) {
 			alDeleteBuffers( 1, &alMusicBuffer );
-				}
+		}
 
 		if ( musicBuffer ) {
 			free( musicBuffer );
@@ -859,7 +859,7 @@ void I_UpdateMusic( void ) {
 	if ( alMusicSourceVoice ) {
 		// Set the volume
 		alSourcef( alMusicSourceVoice, AL_GAIN, x_MusicVolume * GLOBAL_VOLUME_MULTIPLIER );
-				}
+	}
 
 	if ( waitingForMusic ) {
 		if ( musicReady && alMusicSourceVoice ) {
