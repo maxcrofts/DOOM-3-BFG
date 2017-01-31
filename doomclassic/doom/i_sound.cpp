@@ -626,7 +626,7 @@ void I_InitSoundChannel( int channel, int numOutputChannels_ ) {
 	alGenSources( (ALuint)1, &soundchannel->alSourceVoice );
 
 	alSource3f( soundchannel->alSourceVoice, AL_VELOCITY, 0.f, 0.f, 0.f );
-	alSourcef( soundchannel->alSourceVoice, AL_LOOPING, AL_FALSE );
+	alSourcei( soundchannel->alSourceVoice, AL_LOOPING, AL_FALSE );
 	alSourcef( soundchannel->alSourceVoice, AL_MAX_DISTANCE, 1200.f );
 	alSourcef( soundchannel->alSourceVoice, AL_REFERENCE_DISTANCE, 100.f );
 	alSourcef( soundchannel->alSourceVoice, AL_ROLLOFF_FACTOR, 0.2f );
@@ -733,7 +733,6 @@ void I_InitMusic(void)
 		alGenSources( (ALuint)1, &alMusicSourceVoice );
 
 		alSourcef( alMusicSourceVoice, AL_PITCH, 1.f );
-		alSourcef( alMusicSourceVoice, AL_LOOPING, AL_TRUE );
 
 		alGenBuffers( (ALuint)1, &alMusicBuffer );
 
@@ -868,6 +867,7 @@ void I_UpdateMusic( void ) {
 				alSourcei( alMusicSourceVoice, AL_BUFFER, 0 );
 				alBufferData( alMusicBuffer, MIDI_SAMPLETYPE, musicBuffer, totalBufferSize, MIDI_RATE );
 				alSourcei( alMusicSourceVoice, AL_BUFFER, alMusicBuffer );
+				alSourcei( alMusicSourceVoice, AL_LOOPING, ::g->mus_looping );
 				alSourcePlay( alMusicSourceVoice );
 			}
 
