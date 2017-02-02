@@ -14,14 +14,6 @@ if(WIN32)
     list(GET GENERATOR_LIST 2 VS_VERSION)
 endif()
 
-# prepends CONTENT to each element of LIST
-function(prepend LIST CONTENT)
-  foreach(THING ${${LIST}})
-    set(MODIFIED ${MODIFIED} ${CONTENT}${THING})
-  endforeach()
-  set(${LIST} ${MODIFIED} PARENT_SCOPE)
-endfunction()
-
 macro(add_precompiled_header FILES USE_PCH PRECOMPILED_HEADER PRECOMPILED_SOURCE)
     if(MSVC)
         set(SOURCES ${${USE_PCH}})
