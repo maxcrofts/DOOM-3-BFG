@@ -80,9 +80,9 @@ typedef enum {
 #include "SoundVoice.h"
 
 
-#include <AL/al.h>
-#include <AL/alc.h>
-#include <AL/alext.h>
+#include "al.h"
+#include "alc.h"
+#include "alext.h"
 #include "OpenAL/AL_SoundSample.h"
 #include "OpenAL/AL_SoundVoice.h"
 #include "OpenAL/AL_SoundHardware.h"

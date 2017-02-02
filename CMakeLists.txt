@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(doom3)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
+
 if(WIN32)
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
         set(PLATFORM_NAME "Win64")
@@ -44,55 +46,30 @@ if(MSVC)
 endif()
 
 # OpenGL
-find_package(OpenGL)
+find_package(OpenGL REQUIRED)
 
 # OpenAL
-find_path(OPENAL_INCLUDE_DIR
-    al.h
-    PATHS "external/openal-soft-1.17.2-bin/include/AL"
-)
+if(WIN32)
+    set(ENV{OPENALDIR} "external/openal-soft-1.17.2-bin")
+endif()
 
-get_filename_component(OPENAL_INCLUDE_DIR "${OPENAL_INCLUDE_DIR}/.." ABSOLUTE)
+find_package(OpenAL REQUIRED)
 
-get_filename_component(OPENAL_DIR "${OPENAL_INCLUDE_DIR}/.." ABSOLUTE)
-
-find_library(OPENAL_LIB
-    OpenAL32
-    PATHS "${OPENAL_DIR}/libs/${PLATFORM_NAME}"
-)
-
-set(OPENAL_BIN "${OPENAL_DIR}/bin/${PLATFORM_NAME}/OpenAL32.dll")
+if(WIN32)
+    get_filename_component(OPENAL_DLL "${OPENAL_INCLUDE_DIR}/../../bin/${PLATFORM_NAME}/OpenAL32.dll" ABSOLUTE)
+endif()
 
 # SDL2
-find_path(SDL2_INCLUDE_DIR
-    SDL.h
-    PATHS "external/SDL2-2.0.5/include"
-)
+if(WIN32)
+    set(ENV{SDL2DIR} "external/SDL2-2.0.5")
+endif()
 
-get_filename_component(SDL2_DIR "${SDL2_INCLUDE_DIR}/.." ABSOLUTE)
+find_package(SDL2 REQUIRED)
 
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    find_library(SDL2_LIB
-        SDL2
-        PATHS "${SDL2_DIR}/lib/x64"
-    )
-    find_library(SDL2MAIN_LIB
-        SDL2main
-        PATHS "${SDL2_DIR}/lib/x64"
-    )
-
-    set(SDL2_BIN "${SDL2_DIR}/lib/x64/SDL2.dll")
-else()
-    find_library(SDL2_LIB
-        SDL2
-        PATHS "${SDL2_DIR}/lib/x86"
-    )
-    find_library(SDL2MAIN_LIB
-        SDL2main
-        PATHS "${SDL2_DIR}/lib/x86"
-    )
-
-    set(SDL2_BIN "${SDL2_DIR}/lib/x86/SDL2.dll")
+if(WIN32)
+    list(GET SDL2_LIBRARY 0 SDL2_LIBRARY_HEAD)
+    get_filename_component(SDL2_LIBRARY_DIR "${SDL2_LIBRARY_HEAD}" DIRECTORY)
+    set(SDL2_DLL "${SDL2_LIBRARY_DIR}/SDL2.dll")
 endif()
 
 # set build directory

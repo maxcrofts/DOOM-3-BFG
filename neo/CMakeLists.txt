@@ -84,15 +84,15 @@ source_group("Framework" FILES "framework/precompiled.cpp")
 add_executable(Doom3BFG WIN32 ${DOOM3BFG_FILES} $<TARGET_OBJECTS:Game-d3xp>)
 target_include_directories(Doom3BFG PUBLIC ${SDL2_INCLUDE_DIR} ${OPENAL_INCLUDE_DIR})
 target_link_libraries(Doom3BFG idLib doomclassic timidity)
-target_link_libraries(Doom3BFG ${SDL2_LIB} ${SDL2MAIN_LIB} ${OPENGL_LIBRARIES} ${OPENAL_LIB})
+target_link_libraries(Doom3BFG ${SDL2_LIBRARY} ${SDL2MAIN_LIBRARY} ${OPENGL_LIBRARIES} ${OPENAL_LIBRARY})
 if(WIN32)
     target_link_libraries(Doom3BFG Dbghelp.lib winmm.lib)
 endif()
 
 # copy dlls to target dir
 foreach(dll
-    ${SDL2_BIN}
-    ${OPENAL_BIN}
+    ${SDL2_DLL}
+    ${OPENAL_DLL}
 )
     add_custom_command(
         TARGET Doom3BFG
