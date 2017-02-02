@@ -28,7 +28,6 @@ set(IDLIB_FILES
     "Timer.cpp"
     "Timer.h"
 )
-prepend(IDLIB_FILES "${CMAKE_CURRENT_SOURCE_DIR}/")
 
 set(IDLIB_BV_FILES
     "bv/Bounds.cpp"
@@ -38,8 +37,6 @@ set(IDLIB_BV_FILES
     "bv/Sphere.cpp"
     "bv/Sphere.h"
 )
-prepend(IDLIB_BV_FILES "${CMAKE_CURRENT_SOURCE_DIR}/")
-set(IDLIB_BV_FILES ${IDLIB_BV_FILES} PARENT_SCOPE)
 set(IDLIB_FILES ${IDLIB_FILES} ${IDLIB_BV_FILES})
 
 set(IDLIB_CONTAINERS_FILES
@@ -61,8 +58,6 @@ set(IDLIB_CONTAINERS_FILES
     "containers/StrPool.h"
     "containers/VectorSet.h"
 )
-prepend(IDLIB_CONTAINERS_FILES "${CMAKE_CURRENT_SOURCE_DIR}/")
-set(IDLIB_CONTAINERS_FILES ${IDLIB_CONTAINERS_FILES} PARENT_SCOPE)
 set(IDLIB_FILES ${IDLIB_FILES} ${IDLIB_CONTAINERS_FILES})
 
 set(IDLIB_GEOMETRY_FILES
@@ -88,8 +83,6 @@ set(IDLIB_GEOMETRY_FILES
     "geometry/Winding2D.cpp"
     "geometry/Winding2D.h"
 )
-prepend(IDLIB_GEOMETRY_FILES "${CMAKE_CURRENT_SOURCE_DIR}/")
-set(IDLIB_GEOMETRY_FILES ${IDLIB_GEOMETRY_FILES} PARENT_SCOPE)
 set(IDLIB_FILES ${IDLIB_FILES} ${IDLIB_GEOMETRY_FILES})
 
 set(IDLIB_HASHING_FILES
@@ -100,8 +93,6 @@ set(IDLIB_HASHING_FILES
     "hashing/MD5.cpp"
     "hashing/MD5.h"
 )
-prepend(IDLIB_HASHING_FILES "${CMAKE_CURRENT_SOURCE_DIR}/")
-set(IDLIB_HASHING_FILES ${IDLIB_HASHING_FILES} PARENT_SCOPE)
 set(IDLIB_FILES ${IDLIB_FILES} ${IDLIB_HASHING_FILES})
 
 set(IDLIB_MATH_FILES
@@ -144,8 +135,6 @@ set(IDLIB_MATH_FILES
     "math/VecX.cpp"
     "math/VecX.h"
 )
-prepend(IDLIB_MATH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/")
-set(IDLIB_MATH_FILES ${IDLIB_MATH_FILES} PARENT_SCOPE)
 set(IDLIB_FILES ${IDLIB_FILES} ${IDLIB_MATH_FILES})
 
 set(IDLIB_SYS_FILES
@@ -161,15 +150,11 @@ set(IDLIB_SYS_FILES
     "sys/sys_threading.h"
     "sys/sys_types.h"
 )
-prepend(IDLIB_SYS_FILES "${CMAKE_CURRENT_SOURCE_DIR}/")
-set(IDLIB_SYS_FILES ${IDLIB_SYS_FILES} PARENT_SCOPE)
 set(IDLIB_FILES ${IDLIB_FILES} ${IDLIB_SYS_FILES})
 
 set(IDLIB_SYS_SDL_FILES
     "sys/sdl/sdl_thread.cpp"
 )
-prepend(IDLIB_SYS_SDL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/")
-set(IDLIB_SYS_SDL_FILES ${IDLIB_SYS_SDL_FILES} PARENT_SCOPE)
 set(IDLIB_FILES ${IDLIB_FILES} ${IDLIB_SYS_SDL_FILES})
 
 set(IDLIB_TEXT_FILES
@@ -187,8 +172,25 @@ set(IDLIB_TEXT_FILES
     "Token.cpp"
     "Token.h"
 )
-prepend(IDLIB_TEXT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/")
-set(IDLIB_TEXT_FILES ${IDLIB_TEXT_FILES} PARENT_SCOPE)
 set(IDLIB_FILES ${IDLIB_FILES} ${IDLIB_TEXT_FILES})
 
-set(IDLIB_FILES ${IDLIB_FILES} PARENT_SCOPE)
+set(IDLIB_USE_PRECOMPILED_HEADER ${IDLIB_FILES})
+list(REMOVE_ITEM IDLIB_USE_PRECOMPILED_HEADER
+    "idlib/SoftwareCache.cpp"
+    "idlib/geometry/RenderMatrix.cpp"
+)
+
+add_precompiled_header(IDLIB_FILES IDLIB_USE_PRECOMPILED_HEADER "precompiled.h" "precompiled.cpp")
+
+source_group("" FILES ${IDLIB_FILES})
+source_group("BV" FILES ${IDLIB_BV_FILES})
+source_group("Containers" FILES ${IDLIB_CONTAINERS_FILES})
+source_group("Geometry" FILES ${IDLIB_GEOMETRY_FILES})
+source_group("Hashing" FILES ${IDLIB_HASHING_FILES})
+source_group("Math" FILES ${IDLIB_MATH_FILES})
+source_group("Text" FILES ${IDLIB_TEXT_FILES})
+source_group("Sys" FILES ${IDLIB_SYS_FILES})
+source_group("Sys\\SDL" FILES ${IDLIB_SYS_SDL_FILES})
+
+add_library(idLib ${IDLIB_FILES})
+target_include_directories(idLib PUBLIC ${SDL2_INCLUDE_DIR})
