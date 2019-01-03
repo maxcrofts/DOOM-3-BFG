@@ -54,7 +54,9 @@ endif()
 
 # SDL2
 if(WIN32)
-    set(ENV{SDL2DIR} "external/SDL2-2.0.5")
+    file(GLOB SDL2DIRS "external/SDL2-*")
+    list(GET SDL2DIRS 0 SDL2DIR)
+    set(ENV{SDL2DIR} "${SDL2DIR}")
 endif()
 
 find_package(SDL2 REQUIRED)
