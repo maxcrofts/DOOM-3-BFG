@@ -61,7 +61,7 @@ publish, and distribute this file as you see fit.
 
 ### miniz library
 
-neo/framework/miniz.cpp
+neo/framework/miniz.cpp  
 neo/framework/miniz.h
 
 This is free and unencumbered software released into the public domain.
@@ -95,8 +95,8 @@ neo/idlib/Base64.cpp
 
 Copyright (c) 1996 Lars Wirzenius.  All rights reserved.
 
-June 14 2003: TTimo <ttimo@idsoftware.com>
-	modified + endian bug fixes
+June 14 2003: TTimo <ttimo@idsoftware.com>  
+	modified + endian bug fixes  
 	http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=197039
 
 Redistribution and use in source and binary forms, with or without
@@ -110,7 +110,7 @@ are met:
    notice, this list of conditions and the following disclaimer in the
    documentation and/or other materials provided with the distribution.
 
-THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR
 IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
@@ -124,7 +124,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 ### IO for uncompress .zip files using zlib
 
-neo/framework/Unzip.cpp
+neo/framework/Unzip.cpp  
 neo/framework/Unzip.h
 
 Copyright (C) 1998 Gilles Vollant
@@ -187,7 +187,7 @@ Copyright (C) 1995-1998 Mark Adler
 
 ### OpenGL headers
 
-neo/renderer/OpenGL/glext.h
+neo/renderer/OpenGL/glext.h  
 neo/renderer/OpenGL/wglext.h
 
 Copyright (c) 2007-2012 The Khronos Group Inc.
@@ -223,3 +223,29 @@ If you'd like to continue hacking on TiMidity, feel free. I'm
 hereby extending the TiMidity license agreement: you can now
 select the most convenient license for your needs from (1) the
 GNU GPL, (2) the GNU LGPL, or (3) the Perl Artistic License.
+
+### MojoAL
+
+neo/sound/mojoal.c  
+neo/sound/AL/al.h  
+neo/sound/AL/alc.h
+
+Copyright (c) 2018 Ryan C. Gordon and others.
+
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from
+the use of this software.
+
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it
+freely, subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not
+   claim that you wrote the original software. If you use this software in a
+   product, an acknowledgment in the product documentation would be
+   appreciated but is not required.
+
+2. Altered source versions must be plainly marked as such, and must not be
+   misrepresented as being the original software.
+
+3. This notice may not be removed or altered from any source distribution.

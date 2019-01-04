@@ -272,6 +272,7 @@ source_group("Renderer\\OpenGL" FILES ${DOOM3BFG_RENDERER_OPENGL_FILES})
 set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_RENDERER_OPENGL_FILES})
 
 set(DOOM3BFG_SOUND_FILES
+    "sound/mojoal.c"
     "sound/snd_emitter.cpp"
     "sound/snd_local.h"
     "sound/snd_shader.cpp"
@@ -285,6 +286,13 @@ set(DOOM3BFG_SOUND_FILES
 )
 source_group("Sound" FILES ${DOOM3BFG_SOUND_FILES})
 set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_SOUND_FILES})
+
+set(DOOM3BFG_SOUND_OPENAL_FILES
+    "sound/AL/al.h"
+    "sound/AL/alc.h"
+)
+source_group("Sound\\AL" FILES ${DOOM3BFG_SOUND_AL_FILES})
+set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_SOUND_AL_FILES})
 
 set(DOOM3BFG_SOUND_OPENAL_FILES
     "sound/OpenAL/AL_SoundHardware.cpp"
@@ -476,28 +484,32 @@ endif()
 # precompiled headers
 set(DOOM3BFG_USE_PRECOMPILED_HEADER ${DOOM3BFG_FILES})
 list(REMOVE_ITEM DOOM3BFG_USE_PRECOMPILED_HEADER
-    "${CMAKE_SOURCE_DIR}/framework/miniz.cpp"
-    "${CMAKE_SOURCE_DIR}/renderer/jobs/ShadowShared.cpp"
-    "${CMAKE_SOURCE_DIR}/renderer/jobs/dynamicshadowvolume/DynamicShadowVolume.cpp"
-    "${CMAKE_SOURCE_DIR}/renderer/jobs/prelightshadowvolume/PreLightShadowVolume.cpp"
-    "${CMAKE_SOURCE_DIR}/renderer/jobs/staticshadowvolume/StaticShadowVolume.cpp"
+    "framework/miniz.cpp"
+    "renderer/jobs/ShadowShared.cpp"
+    "renderer/jobs/dynamicshadowvolume/DynamicShadowVolume.cpp"
+    "renderer/jobs/prelightshadowvolume/PreLightShadowVolume.cpp"
+    "renderer/jobs/staticshadowvolume/StaticShadowVolume.cpp"
+    "sound/mojoal.c"
 )
 
 add_precompiled_header(DOOM3BFG_FILES DOOM3BFG_USE_PRECOMPILED_HEADER "../idlib/precompiled.h" "framework/precompiled.cpp")
 source_group("Framework" FILES "framework/precompiled.cpp")
 
 add_executable(Doom3BFG WIN32 ${DOOM3BFG_FILES} $<TARGET_OBJECTS:Game-d3xp>)
-target_include_directories(Doom3BFG PUBLIC ${SDL2_INCLUDE_DIR} ${OPENAL_INCLUDE_DIR})
+target_include_directories(Doom3BFG PUBLIC ${SDL2_INCLUDE_DIR})
 target_link_libraries(Doom3BFG idLib doomclassic timidity)
-target_link_libraries(Doom3BFG ${SDL2_LIBRARY} ${SDL2MAIN_LIBRARY} ${OPENGL_LIBRARIES} ${OPENAL_LIBRARY})
+target_link_libraries(Doom3BFG ${SDL2_LIBRARY} ${SDL2MAIN_LIBRARY} ${OPENGL_LIBRARIES})
 if(WIN32)
     target_link_libraries(Doom3BFG Dbghelp.lib winmm.lib)
+endif()
+
+if(MSVC)
+    set_source_files_properties("sound/mojoal.c" PROPERTIES COMPILE_FLAGS "/W0")
 endif()
 
 # copy dlls to target dir
 foreach(dll
     ${SDL2_DLL}
-    ${OPENAL_DLL}
 )
     add_custom_command(
         TARGET Doom3BFG

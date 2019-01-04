@@ -17,7 +17,7 @@ endif()
 macro(add_precompiled_header FILES USE_PCH PRECOMPILED_HEADER PRECOMPILED_SOURCE)
     if(MSVC)
         set(SOURCES ${${USE_PCH}})
-        list(FILTER SOURCES INCLUDE REGEX ".+\\.(cpp|h)$")
+        list(FILTER SOURCES INCLUDE REGEX ".+\\.(c|cpp|h)$")
 
         set_source_files_properties(${PRECOMPILED_SOURCE} PROPERTIES COMPILE_FLAGS "/Yc\"${PRECOMPILED_HEADER}\"")
         set_source_files_properties(${SOURCES} PROPERTIES COMPILE_FLAGS "/Yu\"${PRECOMPILED_HEADER}\" /FI\"${PRECOMPILED_HEADER}\"")
@@ -40,17 +40,6 @@ endif()
 
 # OpenGL
 find_package(OpenGL REQUIRED)
-
-# OpenAL
-if(WIN32)
-    set(ENV{OPENALDIR} "external/openal-soft-1.17.2-bin")
-endif()
-
-find_package(OpenAL REQUIRED)
-
-if(WIN32)
-    get_filename_component(OPENAL_DLL "${OPENAL_INCLUDE_DIR}/../../bin/${PLATFORM_NAME}/OpenAL32.dll" ABSOLUTE)
-endif()
 
 # SDL2
 if(WIN32)
@@ -95,9 +84,6 @@ if(MSVC)
         # use Visual Studio 2013 warnings
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wv:18 /wd4244 /wd4091")
     endif()
-
-    # OpenAL fix
-    set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO")
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
 endif()
