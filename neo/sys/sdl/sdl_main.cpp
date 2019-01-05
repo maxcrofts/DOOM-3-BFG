@@ -606,10 +606,10 @@ Sys_ListFiles
 ==============
 */
 int Sys_ListFiles( const char *directory, const char *extension, idStrList &list ) {
-	idStr		search;
-	struct _finddata_t findinfo;
-	int			findhandle;
-	int			flag;
+	idStr				search;
+	struct _finddata_t	findinfo;
+	intptr_t			findhandle;
+	int					flag;
 
 	if ( !extension) {
 		extension = "";
