@@ -1241,7 +1241,9 @@ int main( int argc, char *argv[] ) {
 #endif
 
 //	Sys_FPU_EnableExceptions( TEST_FPU_EXCEPTIONS );
+#ifndef ID_PC_WIN64
 	Sys_FPU_SetPrecision( FPU_PRECISION_DOUBLE_EXTENDED );
+#endif
 
 	if ( argc > 1 ) {
 		common->Init( argc-1, &argv[1], NULL );
