@@ -748,6 +748,7 @@ void idEvent::Save( idSaveGame *savefile ) {
 	byte *dataPtr;
 	bool validTrace;
 	const char	*format;
+	idStr s;
 
 	savefile->WriteInt( EventQueue.Num() );
 
@@ -764,17 +765,26 @@ void idEvent::Save( idSaveGame *savefile ) {
 			switch( format[ i ] ) {
 				case D_EVENT_FLOAT :
 					savefile->WriteFloat( *reinterpret_cast<float *>( dataPtr ) );
-					size += sizeof( float );
+					size += sizeof( intptr_t );
 					break;
 				case D_EVENT_INTEGER :
+					savefile->WriteInt( *reinterpret_cast<int *>( dataPtr ) );
+					size += sizeof( intptr_t );
+					break;
 				case D_EVENT_ENTITY :
 				case D_EVENT_ENTITY_NULL :
-					savefile->WriteInt( *reinterpret_cast<int *>( dataPtr ) );
-					size += sizeof( int );
+					reinterpret_cast< idEntityPtr<idEntity> * >( dataPtr )->Save(savefile);
+					size += sizeof( intptr_t );
 					break;
 				case D_EVENT_VECTOR :
 					savefile->WriteVec3( *reinterpret_cast<idVec3 *>( dataPtr ) );
-					size += sizeof( idVec3 );
+					size += E_EVENT_SIZEOF_VEC;
+					break;
+				case D_EVENT_STRING :
+					s.Clear();
+					s.Append(reinterpret_cast<char *>(dataPtr));
+					savefile->WriteString(s);
+					size += MAX_STRING_LEN;
 					break;
 				case D_EVENT_TRACE :
 					validTrace = *reinterpret_cast<bool *>( dataPtr );
@@ -795,7 +805,7 @@ void idEvent::Save( idSaveGame *savefile ) {
 					break;
 			}
 		}
-		assert( size == (int)event->eventdef->GetArgSize() );
+		assert( size == event->eventdef->GetArgSize() );
 		event = event->eventNode.Next();
 	}
 
@@ -827,6 +837,7 @@ void idEvent::Restore( idRestoreGame *savefile ) {
 	byte *dataPtr;
 	idEvent	*event;
 	const char	*format;
+	idStr s;
 
 	savefile->ReadInt( num );
 
@@ -844,25 +855,23 @@ void idEvent::Restore( idRestoreGame *savefile ) {
 		// read the event name
 		savefile->ReadString( name );
 		event->eventdef = idEventDef::FindEvent( name );
-		if ( event->eventdef == NULL ) {
+		if ( !event->eventdef ) {
 			savefile->Error( "idEvent::Restore: unknown event '%s'", name.c_str() );
-			return;
 		}
 
 		// read the classtype
 		savefile->ReadString( name );
 		event->typeinfo = idClass::GetClass( name );
-		if ( event->typeinfo == NULL ) {
+		if ( !event->typeinfo ) {
 			savefile->Error( "idEvent::Restore: unknown class '%s' on event '%s'", name.c_str(), event->eventdef->GetName() );
-			return;
 		}
 
 		savefile->ReadObject( event->object );
 
 		// read the args
 		savefile->ReadInt( argsize );
-		if ( argsize != (int)event->eventdef->GetArgSize() ) {
-			savefile->Error( "idEvent::Restore: arg size (%d) doesn't match saved arg size(%d) on event '%s'", event->eventdef->GetArgSize(), argsize, event->eventdef->GetName() );
+		if ( argsize != event->eventdef->GetArgSize() ) {
+			savefile->Error( "idEvent::Restore: arg size (%zd) doesn't match saved arg size(%d) on event '%s'", event->eventdef->GetArgSize(), argsize, event->eventdef->GetName() );
 		}
 		if ( argsize ) {
 			event->data = eventDataAllocator.Alloc( argsize );
@@ -873,17 +882,25 @@ void idEvent::Restore( idRestoreGame *savefile ) {
 				switch( format[ j ] ) {
 					case D_EVENT_FLOAT :
 						savefile->ReadFloat( *reinterpret_cast<float *>( dataPtr ) );
-						size += sizeof( float );
+						size += sizeof( intptr_t );
 						break;
 					case D_EVENT_INTEGER :
+						savefile->ReadInt( *reinterpret_cast<int *>( dataPtr ) );
+						size += sizeof( intptr_t );
+						break;
 					case D_EVENT_ENTITY :
 					case D_EVENT_ENTITY_NULL :
-						savefile->ReadInt( *reinterpret_cast<int *>( dataPtr ) );
-						size += sizeof( int );
+						reinterpret_cast< idEntityPtr<idEntity> * >( dataPtr )->Restore(savefile);
+						size += sizeof( intptr_t );
 						break;
 					case D_EVENT_VECTOR :
 						savefile->ReadVec3( *reinterpret_cast<idVec3 *>( dataPtr ) );
-						size += sizeof( idVec3 );
+						size += E_EVENT_SIZEOF_VEC;
+						break;
+					case D_EVENT_STRING :
+						savefile->ReadString(s);
+						idStr::Copynz(reinterpret_cast<char *>(dataPtr), s, MAX_STRING_LEN);
+						size += MAX_STRING_LEN;
 						break;
 					case D_EVENT_TRACE :
 						savefile->ReadBool( *reinterpret_cast<bool *>( dataPtr ) );
@@ -903,7 +920,7 @@ void idEvent::Restore( idRestoreGame *savefile ) {
 						break;
 				}
 			}
-			assert( size == (int)event->eventdef->GetArgSize() );
+			assert( size == event->eventdef->GetArgSize() );
 		} else {
 			event->data = NULL;
 		}
@@ -943,8 +960,8 @@ void idEvent::Restore( idRestoreGame *savefile ) {
 
 		// read the args
 		savefile->ReadInt( argsize );
-		if ( argsize != (int)event->eventdef->GetArgSize() ) {
-			savefile->Error( "idEvent::Restore: arg size (%d) doesn't match saved arg size(%d) on event '%s'", event->eventdef->GetArgSize(), argsize, event->eventdef->GetName() );
+		if ( argsize != event->eventdef->GetArgSize() ) {
+			savefile->Error( "idEvent::Restore: arg size (%zd) doesn't match saved arg size(%d) on event '%s'", event->eventdef->GetArgSize(), argsize, event->eventdef->GetName() );
 		}
 		if ( argsize ) {
 			event->data = eventDataAllocator.Alloc( argsize );
