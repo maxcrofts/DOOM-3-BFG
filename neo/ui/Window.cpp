@@ -1710,39 +1710,39 @@ void idWindow::PostParse() {
 idWindow::GetWinVarOffset
 ================
 */
-int idWindow::GetWinVarOffset( idWinVar *wv, drawWin_t* owner) {
-	int ret = -1;
+intptr_t idWindow::GetWinVarOffset( idWinVar *wv, drawWin_t* owner) {
+	intptr_t ret = -1;
 
 	if ( wv == &rect ) {
-		ret = (int)&( ( idWindow * ) 0 )->rect;
+		ret = (ptrdiff_t)&this->rect - (ptrdiff_t)this;
 	}
 
 	if ( wv == &backColor ) {
-		ret = (int)&( ( idWindow * ) 0 )->backColor;
+		ret = (ptrdiff_t)&this->backColor - (ptrdiff_t)this;
 	}
 
 	if ( wv == &matColor ) {
-		ret = (int)&( ( idWindow * ) 0 )->matColor;
+		ret = (ptrdiff_t)&this->matColor - (ptrdiff_t)this;
 	}
 
 	if ( wv == &foreColor ) {
-		ret = (int)&( ( idWindow * ) 0 )->foreColor;
+		ret = (ptrdiff_t)&this->foreColor - (ptrdiff_t)this;
 	}
 
 	if ( wv == &hoverColor ) {
-		ret = (int)&( ( idWindow * ) 0 )->hoverColor;
+		ret = (ptrdiff_t)&this->hoverColor - (ptrdiff_t)this;
 	}
 
 	if ( wv == &borderColor ) {
-		ret = (int)&( ( idWindow * ) 0 )->borderColor;
+		ret = (ptrdiff_t)&this->borderColor - (ptrdiff_t)this;
 	}
 
 	if ( wv == &textScale ) {
-		ret = (int)&( ( idWindow * ) 0 )->textScale;
+		ret = (ptrdiff_t)&this->textScale - (ptrdiff_t)this;
 	}
 
 	if ( wv == &rotate ) {
-		ret = (int)&( ( idWindow * ) 0 )->rotate;
+		ret = (ptrdiff_t)&this->rotate - (ptrdiff_t)this;
 	}
 
 	if ( ret != -1 ) {
@@ -2627,7 +2627,7 @@ idWindow::EmitOp
 ================
 */
 
-int idWindow::EmitOp( int a, int b, wexpOpType_t opType, wexpOp_t **opp ) {
+intptr_t idWindow::EmitOp( intptr_t a, intptr_t b, wexpOpType_t opType, wexpOp_t **opp ) {
 	wexpOp_t *op;
 /*
 	// optimize away identity operations
@@ -2678,8 +2678,8 @@ int idWindow::EmitOp( int a, int b, wexpOpType_t opType, wexpOp_t **opp ) {
 idWindow::ParseEmitOp
 ================
 */
-int idWindow::ParseEmitOp( idTokenParser *src, int a, wexpOpType_t opType, int priority, wexpOp_t **opp ) {
-	int b = ParseExpressionPriority( src, priority );
+intptr_t idWindow::ParseEmitOp( idTokenParser *src, intptr_t a, wexpOpType_t opType, int priority, wexpOp_t **opp ) {
+	intptr_t b = ParseExpressionPriority( src, priority );
 	return EmitOp( a, b, opType, opp );  
 }
 
@@ -2691,9 +2691,9 @@ idWindow::ParseTerm
 Returns a register index
 =================
 */
-int idWindow::ParseTerm( idTokenParser *src,	idWinVar *var, int component ) {
+intptr_t idWindow::ParseTerm( idTokenParser *src, idWinVar *var, intptr_t component ) {
 	idToken token;
-	int		a, b;
+	intptr_t a, b;
 
 	src->ReadToken( &token );
 
@@ -2736,7 +2736,7 @@ int idWindow::ParseTerm( idTokenParser *src,	idWinVar *var, int component ) {
 		var = GetWinVarByName(token, true);
 	}
 	if (var) {
-		a = (int)var;
+		a = (intptr_t)var;
 		//assert(dynamic_cast<idWinVec4*>(var));
 		var->Init(token, this);
 		b = component;
@@ -2766,7 +2766,7 @@ int idWindow::ParseTerm( idTokenParser *src,	idWinVar *var, int component ) {
 		// ugly but used for post parsing to fixup named vars
 		char *p = new (TAG_OLD_UI) char[token.Length()+1];
 		strcpy(p, token);
-		a = (int)p;
+		a = (intptr_t)p;
 		b = -2;
 		return EmitOp(a, b, WOP_TYPE_VAR);
 	}
@@ -2781,9 +2781,9 @@ Returns a register index
 =================
 */
 #define	TOP_PRIORITY 4
-int idWindow::ParseExpressionPriority( idTokenParser *src, int priority, idWinVar *var, int component ) {
+intptr_t idWindow::ParseExpressionPriority( idTokenParser *src, int priority, idWinVar *var, intptr_t component ) {
 	idToken token;
-	int		a;
+	intptr_t a;
 
 	if ( priority == 0 ) {
 		return ParseTerm( src, var, component );
@@ -2838,7 +2838,7 @@ int idWindow::ParseExpressionPriority( idTokenParser *src, int priority, idWinVa
 	}
 	if ( priority == 4 && token == "?" ) {
 		wexpOp_t *oop = NULL;
-		int o = ParseEmitOp( src, a, WOP_TYPE_COND, priority, &oop );
+		intptr_t o = ParseEmitOp( src, a, WOP_TYPE_COND, priority, &oop );
 		if ( !src->ReadToken( &token ) ) {
 			return o;
 		}
@@ -2864,7 +2864,7 @@ idWindow::ParseExpression
 Returns a register index
 ================
 */
-int idWindow::ParseExpression(idTokenParser *src, idWinVar *var, int component) {
+intptr_t idWindow::ParseExpression(idTokenParser *src, idWinVar *var, intptr_t component) {
 	return ParseExpressionPriority( src, TOP_PRIORITY, var );
 }
 
@@ -3745,7 +3745,7 @@ void idWindow::FixupParms() {
 			const char *p = (const char*)(ops[i].a);
 			idWinVar *var = GetWinVarByName(p, true);
 			delete []p;
-			ops[i].a = (int)var;
+			ops[i].a = (intptr_t)var;
 			ops[i].b = -1;
 		}
 	}
