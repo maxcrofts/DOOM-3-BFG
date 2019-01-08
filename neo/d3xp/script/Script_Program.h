@@ -459,6 +459,8 @@ private:
 	int											top_files;
 
 	void										CompileStats();
+	byte										*ReserveMem( int size );
+	idVarDef									*AllocVarDef( idTypeDef *type, const char *name, idVarDef *scope );
 
 public:
 	idVarDef									*returnDef;

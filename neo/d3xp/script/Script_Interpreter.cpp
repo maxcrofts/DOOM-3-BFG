@@ -691,7 +691,7 @@ void idInterpreter::CallEvent( const function_t *func, int argsize ) {
 	varEval_t			var;
 	int 				pos;
 	int 				start;
-	int					data[ D_EVENT_MAXARGS ];
+	intptr_t			data[ D_EVENT_MAXARGS ];
 	const idEventDef	*evdef;
 	const char			*format;
 
@@ -751,7 +751,7 @@ void idInterpreter::CallEvent( const function_t *func, int argsize ) {
 		switch( format[ i ] ) {
 		case D_EVENT_INTEGER :
 			var.intPtr = ( int * )&localstack[ start + pos ];
-			data[ i ] = int( *var.floatPtr );
+			( *( int * )&data[ i ] ) = int( *var.floatPtr );
 			break;
 
 		case D_EVENT_FLOAT :
@@ -863,7 +863,7 @@ void idInterpreter::CallSysEvent( const function_t *func, int argsize ) {
 	varEval_t			source;
 	int 				pos;
 	int 				start;
-	int					data[ D_EVENT_MAXARGS ];
+	intptr_t			data[ D_EVENT_MAXARGS ];
 	const idEventDef	*evdef;
 	const char			*format;
 
@@ -1815,9 +1815,7 @@ bool idInterpreter::Execute() {
 
 		case OP_PUSH_V:
 			var_a = GetVariable( st->a );
-			Push( *reinterpret_cast<int *>( &var_a.vectorPtr->x ) );
-			Push( *reinterpret_cast<int *>( &var_a.vectorPtr->y ) );
-			Push( *reinterpret_cast<int *>( &var_a.vectorPtr->z ) );
+			PushVector( *var_a.vectorPtr );
 			break;
 
 		case OP_PUSH_OBJ:
