@@ -109,11 +109,8 @@ idEventDef::idEventDef( const char *command, const char *formatspec, char return
 			break;
 
 		case D_EVENT_ENTITY :
-			argsize += sizeof( idEntityPtr<idEntity> );
-			break;
-
 		case D_EVENT_ENTITY_NULL :
-			argsize += sizeof( idEntityPtr<idEntity> );
+			argsize += sizeof( intptr_t );
 			break;
 
 		case D_EVENT_TRACE :
