@@ -77,7 +77,9 @@ if(MSVC)
     endif()
 
     # treat warnings as errors
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
+    if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
+    endif()
 
     # build fails with Visual Studio 2015 when /WX is enabled
     if(VS_VERSION GREATER 12)

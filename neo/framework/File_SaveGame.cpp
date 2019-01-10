@@ -42,7 +42,7 @@ TODO: CRC on each block
 ZlibAlloc
 ========================
 */
-void * ZlibAlloc( void *opaque, uInt items, uInt size ) {
+void * ZlibAlloc( void *opaque, size_t items, size_t size ) {
 	return Mem_Alloc( items * size, TAG_SAVEGAMES );
 }
 

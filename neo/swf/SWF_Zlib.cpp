@@ -36,7 +36,7 @@ idSWF::Inflate
 */
 bool idSWF::Inflate( const byte * input, int inputSize, byte * output, int outputSize ) {
 	struct local_swf_alloc_t {
-		static void * zalloc( void * opaque, uint32 items, uint32 size ) {
+		static void * zalloc( void * opaque, size_t items, size_t size ) {
 			return Mem_Alloc( items * size, TAG_SWF );
 		}
 		static void zfree( void * opaque, void * ptr ) {
