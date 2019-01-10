@@ -802,7 +802,7 @@ void idEvent::Save( idSaveGame *savefile ) {
 					break;
 			}
 		}
-		assert( size == event->eventdef->GetArgSize() );
+		assert( size == (int)event->eventdef->GetArgSize() );
 		event = event->eventNode.Next();
 	}
 
@@ -867,7 +867,7 @@ void idEvent::Restore( idRestoreGame *savefile ) {
 
 		// read the args
 		savefile->ReadInt( argsize );
-		if ( argsize != event->eventdef->GetArgSize() ) {
+		if ( argsize != (int)event->eventdef->GetArgSize() ) {
 			savefile->Error( "idEvent::Restore: arg size (%zd) doesn't match saved arg size(%d) on event '%s'", event->eventdef->GetArgSize(), argsize, event->eventdef->GetName() );
 		}
 		if ( argsize ) {
@@ -917,7 +917,7 @@ void idEvent::Restore( idRestoreGame *savefile ) {
 						break;
 				}
 			}
-			assert( size == event->eventdef->GetArgSize() );
+			assert( size == (int)event->eventdef->GetArgSize() );
 		} else {
 			event->data = NULL;
 		}
@@ -957,7 +957,7 @@ void idEvent::Restore( idRestoreGame *savefile ) {
 
 		// read the args
 		savefile->ReadInt( argsize );
-		if ( argsize != event->eventdef->GetArgSize() ) {
+		if ( argsize != (int)event->eventdef->GetArgSize() ) {
 			savefile->Error( "idEvent::Restore: arg size (%zd) doesn't match saved arg size(%d) on event '%s'", event->eventdef->GetArgSize(), argsize, event->eventdef->GetName() );
 		}
 		if ( argsize ) {
