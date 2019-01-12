@@ -78,7 +78,7 @@ set(DOOM3BFG_FRAMEWORK_FILES
     "framework/KeyInput.cpp"
     "framework/KeyInput.h"
     "framework/Licensee.h"
-    "framework/miniz.cpp"
+    "framework/miniz.c"
     "framework/miniz.h"
     "framework/PlayerProfile.cpp"
     "framework/PlayerProfile.h"
@@ -484,7 +484,7 @@ endif()
 # precompiled headers
 set(DOOM3BFG_USE_PRECOMPILED_HEADER ${DOOM3BFG_FILES})
 list(REMOVE_ITEM DOOM3BFG_USE_PRECOMPILED_HEADER
-    "framework/miniz.cpp"
+    "framework/miniz.c"
     "renderer/jobs/ShadowShared.cpp"
     "renderer/jobs/dynamicshadowvolume/DynamicShadowVolume.cpp"
     "renderer/jobs/prelightshadowvolume/PreLightShadowVolume.cpp"
