@@ -87,7 +87,7 @@ if(MSVC)
 
     # disable warnings introduced after Visual Studio 2013
     if(VS_VERSION GREATER 12)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4121 /wd4244 /wd4456 /wd4457 /wd4458 /wd4459 /wd4467 /wd4499 /wd4595")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4091 /wd4121 /wd4244 /wd4456 /wd4457 /wd4458 /wd4459 /wd4467 /wd4499 /wd4595")
     endif()
 
     # use most-general representation for member pointers
