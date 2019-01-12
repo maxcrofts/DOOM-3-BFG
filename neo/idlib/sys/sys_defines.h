@@ -41,7 +41,6 @@ If you have questions concerning this license or the applicable additional terms
 #undef ID_PC
 #undef ID_PC_WIN
 #undef ID_PC_WIN64
-#undef ID_CONSOLE
 #undef ID_WIN32
 #undef ID_LITTLE_ENDIAN
 
@@ -49,23 +48,20 @@ If you have questions concerning this license or the applicable additional terms
 	// _WIN32 always defined
 	// _WIN64 also defined for x64 target
 	#if !defined( _MANAGED )
-		#if !defined( _WIN64 )
+		#if defined( _WIN64 )
+			#define ID_PC_WIN64
+		#endif
+
+		#if !defined( _WIN64 ) && !defined( __clang__ )
 			#define ID_WIN_X86_ASM
 			#define ID_WIN_X86_MMX_ASM
-			#define ID_WIN_X86_MMX_INTRIN
 			#define ID_WIN_X86_SSE_ASM
-			#define ID_WIN_X86_SSE_INTRIN
 			#define ID_WIN_X86_SSE2_ASM
-			#define ID_WIN_X86_SSE2_INTRIN
-			// the 32 bit build is now as close to the console builds as possible
-			#define ID_CONSOLE
-		#else
-			#define ID_PC_WIN64
-			#define ID_WIN_X86_MMX_INTRIN
-			#define ID_WIN_X86_SSE_INTRIN
-			#define ID_WIN_X86_SSE2_INTRIN
-			#define ID_WIN_X86_SSE3_INTRIN
 		#endif
+
+		#define ID_WIN_X86_MMX_INTRIN
+		#define ID_WIN_X86_SSE_INTRIN
+		#define ID_WIN_X86_SSE2_INTRIN
 	#endif
 
 	#define ID_PC
