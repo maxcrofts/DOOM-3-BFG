@@ -2339,7 +2339,7 @@ void idFileSystemLocal::CreateCRCsForResourceFileList( const idFileList & list )
 		crcFilename.SetFileExtension( ".crc" );
 		std::auto_ptr<idFile> crcOutputFile( fileSystem->OpenFileWrite( crcFilename, "fs_basepath" ) );
 		if ( crcOutputFile.get() == NULL ) {
-			idLib::Printf( "Error writing CRC file %s.\n", crcFilename );
+			idLib::Printf( "Error writing CRC file %s.\n", crcFilename.c_str() );
 			continue;
 		}
 		
