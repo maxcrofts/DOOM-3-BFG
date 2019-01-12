@@ -69,6 +69,7 @@ If you have questions concerning this license or the applicable additional terms
 #endif /* !_D3SDK */
 
 #include <intrin.h>			// needed for intrinsics like _mm_setzero_si28
+#include <emmintrin.h>
 
 #pragma warning(disable : 4100)				// unreferenced formal parameter
 #pragma warning(disable : 4127)				// conditional expression is constant
