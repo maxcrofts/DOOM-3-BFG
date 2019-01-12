@@ -3,6 +3,10 @@ project(doom3)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set(CLANG 1)
+endif()
+
 if(WIN32)
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
         set(PLATFORM_NAME "Win64")
@@ -69,22 +73,59 @@ if(MSVC)
     # enable multi-processor compilation
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 
-    # force to always compile with W4
+    # force W4
     if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
         string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     else()
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
     endif()
 
-    # treat warnings as errors
-    if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+    # treat warnings as errors for 32-bit builds
+    if(CMAKE_SIZEOF_VOID_P EQUAL 4 AND NOT CLANG)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
     endif()
 
-    # build fails with Visual Studio 2015 when /WX is enabled
+    # disable warnings introduced after Visual Studio 2013
     if(VS_VERSION GREATER 12)
-        # use Visual Studio 2013 warnings
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wv:18 /wd4244 /wd4091")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4121 /wd4244 /wd4456 /wd4457 /wd4458 /wd4459 /wd4467 /wd4499 /wd4595")
+    endif()
+
+    # use most-general representation for member pointers
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /vmg")
+
+    # disable some clang specific warnings
+    if(CLANG)
+        set(CLANG_FLAGS
+            "-Wno-bitwise-op-parentheses"
+            "-Wno-dangling-else"
+            "-Wno-deprecated-declarations"
+            "-Wno-ignored-attributes"
+            "-Wno-ignored-qualifiers"
+            "-Wno-implicit-exception-spec-mismatch"
+            "-Wno-inline-new-delete"
+            "-Wno-invalid-noreturn"
+            "-Wno-logical-op-parentheses"
+            "-Wno-missing-braces"
+            "-Wno-missing-field-initializers"
+            "-Wno-overloaded-virtual"
+            "-Wno-parentheses-equality"
+            "-Wno-pragma-pack"
+            "-Wno-reorder"
+            "-Wno-reserved-user-defined-literal"
+            "-Wno-shift-negative-value"
+            "-Wno-sign-compare"
+            "-Wno-switch"
+            "-Wno-unknown-pragmas"
+            "-Wno-unused-function"
+            "-Wno-unused-local-typedef"
+            "-Wno-unused-parameter"
+            "-Wno-unused-private-field"
+            "-Wno-unused-value"
+            "-Wno-unused-variable"
+            "-Wno-writable-strings"
+        )
+        string(REPLACE ";" " " CLANG_FLAGS "${CLANG_FLAGS}")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CLANG_FLAGS}")
     endif()
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
