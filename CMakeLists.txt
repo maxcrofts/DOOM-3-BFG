@@ -13,9 +13,6 @@ if(WIN32)
     else()
         set(PLATFORM_NAME "Win32")
     endif()
-
-    string(REPLACE " " ";" GENERATOR_LIST ${CMAKE_GENERATOR})
-    list(GET GENERATOR_LIST 2 VS_VERSION)
 endif()
 
 macro(add_precompiled_header FILES USE_PCH PRECOMPILED_HEADER PRECOMPILED_SOURCE)
@@ -86,7 +83,7 @@ if(MSVC)
     endif()
 
     # disable warnings introduced after Visual Studio 2013
-    if(VS_VERSION GREATER 12)
+    if(MSVC_VERSION GREATER 1800)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4091 /wd4121 /wd4244 /wd4456 /wd4457 /wd4458 /wd4459 /wd4467 /wd4595")
     endif()
 

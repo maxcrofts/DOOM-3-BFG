@@ -4,7 +4,7 @@ if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 
     # disable warnings introduced after Visual Studio 2013
-    if(VS_VERSION GREATER 12)
+    if(MSVC_VERSION GREATER 1800)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4467 /wd4595")
     endif()
 
