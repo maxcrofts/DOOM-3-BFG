@@ -474,7 +474,6 @@ int64			Sys_GetDriveFreeSpaceInBytes( const char * path );
 
 // returns memory stats
 void			Sys_GetCurrentMemoryStatus( sysMemoryStats_t &stats );
-void			Sys_GetExeLaunchMemoryStatus( sysMemoryStats_t &stats );
 
 // lock and unlock memory
 bool			Sys_LockMemory( void *ptr, int bytes );
@@ -546,17 +545,6 @@ const char *	Sys_DefaultSavePath();
 
 // know early if we are performing a fatal error shutdown so the error message doesn't get lost
 void			Sys_SetFatalError( const char *error );
-
-// Execute the specified process and wait until it's done, calling workFn every waitMS milliseconds.
-// If showOutput == true, std IO from the executed process will be output to the console.
-// Note that the return value is not an indication of the exit code of the process, but is false
-// only if the process could not be created at all. If you wish to check the exit code of the 
-// spawned process, check the value returned in exitCode.
-typedef bool ( *execProcessWorkFunction_t )();
-typedef void ( *execOutputFunction_t)( const char * text );
-bool Sys_Exec(	const char * appPath, const char * workingPath, const char * args, 
-	execProcessWorkFunction_t workFn, execOutputFunction_t outputFn, const int waitMS,
-	unsigned int & exitCode );
 
 // localization
 
@@ -714,9 +702,6 @@ public:
 
 	virtual sysEvent_t		GenerateMouseButtonEvent( int button, bool down ) = 0;
 	virtual sysEvent_t		GenerateMouseMoveEvent( int deltax, int deltay ) = 0;
-
-	virtual void			OpenURL( const char *url, bool quit ) = 0;
-	virtual void			StartProcess( const char *exePath, bool quit ) = 0;
 };
 
 extern idSys *				sys;

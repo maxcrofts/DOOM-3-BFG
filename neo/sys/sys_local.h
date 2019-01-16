@@ -68,9 +68,6 @@ public:
 
 	virtual sysEvent_t		GenerateMouseButtonEvent( int button, bool down );
 	virtual sysEvent_t		GenerateMouseMoveEvent( int deltax, int deltay );
-
-	virtual void			OpenURL( const char *url, bool quit );
-	virtual void			StartProcess( const char *exeName, bool quit );
 };
 
 #endif /* !__SYS_LOCAL__ */
