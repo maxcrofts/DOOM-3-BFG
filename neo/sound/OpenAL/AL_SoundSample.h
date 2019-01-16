@@ -74,23 +74,7 @@ public:
 	void			SetLastPlayedTime( int t ) { lastPlayedTime = t; }
 	
 	float			GetAmplitude( int timeMS ) const;
-	
-#if 0 //defined(AL_SOFT_buffer_samples)
-	const char*		OpenALSoftChannelsName( ALenum chans ) const;
-	
-	const char*		OpenALSoftTypeName( ALenum type ) const;
-	
-	ALsizei			FramesToBytes( ALsizei size, ALenum channels, ALenum type ) const;
-	ALsizei			BytesToFrames( ALsizei size, ALenum channels, ALenum type ) const;
-	
-	/* Retrieves a compatible buffer format given the channel configuration and
-	 * sample type. If an alIsBufferFormatSupportedSOFT-compatible function is
-	 * provided, it will be called to find the closest-matching format from
-	 * AL_SOFT_buffer_samples. Returns AL_NONE (0) if no supported format can be
-	 * found. */
-	ALenum			GetOpenALSoftFormat( ALenum channels, ALenum type ) const;
-#endif
-	
+
 	ALenum			GetOpenALBufferFormat() const;
 	
 	void			CreateOpenALBuffer();
