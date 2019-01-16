@@ -7,21 +7,21 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(CLANG 1)
 endif()
 
-if(WIN32)
-    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-        set(PLATFORM_NAME "Win64")
-    else()
-        set(PLATFORM_NAME "Win32")
-    endif()
-endif()
-
 macro(add_precompiled_header FILES USE_PCH PRECOMPILED_HEADER PRECOMPILED_SOURCE)
     if(MSVC)
+        if(CLANG)
+            get_filename_component(PRECOMPILED_SOURCE_ABS "${PRECOMPILED_SOURCE}" ABSOLUTE BASE_DIR "${CMAKE_CURRENT_LIST_DIR}")
+            get_filename_component(PRECOMPILED_SOURCE_DIR "${PRECOMPILED_SOURCE_ABS}" DIRECTORY)
+            set(PCH "${PRECOMPILED_SOURCE_DIR}/${PRECOMPILED_HEADER}")
+        else()
+            set(PCH "${PRECOMPILED_HEADER}")
+        endif()
+
         set(SOURCES ${${USE_PCH}})
         list(FILTER SOURCES INCLUDE REGEX ".+\\.(c|cpp|h)$")
 
-        set_source_files_properties(${PRECOMPILED_SOURCE} PROPERTIES COMPILE_FLAGS "/Yc\"${PRECOMPILED_HEADER}\"")
-        set_source_files_properties(${SOURCES} PROPERTIES COMPILE_FLAGS "/Yu\"${PRECOMPILED_HEADER}\" /FI\"${PRECOMPILED_HEADER}\"")
+        set_source_files_properties(${PRECOMPILED_SOURCE} PROPERTIES COMPILE_FLAGS "/Yc\"${PCH}\"")
+        set_source_files_properties(${SOURCES} PROPERTIES COMPILE_FLAGS "/Yu\"${PCH}\" /FI\"${PCH}\"")
 
         # add precompiled header to FILES
         list(APPEND ${FILES} ${PRECOMPILED_SOURCE})
@@ -56,11 +56,6 @@ if(WIN32)
     get_filename_component(SDL2_LIBRARY_DIR "${SDL2_LIBRARY_HEAD}" DIRECTORY)
     set(SDL2_DLL "${SDL2_LIBRARY_DIR}/SDL2.dll")
 endif()
-
-# set build directory
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/build/${PLATFORM_NAME}")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/build/${PLATFORM_NAME}")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/build/${PLATFORM_NAME}")
 
 # doomclassic
 add_subdirectory("doomclassic")

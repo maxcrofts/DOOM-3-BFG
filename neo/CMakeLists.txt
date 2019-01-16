@@ -492,14 +492,7 @@ list(REMOVE_ITEM DOOM3BFG_USE_PRECOMPILED_HEADER
     "sound/mojoal.c"
 )
 
-if(MSVC AND NOT CLANG)
-    # MSVC requires that this is identical to the include path in the precompiled source file
-    set(DOOM3BFG_PRECOMPILED_HEADER_PATH "../idlib/precompiled.h")
-else()
-    set(DOOM3BFG_PRECOMPILED_HEADER_PATH "idlib/precompiled.h")
-endif()
-
-add_precompiled_header(DOOM3BFG_FILES DOOM3BFG_USE_PRECOMPILED_HEADER ${DOOM3BFG_PRECOMPILED_HEADER_PATH} "framework/precompiled.cpp")
+add_precompiled_header(DOOM3BFG_FILES DOOM3BFG_USE_PRECOMPILED_HEADER "../idlib/precompiled.h" "framework/precompiled.cpp")
 source_group("Framework" FILES "framework/precompiled.cpp")
 
 add_executable(Doom3BFG WIN32 ${DOOM3BFG_FILES} $<TARGET_OBJECTS:Game-d3xp>)
