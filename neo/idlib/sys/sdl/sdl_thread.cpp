@@ -113,33 +113,15 @@ void Sys_Yield() {
 
 /*
 ========================
-Signal::Signal
-========================
-*/
-Signal::Signal( bool manualReset ) :
-	manualReset( manualReset ),
-	signaled( false ),
-	mutex( SDL_CreateMutex() ),
-	condition( SDL_CreateCond() ) {
-}
-
-/*
-========================
-Signal::~Signal
-========================
-*/
-Signal::~Signal() {
-	SDL_DestroyMutex( mutex );
-	SDL_DestroyCond( condition );
-}
-
-/*
-========================
 Sys_SignalCreate
 ========================
 */
 void Sys_SignalCreate( signalHandle_t & handle, bool manualReset ) {
-	handle = new Signal( manualReset );
+	handle = (signalHandle_t) malloc( sizeof( Signal ) );
+	handle->manualReset = manualReset;
+	handle->signaled = false;
+	handle->mutex = SDL_CreateMutex();
+	handle->condition = SDL_CreateCond();
 }
 
 /*
@@ -148,7 +130,9 @@ Sys_SignalDestroy
 ========================
 */
 void Sys_SignalDestroy( signalHandle_t &handle ) {
-	delete handle;
+	SDL_DestroyMutex( handle->mutex );
+	SDL_DestroyCond( handle->condition );
+	free( handle );
 }
 
 /*
