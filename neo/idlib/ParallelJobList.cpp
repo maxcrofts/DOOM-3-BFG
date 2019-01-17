@@ -1067,7 +1067,7 @@ idParallelJobManagerLocal
 ================================================================================================
 */
 
-extern void Sys_CPUCount( int & logicalNum, int & coreNum, int & packageNum );
+extern int Sys_GetCPUCount();
 
 
 // WINDOWS LOGICAL PROCESSOR LIMITS:
@@ -1128,9 +1128,7 @@ public:
 private:
 	idJobThread						threads[MAX_JOB_THREADS];
 	unsigned int					maxThreads;
-	int								numPhysicalCpuCores;
 	int								numLogicalCpuCores;
-	int								numCpuPackages;
 	idStaticList< idParallelJobList *, MAX_JOBLISTS >	jobLists;
 };
 
@@ -1161,7 +1159,7 @@ void idParallelJobManagerLocal::Init() {
 	}
 	maxThreads = jobs_numThreads.GetInteger();
 
-	Sys_CPUCount( numPhysicalCpuCores, numLogicalCpuCores, numCpuPackages );
+	numLogicalCpuCores = Sys_GetCPUCount();
 }
 
 /*

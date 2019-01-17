@@ -48,9 +48,7 @@ Sys_GetClockTicks
 ================
 */
 double Sys_GetClockTicks() {
-	LARGE_INTEGER li;
-	QueryPerformanceCounter( &li );
-	return (double) li.LowPart + (double) 0xFFFFFFFF * li.HighPart;
+	return SDL_GetPerformanceCounter();
 }
 
 /*
@@ -59,9 +57,7 @@ Sys_ClockTicksPerSecond
 ================
 */
 double Sys_ClockTicksPerSecond() {
-	LARGE_INTEGER li;
-	QueryPerformanceFrequency( &li );
-	return li.QuadPart;
+	return SDL_GetPerformanceFrequency();
 }
 
 
@@ -93,26 +89,7 @@ CPUID
 ================
 */
 static void CPUID( int func, unsigned regs[4] ) {
-#if 1
 	__cpuid( (int *)regs, func );
-#else
-	unsigned regEAX, regEBX, regECX, regEDX;
-
-	__asm pusha
-	__asm mov eax, func
-	__asm __emit 00fh
-	__asm __emit 0a2h
-	__asm mov regEAX, eax
-	__asm mov regEBX, ebx
-	__asm mov regECX, ecx
-	__asm mov regEDX, edx
-	__asm popa
-
-	regs[_REG_EAX] = regEAX;
-	regs[_REG_EBX] = regEBX;
-	regs[_REG_ECX] = regECX;
-	regs[_REG_EDX] = regEDX;
-#endif
 }
 
 
@@ -308,167 +285,13 @@ static bool HasDAZ() {
 
 /*
 ========================
-CountSetBits 
-Helper function to count set bits in the processor mask.
-========================
-*/
-DWORD CountSetBits( ULONG_PTR bitMask ) {
-	DWORD LSHIFT = sizeof( ULONG_PTR ) * 8 - 1;
-	DWORD bitSetCount = 0;
-	ULONG_PTR bitTest = (ULONG_PTR)1 << LSHIFT;    
-
-	for ( DWORD i = 0; i <= LSHIFT; i++ ) {
-		bitSetCount += ( ( bitMask & bitTest ) ? 1 : 0 );
-		bitTest /= 2;
-	}
-
-	return bitSetCount;
-}
-
-typedef BOOL (WINAPI *LPFN_GLPI)( PSYSTEM_LOGICAL_PROCESSOR_INFORMATION, PDWORD );
-
-enum LOGICAL_PROCESSOR_RELATIONSHIP_LOCAL {
-    localRelationProcessorCore,
-    localRelationNumaNode,
-    localRelationCache,
-	localRelationProcessorPackage
-};
-
-struct cpuInfo_t {
-	int processorPackageCount;
-	int processorCoreCount;
-	int logicalProcessorCount;
-	int numaNodeCount;
-	struct cacheInfo_t {
-		int count;
-		int associativity;
-		int lineSize;
-		int size;
-	} cacheLevel[3];
-};
-
-/*
-========================
-GetCPUInfo
-========================
-*/
-bool GetCPUInfo( cpuInfo_t & cpuInfo ) {
-	PSYSTEM_LOGICAL_PROCESSOR_INFORMATION buffer = NULL;
-	PSYSTEM_LOGICAL_PROCESSOR_INFORMATION ptr = NULL;
-	PCACHE_DESCRIPTOR Cache;
-	LPFN_GLPI	glpi;
-	BOOL		done = FALSE;
-	DWORD		returnLength = 0;
-	DWORD		byteOffset = 0;
-
-	memset( & cpuInfo, 0, sizeof( cpuInfo ) );
-
-	glpi = (LPFN_GLPI)GetProcAddress( GetModuleHandle(TEXT("kernel32")), "GetLogicalProcessorInformation" );
-	if ( NULL == glpi ) {
-		idLib::Printf( "\nGetLogicalProcessorInformation is not supported.\n" );
-		return 0;
-	}
-
-	while ( !done ) {
-		DWORD rc = glpi( buffer, &returnLength );
-
-		if ( FALSE == rc ) {
-			if ( GetLastError() == ERROR_INSUFFICIENT_BUFFER ) {
-				if ( buffer ) {
-					free( buffer );
-				}
-
-				buffer = (PSYSTEM_LOGICAL_PROCESSOR_INFORMATION)malloc( returnLength );
-			} else {
-				idLib::Printf( "Sys_CPUCount error: %d\n", GetLastError() );
-				return false;
-			}
-		} else {
-			done = TRUE;
-		}
-	}
-
-	ptr = buffer;
-
-	while ( byteOffset + sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION) <= returnLength ) {
-		switch ( (LOGICAL_PROCESSOR_RELATIONSHIP_LOCAL) ptr->Relationship ) {
-			case localRelationProcessorCore:
-				cpuInfo.processorCoreCount++;
-
-				// A hyperthreaded core supplies more than one logical processor.
-				cpuInfo.logicalProcessorCount += CountSetBits( ptr->ProcessorMask );
-				break;
-
-			case localRelationNumaNode:
-				// Non-NUMA systems report a single record of this type.
-				cpuInfo.numaNodeCount++;
-				break;
-
-			case localRelationCache:
-				// Cache data is in ptr->Cache, one CACHE_DESCRIPTOR structure for each cache. 
-				Cache = &ptr->Cache;
-				if ( Cache->Level >= 1 && Cache->Level <= 3 ) {
-					int level = Cache->Level - 1;
-					if ( cpuInfo.cacheLevel[level].count > 0 ) {
-						cpuInfo.cacheLevel[level].count++;
-					} else {
-						cpuInfo.cacheLevel[level].associativity = Cache->Associativity;
-						cpuInfo.cacheLevel[level].lineSize = Cache->LineSize;
-						cpuInfo.cacheLevel[level].size = Cache->Size;
-					}
-				}
-				break;
-
-			case localRelationProcessorPackage:
-				// Logical processors share a physical package.
-				cpuInfo.processorPackageCount++;
-				break;
-
-			default:
-				idLib::Printf( "Error: Unsupported LOGICAL_PROCESSOR_RELATIONSHIP value.\n" );
-				break;
-		}
-		byteOffset += sizeof( SYSTEM_LOGICAL_PROCESSOR_INFORMATION );
-		ptr++;
-	}
-
-	free( buffer );
-
-	return true;
-}
-
-/*
-========================
-Sys_GetCPUCacheSize
-========================
-*/
-void Sys_GetCPUCacheSize( int level, int & count, int & size, int & lineSize ) {
-	assert( level >= 1 && level <= 3 );
-	cpuInfo_t cpuInfo;
-
-	GetCPUInfo( cpuInfo );
-
-	count = cpuInfo.cacheLevel[level - 1].count;
-	size = cpuInfo.cacheLevel[level - 1].size;
-	lineSize = cpuInfo.cacheLevel[level - 1].lineSize;
-}
-
-/*
-========================
 Sys_CPUCount
 
-numLogicalCPUCores	- the number of logical CPU per core
-numPhysicalCPUCores	- the total number of cores per package
-numCPUPackages		- the total number of packages (physical processors)
+the total number of logical CPU cores
 ========================
 */
-void Sys_CPUCount( int & numLogicalCPUCores, int & numPhysicalCPUCores, int & numCPUPackages ) {
-	cpuInfo_t cpuInfo;
-	GetCPUInfo( cpuInfo );
-
-	numPhysicalCPUCores = cpuInfo.processorCoreCount;
-	numLogicalCPUCores = cpuInfo.logicalProcessorCount;
-	numCPUPackages = cpuInfo.processorPackageCount;
+int Sys_GetCPUCount() {
+	return SDL_GetCPUCount();
 }
 
 /*
