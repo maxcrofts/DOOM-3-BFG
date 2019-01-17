@@ -460,15 +460,6 @@ void			Sys_FPU_SetFTZ( bool enable );
 // sets Denormals-Are-Zero mode (only available when CPUID_DAZ is set)
 void			Sys_FPU_SetDAZ( bool enable );
 
-// returns amount of system ram
-int				Sys_GetSystemRam();
-
-// returns amount of video ram
-int				Sys_GetVideoRam();
-
-// returns amount of drive space in path
-int				Sys_GetDriveFreeSpace( const char *path );
-
 // returns amount of drive space in path in bytes
 int64			Sys_GetDriveFreeSpaceInBytes( const char * path );
 
@@ -689,11 +680,6 @@ public:
 
 	virtual bool			LockMemory( void *ptr, int bytes ) = 0;
 	virtual bool			UnlockMemory( void *ptr, int bytes ) = 0;
-
-	virtual void			GetCallStack( address_t *callStack, const int callStackSize ) = 0;
-	virtual const char *	GetCallStackStr( const address_t *callStack, const int callStackSize ) = 0;
-	virtual const char *	GetCallStackCurStr( int depth ) = 0;
-	virtual void			ShutdownSymbols() = 0;
 
 	virtual int				DLL_Load( const char *dllName ) = 0;
 	virtual void *			DLL_GetProcAddress( int dllHandle, const char *procName ) = 0;
