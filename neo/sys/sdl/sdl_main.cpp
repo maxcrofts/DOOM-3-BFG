@@ -29,21 +29,6 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "../../idlib/precompiled.h"
 
-#include <errno.h>
-#include <float.h>
-#include <fcntl.h>
-#include <direct.h>
-#include <io.h>
-#include <conio.h>
-#include <mapi.h>
-#include <ShellAPI.h>
-#include <Shlobj.h>
-
-#ifndef __MRC__
-#include <sys/types.h>
-#include <sys/stat.h>
-#endif
-
 #include "../sys_local.h"
 #include "sdl_local.h"
 #include "../../renderer/tr_local.h"
@@ -63,75 +48,6 @@ static char		sys_cmdline[MAX_STRING_CHARS];
 
 static sysMemoryStats_t exeLaunchMemoryStats;
 
-static HANDLE hProcessMutex;
-
-/*
-=============
-Sys_Error
-
-Show the early console as an error dialog
-=============
-*/
-void Sys_Error( const char *error, ... ) {
-	va_list		argptr;
-	char		text[4096];
-    MSG        msg;
-
-	va_start( argptr, error );
-	vsprintf( text, error, argptr );
-	va_end( argptr);
-
-	Conbuf_AppendText( text );
-	Conbuf_AppendText( "\n" );
-
-	Win_SetErrorText( text );
-	Sys_ShowConsole( 1, true );
-
-	timeEndPeriod( 1 );
-
-	Sys_ShutdownInput();
-
-	GLimp_Shutdown();
-
-	extern idCVar com_productionMode;
-	if ( com_productionMode.GetInteger() == 0 ) {
-		// wait for the user to quit
-		while ( 1 ) {
-			if ( !GetMessage( &msg, NULL, 0, 0 ) ) {
-				common->Quit();
-			}
-			TranslateMessage( &msg );
-			DispatchMessage( &msg );
-		}
-	}
-	Sys_DestroyConsole();
-
-	exit (1);
-}
-
-/*
-========================
-Sys_Launch
-========================
-*/
-void Sys_Launch( const char * path, idCmdArgs & args,  void * data, unsigned int dataSize ) {
-
-	TCHAR				szPathOrig[_MAX_PATH];
-	STARTUPINFO			si;
-	PROCESS_INFORMATION	pi;
-
-	ZeroMemory( &si, sizeof(si) );
-	si.cb = sizeof(si);
-
-	strcpy( szPathOrig, va( "\"%s\" %s", Sys_EXEPath(), (const char *)data ) );
-
-	if ( !CreateProcess( NULL, szPathOrig, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi ) ) {
-		idLib::Error( "Could not start process: '%s' ", szPathOrig );
-		return;
-	}
-	cmdSystem->AppendCommandText( "quit\n" );
-}
-
 /*
 ========================
 Sys_GetCmdLine
@@ -142,95 +58,18 @@ const char * Sys_GetCmdLine() {
 }
 
 /*
-========================
-Sys_ReLaunch
-========================
-*/
-void Sys_ReLaunch( void * data, const unsigned int dataSize ) {
-	TCHAR				szPathOrig[MAX_PRINT_MSG];
-	STARTUPINFO			si;
-	PROCESS_INFORMATION	pi;
-
-	ZeroMemory( &si, sizeof(si) );
-	si.cb = sizeof(si);
-
-	strcpy( szPathOrig, va( "\"%s\" %s", Sys_EXEPath(), (const char *)data ) );
-
-	CloseHandle( hProcessMutex );
-
-	if ( !CreateProcess( NULL, szPathOrig, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi ) ) {
-		idLib::Error( "Could not start process: '%s' ", szPathOrig );
-		return;
-	}
-	cmdSystem->AppendCommandText( "quit\n" );
-}
-
-/*
 ==============
 Sys_Quit
 ==============
 */
 void Sys_Quit() {
+#ifdef ID_PC_WIN
 	timeEndPeriod( 1 );
+#endif
 	Sys_ShutdownInput();
 	Sys_DestroyConsole();
 	SDL_Quit();
-	ExitProcess( 0 );
-}
-
-
-/*
-==============
-Sys_Printf
-==============
-*/
-#define MAXPRINTMSG 4096
-void Sys_Printf( const char *fmt, ... ) {
-	char		msg[MAXPRINTMSG];
-
-	va_list argptr;
-	va_start(argptr, fmt);
-	idStr::vsnPrintf( msg, MAXPRINTMSG-1, fmt, argptr );
-	va_end(argptr);
-	msg[sizeof(msg)-1] = '\0';
-
-	OutputDebugString( msg );
-
-	if ( sys_outputEditString.GetBool() && idLib::IsMainThread() ) {
-		Conbuf_AppendText( msg );
-	}
-}
-
-/*
-==============
-Sys_DebugPrintf
-==============
-*/
-#define MAXPRINTMSG 4096
-void Sys_DebugPrintf( const char *fmt, ... ) {
-	char msg[MAXPRINTMSG];
-
-	va_list argptr;
-	va_start( argptr, fmt );
-	idStr::vsnPrintf( msg, MAXPRINTMSG-1, fmt, argptr );
-	msg[ sizeof(msg)-1 ] = '\0';
-	va_end( argptr );
-
-	OutputDebugString( msg );
-}
-
-/*
-==============
-Sys_DebugVPrintf
-==============
-*/
-void Sys_DebugVPrintf( const char *fmt, va_list arg ) {
-	char msg[MAXPRINTMSG];
-
-	idStr::vsnPrintf( msg, MAXPRINTMSG-1, fmt, arg );
-	msg[ sizeof(msg)-1 ] = '\0';
-
-	OutputDebugString( msg );
+	_exit( 0 );
 }
 
 /*
@@ -239,7 +78,7 @@ Sys_Sleep
 ==============
 */
 void Sys_Sleep( int msec ) {
-	Sleep( msec );
+	SDL_Delay( msec );
 }
 
 /*
@@ -266,135 +105,6 @@ bool Sys_IsWindowVisible() {
 
 /*
 ==============
-Sys_Mkdir
-==============
-*/
-void Sys_Mkdir( const char *path ) {
-	_mkdir (path);
-}
-
-/*
-=================
-Sys_FileTimeStamp
-=================
-*/
-ID_TIME_T Sys_FileTimeStamp( idFileHandle fp ) {
-	FILETIME writeTime;
-	GetFileTime( fp, NULL, NULL, &writeTime );
-
-	/*
-		FILETIME = number of 100-nanosecond ticks since midnight 
-		1 Jan 1601 UTC. time_t = number of 1-second ticks since 
-		midnight 1 Jan 1970 UTC. To translate, we subtract a
-		FILETIME representation of midnight, 1 Jan 1970 from the
-		time in question and divide by the number of 100-ns ticks
-		in one second.
-	*/
-
-	SYSTEMTIME base_st = {
-		1970,   // wYear
-		1,      // wMonth
-		0,      // wDayOfWeek
-		1,      // wDay
-		0,      // wHour
-		0,      // wMinute
-		0,      // wSecond
-		0       // wMilliseconds
-	};
-
-	FILETIME base_ft;
-	SystemTimeToFileTime( &base_st, &base_ft );
-
-	LARGE_INTEGER itime;
-	itime.QuadPart = reinterpret_cast<LARGE_INTEGER&>( writeTime ).QuadPart;
-	itime.QuadPart -= reinterpret_cast<LARGE_INTEGER&>( base_ft ).QuadPart;
-	itime.QuadPart /= 10000000LL;
-	return itime.QuadPart;
-}
-
-/*
-========================
-Sys_Rmdir
-========================
-*/
-bool Sys_Rmdir( const char *path ) {
-	return _rmdir( path ) == 0;
-}
-
-/*
-========================
-Sys_IsFileWritable
-========================
-*/
-bool Sys_IsFileWritable( const char *path ) {
-	struct _stat st;
-	if ( _stat( path, &st ) == -1 ) {
-		return true;
-	}
-	return ( st.st_mode & S_IWRITE ) != 0;
-}
-
-/*
-========================
-Sys_IsFolder
-========================
-*/
-sysFolder_t Sys_IsFolder( const char *path ) {
-	struct _stat buffer;
-	if ( _stat( path, &buffer ) < 0 ) {
-		return FOLDER_ERROR;
-	}
-	return ( buffer.st_mode & _S_IFDIR ) != 0 ? FOLDER_YES : FOLDER_NO;
-}
-
-/*
-==============
-Sys_DefaultSteamPath
-==============
-*/
-const char *Sys_DefaultSteamPath() {
-#ifdef ID_PC_WIN
-	// detect steam install
-	static char basePath[MAX_PATH];
-	memset( basePath, 0, MAX_PATH );
-
-	HKEY key;
-	DWORD cbData;
-	if ( RegOpenKeyEx( HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 208200", 0, KEY_READ|KEY_WOW64_64KEY, &key )  == ERROR_SUCCESS ) {
-		cbData = MAX_PATH;
-		if ( RegQueryValueEx( key, "InstallLocation", NULL, NULL, (LPBYTE)basePath, &cbData ) == ERROR_SUCCESS ) {
-			if ( cbData == MAX_PATH ) {
-				cbData--;
-			}
-			basePath[cbData] = '\0';
-		} else {
-			basePath[0] = 0;
-		}
-		RegCloseKey( key );
-	} else if ( RegOpenKeyEx( HKEY_LOCAL_MACHINE, "SOFTWARE\\Valve\\Steam", 0, KEY_READ|KEY_WOW64_32KEY, &key ) == ERROR_SUCCESS ) {
-		cbData = MAX_PATH;
-		if ( RegQueryValueEx( key, "InstallPath", NULL, NULL, (LPBYTE)basePath, &cbData ) == ERROR_SUCCESS ) {
-			if ( cbData == MAX_PATH ) {
-				cbData--;
-			}
-			basePath[cbData] = '\0';
-			idStr::Append( basePath, MAX_PATH, "\\steamapps\\common\\DOOM 3 BFG Edition" );
-		} else {
-			basePath[0] = 0;
-		}
-		RegCloseKey( key );
-	}
-
-	if ( basePath[0] != 0 && Sys_IsFolder( basePath ) == FOLDER_YES ) {
-		return basePath;
-	}
-#endif
-
-	return NULL;
-}
-
-/*
-==============
 Sys_DefaultBasePath
 ==============
 */
@@ -408,48 +118,6 @@ const char *Sys_DefaultBasePath() {
 	return cwd;
 }
 
-// Vista shit
-typedef HRESULT (WINAPI * SHGetKnownFolderPath_t)( const GUID & rfid, DWORD dwFlags, HANDLE hToken, PWSTR *ppszPath );
-// NOTE: FOLIDERID_SavedGames is already exported from in shell32.dll in Windows 7.  We can only detect
-// the compiler version, but that doesn't doesn't tell us which version of the OS we're linking against.
-// This GUID value should never change, so we name it something other than FOLDERID_SavedGames to get
-// around this problem.
-const GUID FOLDERID_SavedGames_IdTech5 = { 0x4c5c32ff, 0xbb9d, 0x43b0, { 0xb5, 0xb4, 0x2d, 0x72, 0xe5, 0x4e, 0xaa, 0xa4 } };
-
-/*
-==============
-Sys_DefaultSavePath
-==============
-*/
-const char *Sys_DefaultSavePath() {
-	static char savePath[ MAX_PATH ];
-	memset( savePath, 0, MAX_PATH );
-
-	HMODULE hShell = LoadLibrary( "shell32.dll" );
-	if ( hShell ) {
-		SHGetKnownFolderPath_t SHGetKnownFolderPath = (SHGetKnownFolderPath_t)GetProcAddress( hShell, "SHGetKnownFolderPath" );
-		if ( SHGetKnownFolderPath ) {
-			wchar_t * path;
-			if ( SUCCEEDED( SHGetKnownFolderPath( FOLDERID_SavedGames_IdTech5, CSIDL_FLAG_CREATE | CSIDL_FLAG_PER_USER_INIT, 0, &path ) ) ) {
-				if ( wcstombs( savePath, path, MAX_PATH ) > MAX_PATH ) {
-					savePath[0] = 0;
-				}
-				CoTaskMemFree( path );
-			}
-		}
-		FreeLibrary( hShell );
-	}
-
-	if ( savePath[0] == 0 ) {
-		SHGetFolderPath( NULL, CSIDL_PERSONAL | CSIDL_FLAG_CREATE, NULL, SHGFP_TYPE_CURRENT, savePath );
-		strcat( savePath, "\\My Games" );
-	}
-
-	strcat( savePath, SAVE_PATH );
-
-	return savePath;
-}
-
 /*
 ==============
 Sys_EXEPath
@@ -458,51 +126,6 @@ Sys_EXEPath
 const char *Sys_EXEPath() {
 	return sys_exepath;
 }
-
-/*
-==============
-Sys_ListFiles
-==============
-*/
-int Sys_ListFiles( const char *directory, const char *extension, idStrList &list ) {
-	idStr				search;
-	struct _finddata_t	findinfo;
-	intptr_t			findhandle;
-	int					flag;
-
-	if ( !extension) {
-		extension = "";
-	}
-
-	// passing a slash as extension will find directories
-	if ( extension[0] == '/' && extension[1] == 0 ) {
-		extension = "";
-		flag = 0;
-	} else {
-		flag = _A_SUBDIR;
-	}
-
-	sprintf( search, "%s\\*%s", directory, extension );
-
-	// search
-	list.Clear();
-
-	findhandle = _findfirst( search, &findinfo );
-	if ( findhandle == -1 ) {
-		return -1;
-	}
-
-	do {
-		if ( flag ^ ( findinfo.attrib & _A_SUBDIR ) ) {
-			list.Append( findinfo.name );
-		}
-	} while ( _findnext( findhandle, &findinfo ) != -1 );
-
-	_findclose( findhandle );
-
-	return list.Num();
-}
-
 
 /*
 ================
@@ -622,35 +245,6 @@ void Sys_QueEvent( sysEventType_t type, int value, int value2, int ptrLength, vo
 }
 
 /*
-=============
-Sys_PumpEvents
-
-This allows windows to be moved during renderbump
-=============
-*/
-void Sys_PumpEvents() {
-    MSG msg;
-
-	// pump the message loop
-	while( PeekMessage( &msg, NULL, 0, 0, PM_NOREMOVE ) ) {
-		if ( !GetMessage( &msg, NULL, 0, 0 ) ) {
-			common->Quit();
-		}
-
-		// save the msg time, because wndprocs don't have access to the timestamp
-		if ( sdl.sysMsgTime && sdl.sysMsgTime > (int)msg.time ) {
-			// don't ever let the event times run backwards	
-//			common->Printf( "Sys_PumpEvents: sdl.sysMsgTime (%i) > msg.time (%i)\n", sdl.sysMsgTime, msg.time );
-		} else {
-			sdl.sysMsgTime = msg.time;
-		}
- 
-		TranslateMessage (&msg);
-      	DispatchMessage (&msg);
-	}
-}
-
-/*
 ================
 Sys_GenerateEvents
 ================
@@ -663,9 +257,6 @@ void Sys_GenerateEvents() {
 		return;
 	}
 	entered = true;
-
-	// pump the message loop
-	Sys_PumpEvents();
 
 	// grab or release the mouse cursor if necessary
 	IN_Frame();
@@ -726,25 +317,6 @@ Restart the input subsystem
 void Sys_In_Restart_f( const idCmdArgs &args ) {
 	Sys_ShutdownInput();
 	Sys_InitInput();
-}
-
-/*
-================
-Sys_AlreadyRunning
-
-returns true if there is a copy of D3 running already
-================
-*/
-bool Sys_AlreadyRunning() {
-#ifndef DEBUG
-	if ( !sys_allowMultipleInstances.GetBool() ) {
-		hProcessMutex = ::CreateMutex( NULL, FALSE, "DOOM3" );
-		if ( ::GetLastError() == ERROR_ALREADY_EXISTS || ::GetLastError() == ERROR_ACCESS_DENIED ) {
-			return true;
-		}
-	}
-#endif
-	return false;
 }
 
 /*
@@ -902,8 +474,6 @@ int main( int argc, char *argv[] ) {
 	SDL_SetCursor( curWait );
 
 	Sys_SetPhysicalWorkMemory( 192 << 20, 1024 << 20 );
-
-	Sys_GetCurrentMemoryStatus( exeLaunchMemoryStats );
 
 	idStr::Copynz( sys_exepath, argv[0], sizeof( sys_exepath ) );
 

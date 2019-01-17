@@ -474,6 +474,7 @@ if(WIN32)
     set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_SYS_RC_RES_FILES})
 
     set(DOOM3BFG_SYS_WIN32_FILES
+        "sys/win32/win_main.cpp"
         "sys/win32/win_net.cpp"
         "sys/win32/win_syscon.cpp"
     )
