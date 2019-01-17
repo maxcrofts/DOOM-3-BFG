@@ -52,7 +52,7 @@ If you have questions concerning this license or the applicable additional terms
 			#define ID_PC_WIN64
 		#endif
 
-		#if !defined( _WIN64 ) && !defined( __clang__ )
+		#if !defined( _WIN64 )
 			#define ID_WIN_X86_ASM
 			#define ID_WIN_X86_MMX_ASM
 			#define ID_WIN_X86_SSE_ASM
