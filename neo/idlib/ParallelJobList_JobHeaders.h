@@ -44,8 +44,8 @@ If you have questions concerning this license or the applicable additional terms
 #include <math.h>
 #include <string.h>
 
-#include <intrin.h>
 #include <stdint.h>					// for uintptr_t
+#include <immintrin.h>
 #pragma warning( disable : 4100 )	// unreferenced formal parameter
 #pragma warning( disable : 4127 )	// conditional expression is constant
 

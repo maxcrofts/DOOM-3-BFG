@@ -61,9 +61,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #endif /* !GAME_DLL */
 
-#include <intrin.h>			// needed for intrinsics like _mm_setzero_si28
-#include <emmintrin.h>
-
 #pragma warning(disable : 4100)				// unreferenced formal parameter
 #pragma warning(disable : 4127)				// conditional expression is constant
 #pragma warning(disable : 4244)				// conversion to smaller type, possible loss of data
@@ -101,6 +98,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <math.h>
 #include <limits.h>
 #include <memory>
+#include <immintrin.h>		// needed for intrinsics like _mm_setzero_si28
 
 //-----------------------------------------------------
 
