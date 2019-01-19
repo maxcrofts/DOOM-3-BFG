@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 /*
 ================================================================================================
 
-	Platform specific mutex, signal, atomic integer and memory barrier.
+	Platform specific mutex, signal and atomic integer.
 
 ================================================================================================
 */
@@ -48,12 +48,6 @@ If you have questions concerning this license or the applicable additional terms
 	typedef SDL_mutex *				mutexHandle_t;
 	typedef Signal *				signalHandle_t;
 	typedef int						interlockedInt_t;
-
-	// _ReadWriteBarrier() does not translate to any instructions but keeps the compiler
-	// from reordering read and write instructions across the barrier.
-	// MemoryBarrier() inserts and CPU instruction that keeps the CPU from reordering reads and writes.
-	#pragma intrinsic(_ReadWriteBarrier)
-	#define SYS_MEMORYBARRIER		_ReadWriteBarrier(); MemoryBarrier()
 
 
 
