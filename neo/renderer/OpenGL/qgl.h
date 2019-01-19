@@ -97,16 +97,10 @@ extern PFNGLGENVERTEXARRAYSPROC				qglGenVertexArrays;
 extern PFNGLBINDVERTEXARRAYPROC				qglBindVertexArray;
 extern PFNGLDELETEVERTEXARRAYSPROC			qglDeleteVertexArrays;
 
-// GL_ARB_vertex_program / GL_ARB_fragment_program
+// GL_ARB_vertex_program
 extern PFNGLVERTEXATTRIBPOINTERARBPROC		qglVertexAttribPointerARB;
 extern PFNGLENABLEVERTEXATTRIBARRAYARBPROC	qglEnableVertexAttribArrayARB;
 extern PFNGLDISABLEVERTEXATTRIBARRAYARBPROC	qglDisableVertexAttribArrayARB;
-extern PFNGLPROGRAMSTRINGARBPROC			qglProgramStringARB;
-extern PFNGLBINDPROGRAMARBPROC				qglBindProgramARB;
-extern PFNGLGENPROGRAMSARBPROC				qglGenProgramsARB;
-extern PFNGLDELETEPROGRAMSARBPROC			qglDeleteProgramsARB;
-extern PFNGLPROGRAMENVPARAMETER4FVARBPROC	qglProgramEnvParameter4fvARB;
-extern PFNGLPROGRAMLOCALPARAMETER4FVARBPROC	qglProgramLocalParameter4fvARB;
 
 // GLSL / OpenGL 2.0
 extern PFNGLCREATESHADERPROC				qglCreateShader;

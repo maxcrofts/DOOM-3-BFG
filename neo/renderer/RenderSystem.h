@@ -113,7 +113,7 @@ struct glconfig_t {
 	bool				mapBufferRangeAvailable;
 	bool				vertexArrayObjectAvailable;
 	bool				drawElementsBaseVertexAvailable;
-	bool				fragmentProgramAvailable;
+	bool				vertexProgramAvailable;
 	bool				glslAvailable;
 	bool				uniformBufferAvailable;
 	bool				twoSidedStencilAvailable;
