@@ -158,6 +158,10 @@ Defines and macros usable in all code
 
 #define ALIGN( x, a ) ( ( ( x ) + ((a)-1) ) & ~((a)-1) )
 
+#ifndef ID_WIN
+#define _alloca alloca
+#endif
+
 #define _alloca16( x )					((void *)ALIGN( (uintptr_t)_alloca( ALIGN( x, 16 ) + 16 ), 16 ) )
 #define _alloca128( x )					((void *)ALIGN( (uintptr_t)_alloca( ALIGN( x, 128 ) + 128 ), 128 ) )
 
