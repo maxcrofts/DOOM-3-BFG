@@ -282,11 +282,13 @@ PFNGLGETQUERYOBJECTUIVARBPROC			qglGetQueryObjectuivARB;
 // GL_ARB_timer_query / GL_EXT_timer_query
 PFNGLGETQUERYOBJECTUI64VEXTPROC			qglGetQueryObjectui64vEXT;
 
+#ifndef USE_CORE_PROFILE
 // GL_ARB_debug_output
 PFNGLDEBUGMESSAGECONTROLARBPROC			qglDebugMessageControlARB;
 PFNGLDEBUGMESSAGEINSERTARBPROC			qglDebugMessageInsertARB;
 PFNGLDEBUGMESSAGECALLBACKARBPROC		qglDebugMessageCallbackARB;
 PFNGLGETDEBUGMESSAGELOGARBPROC			qglGetDebugMessageLogARB;
+#endif
 
 PFNGLGETSTRINGIPROC						qglGetStringi;
 
@@ -513,6 +515,7 @@ static void R_CheckPortableExtensions() {
 		}
 	}
 
+#ifndef USE_CORE_PROFILE
 	// GL_ARB_debug_output
 	glConfig.debugOutputAvailable = R_CheckExtension( "GL_ARB_debug_output" );
 	if ( glConfig.debugOutputAvailable ) {
@@ -536,6 +539,7 @@ static void R_CheckPortableExtensions() {
 									0, NULL, true );
 		}
 	}
+#endif
 
 	// GL_ARB_multitexture
 	if ( !glConfig.multitextureAvailable ) {

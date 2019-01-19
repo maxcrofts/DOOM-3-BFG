@@ -152,12 +152,6 @@ extern PFNGLGETQUERYOBJECTUIVARBPROC		qglGetQueryObjectuivARB;
 // GL_ARB_timer_query / GL_EXT_timer_query
 extern PFNGLGETQUERYOBJECTUI64VEXTPROC		qglGetQueryObjectui64vEXT;
 
-// GL_ARB_debug_output
-extern PFNGLDEBUGMESSAGECONTROLARBPROC		qglDebugMessageControlARB;
-extern PFNGLDEBUGMESSAGEINSERTARBPROC		qglDebugMessageInsertARB;
-extern PFNGLDEBUGMESSAGECALLBACKARBPROC		qglDebugMessageCallbackARB;
-extern PFNGLGETDEBUGMESSAGELOGARBPROC		qglGetDebugMessageLogARB;
-
 //===========================================================================
 
 // non-windows systems will just redefine qgl* to gl*
