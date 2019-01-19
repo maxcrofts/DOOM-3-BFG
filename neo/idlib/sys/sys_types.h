@@ -98,7 +98,7 @@ struct idNullPtr {
 };
 
 //#undef NULL
-//#if defined( ID_PC_WIN ) && !defined( ID_TOOL_EXTERNAL ) && !defined( _lint )
+//#if defined( ID_WIN ) && !defined( ID_TOOL_EXTERNAL ) && !defined( _lint )
 //#define NULL					idNullPtr()
 //#else
 //#define NULL					0

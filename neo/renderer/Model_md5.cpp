@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "tr_local.h"
 #include "Model_local.h"
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
+#ifdef ID_X86_SSE2_INTRIN
 
 static const __m128 vector_float_posInfinity		= { idMath::INFINITY, idMath::INFINITY, idMath::INFINITY, idMath::INFINITY };
 static const __m128 vector_float_negInfinity		= { -idMath::INFINITY, -idMath::INFINITY, -idMath::INFINITY, -idMath::INFINITY };
@@ -503,7 +503,7 @@ idMD5Mesh::CalculateBounds
 ====================
 */
 void idMD5Mesh::CalculateBounds( const idJointMat * entJoints, idBounds & bounds ) const {
-#ifdef ID_WIN_X86_SSE2_INTRIN
+#ifdef ID_X86_SSE2_INTRIN
 
 	__m128 minX = vector_float_posInfinity;
 	__m128 minY = vector_float_posInfinity;
@@ -1098,7 +1098,7 @@ static void TransformJoints( idJointMat *__restrict outJoints, const int numJoin
 	assert_16_byte_aligned( inFloats1 );
 	assert_16_byte_aligned( inFloats2 );
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
+#ifdef ID_X86_SSE2_INTRIN
 
 	const __m128 mask_keep_last = __m128c( _mm_set_epi32( 0xFFFFFFFF, 0x00000000, 0x00000000, 0x00000000 ) );
 

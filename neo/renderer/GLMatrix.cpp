@@ -72,7 +72,7 @@ R_MatrixMultiply
 ==========================
 */
 void R_MatrixMultiply( const float a[16], const float b[16], float out[16] ) {
-#ifdef ID_WIN_X86_SSE2_INTRIN
+#ifdef ID_X86_SSE2_INTRIN
 
 	__m128 a0 = _mm_loadu_ps( a + 0*4 );
 	__m128 a1 = _mm_loadu_ps( a + 1*4 );

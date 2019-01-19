@@ -1707,7 +1707,7 @@ this folder is assumed to be a path under FSPATH_BASE
 */
 void idZipBuilder::CleanSourceFolder() {
 #if 0
-//#ifdef ID_PC_WIN
+//#ifdef ID_WIN
 	idStrList deletedFiles;
 
 	// make sure this is a valid path, we don't want to go nuking

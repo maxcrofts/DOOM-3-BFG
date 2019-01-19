@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../../idlib/sys/sys_intrinsics.h"
 #include "../../../idlib/geometry/DrawVert_intrinsics.h"
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
+#ifdef ID_X86_SSE2_INTRIN
 
 static const __m128i vector_int_neg_one		= _mm_set_epi32( -1, -1, -1, -1 );
 
@@ -219,7 +219,7 @@ static int CalculateTriangleFacingCulledStatic( byte * __restrict facing, byte *
 	const idVec3 lineDir = lineDelta * lineLengthRcp;
 	const float lineLength = lineLengthSqr * lineLengthRcp;
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
+#ifdef ID_X86_SSE2_INTRIN
 
 	idODSStreamedIndexedArray< idDrawVert, triIndex_t, 32, SBT_QUAD, 4 * 3 > indexedVertsODS( verts, numVerts, indexes, numIndexes );
 
@@ -405,7 +405,7 @@ static int CalculateTriangleFacingCulledSkinned( byte * __restrict facing, byte 
 	const idVec3 lineDir = lineDelta * lineLengthRcp;
 	const float lineLength = lineLengthSqr * lineLengthRcp;
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
+#ifdef ID_X86_SSE2_INTRIN
 
 	idODSStreamedArray< idDrawVert, 32, SBT_DOUBLE, 1 > vertsODS( verts, numVerts );
 
@@ -623,7 +623,7 @@ static void StreamOut( void * dst, const void * src, int numBytes ) {
 	assert_16_byte_aligned( dst );
 	assert_16_byte_aligned( src );
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
+#ifdef ID_X86_SSE2_INTRIN
 	int i = 0;
 	for ( ; i + 128 <= numBytes; i += 128 ) {
 		__m128i d0 = _mm_load_si128( (const __m128i *)( (byte *)src + i + 0*16 ) );
@@ -858,7 +858,7 @@ static void R_CreateShadowVolumeTriangles( triIndex_t *__restrict shadowIndices,
 
 	numShadowIndexesTotal = numShadowIndices;
 
-#if defined( ID_WIN_X86_SSE2_INTRIN )
+#if defined( ID_X86_SSE2_INTRIN )
 	_mm_sfence();
 #endif
 
@@ -1033,7 +1033,7 @@ void R_CreateLightTriangles( triIndex_t * __restrict lightIndices, triIndex_t * 
 
 	numLightIndicesTotal = numLightIndices;
 
-#if defined( ID_WIN_X86_SSE2_INTRIN )
+#if defined( ID_X86_SSE2_INTRIN )
 	_mm_sfence();
 #endif
 

@@ -56,7 +56,7 @@ ID_INLINE_EXTERN float __frndz( float x )						{	return (float)( (int)( x ) ); }
 ================================================================================================
 */
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
+#ifdef ID_X86_SSE2_INTRIN
 
 // The code below assumes that a cache line is 64 bytes.
 // We specify the cache line size as 128 here to make the code consistent with the consoles.

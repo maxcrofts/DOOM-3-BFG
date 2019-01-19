@@ -38,36 +38,25 @@ If you have questions concerning this license or the applicable additional terms
 ================================================================================================
 */
 
-#undef ID_PC
-#undef ID_PC_WIN
-#undef ID_PC_WIN64
-#undef ID_WIN32
-#undef ID_LITTLE_ENDIAN
-
-#if defined(_WIN32)
+#if defined( _WIN32 )
 	// _WIN32 always defined
 	// _WIN64 also defined for x64 target
 	#if !defined( _MANAGED )
 		#if defined( _WIN64 )
-			#define ID_PC_WIN64
+			#define ID_WIN64
+		#else
+			#define ID_X86_ASM
+			#define ID_X86_MMX_ASM
+			#define ID_X86_SSE_ASM
+			#define ID_X86_SSE2_ASM
 		#endif
 
-		#if !defined( _WIN64 )
-			#define ID_WIN_X86_ASM
-			#define ID_WIN_X86_MMX_ASM
-			#define ID_WIN_X86_SSE_ASM
-			#define ID_WIN_X86_SSE2_ASM
-		#endif
-
-		#define ID_WIN_X86_MMX_INTRIN
-		#define ID_WIN_X86_SSE_INTRIN
-		#define ID_WIN_X86_SSE2_INTRIN
+		#define ID_X86_MMX_INTRIN
+		#define ID_X86_SSE_INTRIN
+		#define ID_X86_SSE2_INTRIN
 	#endif
 
-	#define ID_PC
-	#define ID_PC_WIN
-	#define ID_WIN32
-	#define ID_LITTLE_ENDIAN
+	#define ID_WIN
 #else
 #error Unknown Platform
 #endif
@@ -83,7 +72,7 @@ If you have questions concerning this license or the applicable additional terms
 ================================================================================================
 */
 
-#ifdef ID_PC_WIN
+#if defined( ID_WIN )
 
 #define	CPUSTRING						"x86"
 
@@ -158,7 +147,7 @@ bulk of the codebase, so it is the best place for analyze pragmas.
 ================================================================================================
 */
 
-#if defined( ID_WIN32 )
+#if defined( ID_WIN )
 
 // disable some /analyze warnings here
 #pragma warning( disable: 6255 )	// warning C6255: _alloca indicates failure by raising a stack overflow exception. Consider using _malloca instead. (Note: _malloca requires _freea.)

@@ -72,7 +72,7 @@ void UnbindBufferObjects() {
 	qglBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, 0 );
 }
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
+#ifdef ID_X86_SSE2_INTRIN
 
 void CopyBuffer( byte * dst, const byte * src, int numBytes ) {
 	assert_16_byte_aligned( dst );

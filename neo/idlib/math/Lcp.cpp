@@ -44,7 +44,7 @@ const float LCP_DELTA_FORCE_EPSILON		= 1e-9f;
 #define IGNORE_UNSATISFIABLE_VARIABLES
 
 
-#if defined( ID_WIN_X86_SSE_ASM ) || defined( ID_WIN_X86_SSE_INTRIN )
+#if defined( ID_X86_SSE_ASM ) || defined( ID_X86_SSE_INTRIN )
 
 ALIGN16( const __m128 SIMD_SP_zero )							= { 0.0f, 0.0f, 0.0f, 0.0f };
 ALIGN16( const __m128 SIMD_SP_one )								= { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -85,7 +85,7 @@ static void Multiply_SIMD( float * dst, const float * src0, const float * src1, 
 		dst[i] = src0[i] * src1[i];
 	}
 
-#ifdef ID_WIN_X86_SSE_INTRIN
+#ifdef ID_X86_SSE_INTRIN
 
 	for ( ; i + 4 <= count; i += 4 ) {
 		assert_16_byte_aligned( &dst[i] );
@@ -133,7 +133,7 @@ static void MultiplyAdd_SIMD( float * dst, const float constant, const float * s
 		dst[i] += constant * src[i];
 	}
 
-#ifdef ID_WIN_X86_SSE_INTRIN
+#ifdef ID_X86_SSE_INTRIN
 
 	__m128 c = _mm_load1_ps( & constant );
 	for ( ; i + 4 <= count; i += 4 ) {
@@ -176,7 +176,7 @@ static float DotProduct_SIMD( const float * src0, const float * src1, const int 
 	assert_16_byte_aligned( src0 );
 	assert_16_byte_aligned( src1 );
 
-#ifdef ID_WIN_X86_SSE_INTRIN
+#ifdef ID_X86_SSE_INTRIN
 
 	__m128 sum = (__m128 &) SIMD_SP_zero;
 	int i = 0;
@@ -298,7 +298,7 @@ static void LowerTriangularSolve_SIMD( const idMatX & L, float * x, const float 
 
 	int i = skip;
 
-#ifdef ID_WIN_X86_SSE_INTRIN
+#ifdef ID_X86_SSE_INTRIN
 
 	// work up to a multiple of 4 rows
 	for ( ; ( i & 3 ) != 0 && i < n; i++ ) {
@@ -552,7 +552,7 @@ static void LowerTriangularSolveTranspose_SIMD( const idMatX & L, float * x, con
 	const float * lptr = L.ToFloatPtr() + m * nc + m - 4;
 	float * xptr = x + m;
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
+#ifdef ID_X86_SSE2_INTRIN
 
 	// process 4 rows at a time
 	for ( int i = m; i >= 4; i -= 4 ) {
@@ -882,7 +882,7 @@ static bool LDLT_Factor_SIMD( idMatX & mat, idVecX & invDiag, const int n ) {
 		mptr[j*nc+3] = ( mptr[j*nc+3] - v[0] * mptr[j*nc+0] - v[1] * mptr[j*nc+1] - v[2] * mptr[j*nc+2] ) * d;
 	}
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
+#ifdef ID_X86_SSE2_INTRIN
 
 	__m128 vzero = _mm_setzero_ps();
 	for ( int i = 4; i < n; i += 4 ) {
@@ -1242,7 +1242,7 @@ static void GetMaxStep_SIMD( const float * f, const float * a, const float * del
 							const float * lo, const float * hi, const int * side, int numUnbounded, int numClamped,
 							int d, float dir, float & maxStep, int & limit, int & limitSide ) {
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
+#ifdef ID_X86_SSE2_INTRIN
 
 	__m128 vMaxStep;
 	__m128i vLimit;

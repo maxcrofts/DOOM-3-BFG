@@ -63,7 +63,7 @@ Sys_Quit
 ==============
 */
 void Sys_Quit() {
-#ifdef ID_PC_WIN
+#ifdef ID_WIN
 	timeEndPeriod( 1 );
 #endif
 	Sys_ShutdownInput();
@@ -492,7 +492,7 @@ int main( int argc, char *argv[] ) {
 	// done before Com/Sys_Init since we need this for error output
 	Sys_CreateConsole();
 
-#ifdef ID_PC_WIN
+#ifdef ID_WIN
 	// no abort/retry/fail errors
 	SetErrorMode( SEM_FAILCRITICALERRORS );
 
@@ -507,7 +507,7 @@ int main( int argc, char *argv[] ) {
 #endif
 
 //	Sys_FPU_EnableExceptions( TEST_FPU_EXCEPTIONS );
-#ifndef ID_PC_WIN64
+#ifndef ID_WIN64
 	Sys_FPU_SetPrecision( FPU_PRECISION_DOUBLE_EXTENDED );
 #endif
 
@@ -527,7 +527,7 @@ int main( int argc, char *argv[] ) {
 	}
 #endif
 
-#ifdef ID_PC_WIN
+#ifdef ID_WIN
 	// hide or show the early console as necessary
 	if ( sys_viewlog.GetInteger() ) {
 		Sys_ShowConsole( 1, true );

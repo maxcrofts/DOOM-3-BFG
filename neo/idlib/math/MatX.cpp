@@ -171,7 +171,7 @@ void idMatX::CopyLowerToUpperTriangle() {
 	assert( ( GetNumColumns() & 3 ) == 0 );
 	assert( GetNumColumns() >= GetNumRows() );
 
-#ifdef ID_WIN_X86_SSE_INTRIN
+#ifdef ID_X86_SSE_INTRIN
 
 	const int n = GetNumColumns();
 	const int m = GetNumRows();

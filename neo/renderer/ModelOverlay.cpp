@@ -102,7 +102,7 @@ static void R_OverlayPointCullStatic( byte * cullBits, halfFloat_t * texCoordS, 
 	assert_16_byte_aligned( texCoordT );
 	assert_16_byte_aligned( verts );
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
+#ifdef ID_X86_SSE2_INTRIN
 
 	idODSStreamedArray< idDrawVert, 16, SBT_DOUBLE, 4 > vertsODS( verts, numVerts );
 
@@ -223,7 +223,7 @@ static void R_OverlayPointCullSkinned( byte * cullBits, halfFloat_t * texCoordS,
 	assert_16_byte_aligned( texCoordT );
 	assert_16_byte_aligned( verts );
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
+#ifdef ID_X86_SSE2_INTRIN
 
 	idODSStreamedArray< idDrawVert, 16, SBT_DOUBLE, 4 > vertsODS( verts, numVerts );
 
@@ -514,7 +514,7 @@ static void R_CopyOverlaySurface( idDrawVert * verts, int numVerts, triIndex_t *
 	assert( ( ( overlay->numVerts * sizeof( idDrawVert ) ) & 15 ) == 0 );
 	assert( ( ( overlay->numIndexes * sizeof( triIndex_t ) ) & 15 ) == 0 );
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
+#ifdef ID_X86_SSE2_INTRIN
 
 	const __m128i vector_int_clear_last = _mm_set_epi32( 0, -1, -1, -1 );
 	const __m128i vector_int_num_verts = _mm_shuffle_epi32( _mm_cvtsi32_si128( numVerts ), 0 );

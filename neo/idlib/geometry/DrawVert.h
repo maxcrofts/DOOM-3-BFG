@@ -193,7 +193,7 @@ Assumes input is in the range [-1, 1]
 ID_INLINE void VertexFloatToByte( const float & x, const float & y, const float & z, byte * bval ) {
 	assert_4_byte_aligned( bval );	// for __stvebx
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
+#ifdef ID_X86_SSE2_INTRIN
 
 	const __m128 vector_float_one			= { 1.0f, 1.0f, 1.0f, 1.0f };
 	const __m128 vector_float_half			= { 0.5f, 0.5f, 0.5f, 0.5f };
@@ -617,7 +617,7 @@ ID_INLINE void WriteDrawVerts16( idDrawVert * destVerts, const idDrawVert * loca
 	assert_16_byte_aligned( destVerts );
 	assert_16_byte_aligned( localVerts );
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
+#ifdef ID_X86_SSE2_INTRIN
 
 	for ( int i = 0; i < numVerts; i++ ) {
 		__m128i v0 = _mm_load_si128( (const __m128i *)( (byte *)( localVerts + i ) +  0 ) );

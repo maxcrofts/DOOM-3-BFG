@@ -1396,7 +1396,7 @@ int idStr::IcmpPath( const char *s1, const char *s2 ) {
 	int c1, c2, d;
 
 #if 0
-//#if !defined( ID_PC_WIN )
+//#if !defined( ID_WIN )
 	idLib::common->Printf( "WARNING: IcmpPath used on a case-sensitive filesystem?\n" );
 #endif
 
@@ -1465,7 +1465,7 @@ int idStr::IcmpnPath( const char *s1, const char *s2, int n ) {
 	int c1, c2, d;
 
 #if 0
-//#if !defined( ID_PC_WIN )
+//#if !defined( ID_WIN )
 	idLib::common->Printf( "WARNING: IcmpPath used on a case-sensitive filesystem?\n" );
 #endif
 

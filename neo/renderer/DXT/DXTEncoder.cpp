@@ -52,7 +52,7 @@ idDxtEncoder::NV4XHardwareBugFix
 ========================
 */
 void idDxtEncoder::NV4XHardwareBugFix( byte *minColor, byte *maxColor ) const {
-#ifdef ID_WIN_X86_ASM
+#ifdef ID_X86_ASM
 	int minq = ( ( minColor[0] << 16 ) | ( minColor[1] << 8 ) | minColor[2] ) & 0x00F8FCF8;
 	int maxq = ( ( maxColor[0] << 16 ) | ( maxColor[1] << 8 ) | maxColor[2] ) & 0x00F8FCF8;
 	int mask = -( minq > maxq ) & 0x00FFFFFF;
@@ -958,7 +958,7 @@ int idDxtEncoder::GetMinMaxNormalYHQ( const byte *colorBlock, byte *minColor, by
 	return bestError;
 }
 
-#if defined( ID_WIN_X86_ASM )
+#if defined( ID_X86_ASM )
 ALIGN16( static float SIMD_SSE2_float_scale[4] ) = { 2.0f / 255.0f, 2.0f / 255.0f, 2.0f / 255.0f, 2.0f / 255.0f };
 ALIGN16( static float SIMD_SSE2_float_descale[4] ) = { 255.0f / 2.0f, 255.0f / 2.0f, 255.0f / 2.0f, 255.0f / 2.0f };
 ALIGN16( static float SIMD_SSE2_float_zero[4] ) = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -978,7 +978,7 @@ NormalDistanceDXT1
 ========================
 */
 int NormalDistanceDXT1( const int *vector, const int *normalized ) {
-#if defined( ID_WIN_X86_ASM )
+#if defined( ID_X86_ASM )
 	int result;
 	__asm {
 		mov			esi, vector
@@ -1044,7 +1044,7 @@ NormalDistanceDXT5
 ========================
 */
 int NormalDistanceDXT5( const int *vector, const int *normalized ) {
-#if defined( ID_WIN_X86_ASM )
+#if defined( ID_X86_ASM )
 	int result;
 	__asm {
 		mov			esi, vector

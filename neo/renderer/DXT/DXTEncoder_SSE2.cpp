@@ -34,7 +34,7 @@ Contains the DxtEncoder implementation for SSE2.
 #include "DXTCodec_local.h"
 #include "DXTCodec.h"
 
-#if defined( ID_WIN_X86_SSE2_INTRIN ) || ( ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) ) )
+#if defined( ID_X86_SSE2_INTRIN ) || defined( ID_X86_ASM )
 
 //#define TEST_COMPRESSION
 #ifdef TEST_COMPRESSION
@@ -143,7 +143,7 @@ paramO:	colorBlock	- 4*4 output tile, 4 bytes per pixel
 ========================
 */
 ID_INLINE void idDxtEncoder::ExtractBlock_SSE2( const byte * inPtr, int width, byte * colorBlock ) const {
-#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+#if defined( ID_X86_ASM )
 	__asm {
 		mov			esi, inPtr
 		mov			edi, colorBlock
@@ -159,7 +159,7 @@ ID_INLINE void idDxtEncoder::ExtractBlock_SSE2( const byte * inPtr, int width, b
 		movdqa		xmm3, xmmword ptr [esi+eax*2]		// + 12 * width
 		movdqa		xmmword ptr [edi+48], xmm3
 	}
-#elif defined ( ID_WIN_X86_SSE2_INTRIN )
+#elif defined ( ID_X86_SSE2_INTRIN )
 	*((__m128i *)(&colorBlock[ 0])) = _mm_load_si128( (__m128i *)( inPtr + width * 4 * 0 ) );
 	*((__m128i *)(&colorBlock[16])) = _mm_load_si128( (__m128i *)( inPtr + width * 4 * 1 ) );
 	*((__m128i *)(&colorBlock[32])) = _mm_load_si128( (__m128i *)( inPtr + width * 4 * 2 ) );
@@ -181,7 +181,7 @@ paramO:	maxColor	- Max 4 byte output color
 ========================
 */
 ID_INLINE void idDxtEncoder::GetMinMaxBBox_SSE2( const byte * colorBlock, byte * minColor, byte * maxColor ) const {
-#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+#if defined( ID_X86_ASM )
 	__asm {
 		mov			eax, colorBlock
 		mov			esi, minColor
@@ -205,7 +205,7 @@ ID_INLINE void idDxtEncoder::GetMinMaxBBox_SSE2( const byte * colorBlock, byte *
 		movd		dword ptr [esi], xmm0
 		movd		dword ptr [edi], xmm1
 	}
-#elif defined ( ID_WIN_X86_SSE2_INTRIN )
+#elif defined ( ID_X86_SSE2_INTRIN )
 	__m128i block0 = *((__m128i *)(&colorBlock[ 0]));
 	__m128i block1 = *((__m128i *)(&colorBlock[16]));
 	__m128i block2 = *((__m128i *)(&colorBlock[32]));
@@ -244,7 +244,7 @@ idDxtEncoder::InsetColorsBBox_SSE2
 ========================
 */
 ID_INLINE void idDxtEncoder::InsetColorsBBox_SSE2( byte * minColor, byte * maxColor ) const {
-#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+#if defined( ID_X86_ASM )
 	__asm {
 		mov			esi, minColor
 		mov			edi, maxColor
@@ -262,7 +262,7 @@ ID_INLINE void idDxtEncoder::InsetColorsBBox_SSE2( byte * minColor, byte * maxCo
 		movd		dword ptr [esi], xmm0
 		movd		dword ptr [edi], xmm1
 	}
-#elif defined ( ID_WIN_X86_SSE2_INTRIN )
+#elif defined ( ID_X86_SSE2_INTRIN )
 	__m128i min = _mm_cvtsi32_si128( *(int *)minColor );
 	__m128i max = _mm_cvtsi32_si128( *(int *)maxColor );
 
@@ -297,7 +297,7 @@ return: 4 byte color index block
 ========================
 */
 void idDxtEncoder::EmitColorIndices_SSE2( const byte * colorBlock, const byte * minColor_, const byte * maxColor_ ) {
-#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+#if defined( ID_X86_ASM )
 	ALIGN16( byte color0[16] );
 	ALIGN16( byte color1[16] );
 	ALIGN16( byte color2[16] );
@@ -455,7 +455,7 @@ void idDxtEncoder::EmitColorIndices_SSE2( const byte * colorBlock, const byte * 
 	}
 
 	outData += 4;
-#elif defined ( ID_WIN_X86_SSE2_INTRIN )
+#elif defined ( ID_X86_SSE2_INTRIN )
 	__m128c zero = SIMD_SSE2_zero;
 	__m128c result = SIMD_SSE2_zero;
 	__m128c color0, color1, color2, color3;
@@ -605,7 +605,7 @@ return: 4 byte color index block
 ========================
 */
 void idDxtEncoder::EmitColorAlphaIndices_SSE2( const byte *colorBlock, const byte *minColor_, const byte *maxColor_ ) {
-#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+#if defined( ID_X86_ASM )
 	ALIGN16( byte color0[16] );
 	ALIGN16( byte color1[16] );
 	ALIGN16( byte color2[16] );
@@ -760,7 +760,7 @@ void idDxtEncoder::EmitColorAlphaIndices_SSE2( const byte *colorBlock, const byt
 	}
 
 	outData += 4;
-#elif defined ( ID_WIN_X86_SSE2_INTRIN )
+#elif defined ( ID_X86_SSE2_INTRIN )
 	__m128c zero = SIMD_SSE2_zero;
 	__m128c result = SIMD_SSE2_zero;
 	__m128c color0, color1, color2;
@@ -913,7 +913,7 @@ return: 4 byte color index block
 ========================
 */
 void idDxtEncoder::EmitCoCgIndices_SSE2( const byte *colorBlock, const byte *minColor_, const byte *maxColor_ ) {
-#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+#if defined( ID_X86_ASM )
 	ALIGN16( byte color0[16] );
 	ALIGN16( byte color1[16] );
 	ALIGN16( byte color2[16] );
@@ -1053,7 +1053,7 @@ void idDxtEncoder::EmitCoCgIndices_SSE2( const byte *colorBlock, const byte *min
 	}
 
 	outData += 4;
-#elif defined ( ID_WIN_X86_SSE2_INTRIN )
+#elif defined ( ID_X86_SSE2_INTRIN )
 	__m128c zero = SIMD_SSE2_zero;
 	__m128c result = SIMD_SSE2_zero;
 	__m128c color0, color1, color2, color3;
@@ -1188,7 +1188,7 @@ paramO:	maxAlpha	- Max alpha found
 ========================
 */
 void idDxtEncoder::EmitAlphaIndices_SSE2( const byte *block, const int minAlpha_, const int maxAlpha_ ) {
-#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+#if defined( ID_X86_ASM )
 	assert( maxAlpha_ >= minAlpha_ );
 
 	byte *outPtr = outData;
@@ -1325,7 +1325,7 @@ void idDxtEncoder::EmitAlphaIndices_SSE2( const byte *block, const int minAlpha_
 	}
 
 	outData += 6;
-#elif defined ( ID_WIN_X86_SSE2_INTRIN )
+#elif defined ( ID_X86_SSE2_INTRIN )
 	__m128i block0 = *((__m128i *)(&block[ 0]));
 	__m128i block1 = *((__m128i *)(&block[16]));
 	__m128i block2 = *((__m128i *)(&block[32]));
@@ -1462,7 +1462,7 @@ idDxtEncoder::EmitAlphaIndices_SSE2
 ========================
 */
 void idDxtEncoder::EmitAlphaIndices_SSE2( const byte *block, const int channelBitOffset, const int minAlpha_, const int maxAlpha_ ) {
-#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+#if defined( ID_X86_ASM )
 	assert( maxAlpha_ >= minAlpha_ );
 
 	byte *outPtr = outData;
@@ -1606,7 +1606,7 @@ void idDxtEncoder::EmitAlphaIndices_SSE2( const byte *block, const int channelBi
 	}
 
 	outData += 6;
-#elif defined ( ID_WIN_X86_SSE2_INTRIN )
+#elif defined ( ID_X86_SSE2_INTRIN )
 	__m128i block0 = *((__m128i *)(&block[ 0]));
 	__m128i block1 = *((__m128i *)(&block[16]));
 	__m128i block2 = *((__m128i *)(&block[32]));
@@ -1927,7 +1927,7 @@ idDxtEncoder::ScaleYCoCg_SSE2
 ========================
 */
 ID_INLINE void idDxtEncoder::ScaleYCoCg_SSE2( byte *colorBlock, byte *minColor, byte *maxColor ) const {
-#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+#if defined( ID_X86_ASM )
 	__asm {
 		mov			esi, colorBlock
 		mov			edx, minColor
@@ -2028,7 +2028,7 @@ ID_INLINE void idDxtEncoder::ScaleYCoCg_SSE2( byte *colorBlock, byte *minColor, 
 		movdqa		xmmword ptr [esi+ 8*4], xmm2
 		movdqa		xmmword ptr [esi+12*4], xmm3
 	}
-#elif defined ( ID_WIN_X86_SSE2_INTRIN )
+#elif defined ( ID_X86_SSE2_INTRIN )
 	__m128i block0 = *((__m128i *)(&colorBlock[ 0]));
 	__m128i block1 = *((__m128i *)(&colorBlock[16]));
 	__m128i block2 = *((__m128i *)(&colorBlock[32]));
@@ -2127,7 +2127,7 @@ idDxtEncoder::InsetYCoCgBBox_SSE2
 ========================
 */
 ID_INLINE void idDxtEncoder::InsetYCoCgBBox_SSE2( byte *minColor, byte *maxColor ) const {
-#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+#if defined( ID_X86_ASM )
 	__asm {
 		mov			esi, minColor
 		mov			edi, maxColor
@@ -2160,7 +2160,7 @@ ID_INLINE void idDxtEncoder::InsetYCoCgBBox_SSE2( byte *minColor, byte *maxColor
 		movd		dword ptr [esi], xmm0
 		movd		dword ptr [edi], xmm1
 	}
-#elif defined ( ID_WIN_X86_SSE2_INTRIN )
+#elif defined ( ID_X86_SSE2_INTRIN )
 	__m128c temp0, temp1, temp2, temp3, temp4, temp5, temp6, temp7;
 
 	temp0 = _mm_cvtsi32_si128( *(int *)minColor );
@@ -2207,7 +2207,7 @@ return: diagonal to use
 ========================
 */
 ID_INLINE void idDxtEncoder::SelectYCoCgDiagonal_SSE2( const byte *colorBlock, byte *minColor, byte *maxColor ) const {
-#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+#if defined( ID_X86_ASM )
 	__asm {
 		mov			esi, colorBlock
 		mov			edx, minColor
@@ -2280,7 +2280,7 @@ ID_INLINE void idDxtEncoder::SelectYCoCgDiagonal_SSE2( const byte *colorBlock, b
 		movd		dword ptr [edx], xmm6
 		movd		dword ptr [ecx], xmm7
 	}
-#elif defined ( ID_WIN_X86_SSE2_INTRIN )
+#elif defined ( ID_X86_SSE2_INTRIN )
 	__m128i block0 = *((__m128i *)(&colorBlock[ 0]));
 	__m128i block1 = *((__m128i *)(&colorBlock[16]));
 	__m128i block2 = *((__m128i *)(&colorBlock[32]));
@@ -2420,7 +2420,7 @@ paramO:	maxGreen	- Maximal normal Y found
 ========================
 */
 void idDxtEncoder::EmitGreenIndices_SSE2( const byte *block, const int channelBitOffset, const int minGreen, const int maxGreen ) {
-#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+#if defined( ID_X86_ASM )
 	assert( maxGreen >= minGreen );
 
 	byte *outPtr = outData;
@@ -2526,7 +2526,7 @@ void idDxtEncoder::EmitGreenIndices_SSE2( const byte *block, const int channelBi
 	}
 
 	outData += 4;
-#elif defined ( ID_WIN_X86_SSE2_INTRIN )
+#elif defined ( ID_X86_SSE2_INTRIN )
 	__m128i block0 = *((__m128i *)(&block[ 0]));
 	__m128i block1 = *((__m128i *)(&block[16]));
 	__m128i block2 = *((__m128i *)(&block[32]));
@@ -2634,7 +2634,7 @@ idDxtEncoder::InsetNormalsBBoxDXT5_SSE2
 ========================
 */
 void idDxtEncoder::InsetNormalsBBoxDXT5_SSE2( byte *minNormal, byte *maxNormal ) const {
-#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+#if defined( ID_X86_ASM )
 	__asm {
         mov         esi, minNormal
         mov         edi, maxNormal
@@ -2673,7 +2673,7 @@ void idDxtEncoder::InsetNormalsBBoxDXT5_SSE2( byte *minNormal, byte *maxNormal )
         movd        dword ptr [esi], xmm0
         movd        dword ptr [edi], xmm1
     }
-#elif defined ( ID_WIN_X86_SSE2_INTRIN )
+#elif defined ( ID_X86_SSE2_INTRIN )
 	__m128i temp0, temp1, temp2, temp3;
 
 	temp0 = _mm_cvtsi32_si128( *(int *)minNormal );

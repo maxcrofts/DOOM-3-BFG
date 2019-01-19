@@ -43,7 +43,7 @@ static void R_TracePointCullStatic( byte *cullBits, byte &totalOr, const float r
 	assert_16_byte_aligned( cullBits );
 	assert_16_byte_aligned( verts );
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
+#ifdef ID_X86_SSE2_INTRIN
 
 	idODSStreamedArray< idDrawVert, 16, SBT_DOUBLE, 4 > vertsODS( verts, numVerts );
 
@@ -224,7 +224,7 @@ static void R_TracePointCullSkinned( byte *cullBits, byte &totalOr, const float 
 	assert_16_byte_aligned( cullBits );
 	assert_16_byte_aligned( verts );
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
+#ifdef ID_X86_SSE2_INTRIN
 
 	idODSStreamedArray< idDrawVert, 16, SBT_DOUBLE, 4 > vertsODS( verts, numVerts );
 

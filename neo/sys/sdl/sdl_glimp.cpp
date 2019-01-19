@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "../../idlib/precompiled.h"
 
-#ifdef ID_PC_WIN
+#ifdef ID_WIN
 #include "SDL_syswm.h"
 #define	WINDOW_STYLE (WS_OVERLAPPED|WS_BORDER|WS_CAPTION|WS_VISIBLE|WS_THICKFRAME|WS_SYSMENU)
 #endif
@@ -349,7 +349,7 @@ bool GLimp_SetScreenParms( glimpParms_t parms ) {
 		SDL_SetWindowPosition( sdl.window, x, y );
 		SDL_SetWindowBordered( sdl.window, ( parms.fullScreen == 0 ? SDL_TRUE : SDL_FALSE ) );
 
-#ifdef ID_PC_WIN
+#ifdef ID_WIN
 		SDL_SysWMinfo info;
 		SDL_VERSION( &info.version );
 		if( SDL_GetWindowWMInfo( sdl.window, &info ) ) {
