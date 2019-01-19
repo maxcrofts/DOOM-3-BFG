@@ -197,23 +197,23 @@ idCVar stereoRender_deGhost( "stereoRender_deGhost", "0.05", CVAR_FLOAT | CVAR_A
 PFNGLACTIVETEXTUREPROC					qglActiveTextureARB;
 
 // GL_ARB_texture_compression
-PFNGLCOMPRESSEDTEXIMAGE2DARBPROC		qglCompressedTexImage2DARB;
-PFNGLCOMPRESSEDTEXSUBIMAGE2DARBPROC		qglCompressedTexSubImage2DARB;
-PFNGLGETCOMPRESSEDTEXIMAGEARBPROC		qglGetCompressedTexImageARB;
+PFNGLCOMPRESSEDTEXIMAGE2DPROC			qglCompressedTexImage2DARB;
+PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC		qglCompressedTexSubImage2DARB;
+PFNGLGETCOMPRESSEDTEXIMAGEPROC			qglGetCompressedTexImageARB;
 
 // GL_ARB_vertex_buffer_object
-PFNGLBINDBUFFERARBPROC					qglBindBufferARB;
+PFNGLBINDBUFFERPROC						qglBindBufferARB;
 PFNGLBINDBUFFERRANGEPROC				qglBindBufferRange;
-PFNGLDELETEBUFFERSARBPROC				qglDeleteBuffersARB;
-PFNGLGENBUFFERSARBPROC					qglGenBuffersARB;
-PFNGLISBUFFERARBPROC					qglIsBufferARB;
-PFNGLBUFFERDATAARBPROC					qglBufferDataARB;
-PFNGLBUFFERSUBDATAARBPROC				qglBufferSubDataARB;
-PFNGLGETBUFFERSUBDATAARBPROC			qglGetBufferSubDataARB;
-PFNGLMAPBUFFERARBPROC					qglMapBufferARB;
-PFNGLUNMAPBUFFERARBPROC					qglUnmapBufferARB;
-PFNGLGETBUFFERPARAMETERIVARBPROC		qglGetBufferParameterivARB;
-PFNGLGETBUFFERPOINTERVARBPROC			qglGetBufferPointervARB;
+PFNGLDELETEBUFFERSPROC					qglDeleteBuffersARB;
+PFNGLGENBUFFERSPROC						qglGenBuffersARB;
+PFNGLISBUFFERPROC						qglIsBufferARB;
+PFNGLBUFFERDATAPROC						qglBufferDataARB;
+PFNGLBUFFERSUBDATAPROC					qglBufferSubDataARB;
+PFNGLGETBUFFERSUBDATAPROC				qglGetBufferSubDataARB;
+PFNGLMAPBUFFERPROC						qglMapBufferARB;
+PFNGLUNMAPBUFFERPROC					qglUnmapBufferARB;
+PFNGLGETBUFFERPARAMETERIVPROC			qglGetBufferParameterivARB;
+PFNGLGETBUFFERPOINTERVPROC				qglGetBufferPointervARB;
 
 // GL_ARB_map_buffer_range
 PFNGLMAPBUFFERRANGEPROC					qglMapBufferRange;
@@ -227,9 +227,9 @@ PFNGLBINDVERTEXARRAYPROC				qglBindVertexArray;
 PFNGLDELETEVERTEXARRAYSPROC				qglDeleteVertexArrays;
 
 // GL_ARB_vertex_program
-PFNGLVERTEXATTRIBPOINTERARBPROC			qglVertexAttribPointerARB;
-PFNGLENABLEVERTEXATTRIBARRAYARBPROC		qglEnableVertexAttribArrayARB;
-PFNGLDISABLEVERTEXATTRIBARRAYARBPROC	qglDisableVertexAttribArrayARB;
+PFNGLVERTEXATTRIBPOINTERPROC			qglVertexAttribPointerARB;
+PFNGLENABLEVERTEXATTRIBARRAYPROC		qglEnableVertexAttribArrayARB;
+PFNGLDISABLEVERTEXATTRIBARRAYPROC		qglDisableVertexAttribArrayARB;
 
 // GLSL / OpenGL 2.0
 PFNGLCREATESHADERPROC					qglCreateShader;
@@ -257,8 +257,8 @@ PFNGLGETUNIFORMBLOCKINDEXPROC			qglGetUniformBlockIndex;
 PFNGLUNIFORMBLOCKBINDINGPROC			qglUniformBlockBinding;
 
 // GL_ATI_separate_stencil / OpenGL 2.0
-PFNGLSTENCILOPSEPARATEATIPROC			qglStencilOpSeparate;
-PFNGLSTENCILFUNCSEPARATEATIPROC			qglStencilFuncSeparate;
+PFNGLSTENCILOPSEPARATEPROC				qglStencilOpSeparate;
+PFNGLSTENCILFUNCSEPARATEPROC			qglStencilFuncSeparate;
 
 // GL_EXT_depth_bounds_test
 PFNGLDEPTHBOUNDSEXTPROC                 qglDepthBoundsEXT;
@@ -270,17 +270,17 @@ PFNGLCLIENTWAITSYNCPROC					qglClientWaitSync;
 PFNGLDELETESYNCPROC						qglDeleteSync;
 
 // GL_ARB_occlusion_query
-PFNGLGENQUERIESARBPROC					qglGenQueriesARB;
-PFNGLDELETEQUERIESARBPROC				qglDeleteQueriesARB;
-PFNGLISQUERYARBPROC						qglIsQueryARB;
-PFNGLBEGINQUERYARBPROC					qglBeginQueryARB;
-PFNGLENDQUERYARBPROC					qglEndQueryARB;
-PFNGLGETQUERYIVARBPROC					qglGetQueryivARB;
-PFNGLGETQUERYOBJECTIVARBPROC			qglGetQueryObjectivARB;
-PFNGLGETQUERYOBJECTUIVARBPROC			qglGetQueryObjectuivARB;
+PFNGLGENQUERIESPROC						qglGenQueriesARB;
+PFNGLDELETEQUERIESPROC					qglDeleteQueriesARB;
+PFNGLISQUERYPROC						qglIsQueryARB;
+PFNGLBEGINQUERYPROC						qglBeginQueryARB;
+PFNGLENDQUERYPROC						qglEndQueryARB;
+PFNGLGETQUERYIVPROC						qglGetQueryivARB;
+PFNGLGETQUERYOBJECTIVPROC				qglGetQueryObjectivARB;
+PFNGLGETQUERYOBJECTUIVPROC				qglGetQueryObjectuivARB;
 
 // GL_ARB_timer_query / GL_EXT_timer_query
-PFNGLGETQUERYOBJECTUI64VEXTPROC			qglGetQueryObjectui64vEXT;
+PFNGLGETQUERYOBJECTUI64VPROC			qglGetQueryObjectui64vEXT;
 
 #ifndef USE_CORE_PROFILE
 // GL_ARB_debug_output
@@ -352,9 +352,9 @@ static void R_CheckPortableExtensions() {
 	// DRI drivers may have GL_ARB_texture_compression but no GL_EXT_texture_compression_s3tc
 	glConfig.textureCompressionAvailable = R_CheckExtension( "GL_ARB_texture_compression" ) && R_CheckExtension( "GL_EXT_texture_compression_s3tc" );
 	if ( glConfig.textureCompressionAvailable ) {
-		qglCompressedTexImage2DARB = (PFNGLCOMPRESSEDTEXIMAGE2DARBPROC)GLimp_ExtensionPointer( "glCompressedTexImage2DARB" );
-		qglCompressedTexSubImage2DARB = (PFNGLCOMPRESSEDTEXSUBIMAGE2DARBPROC)GLimp_ExtensionPointer( "glCompressedTexSubImage2DARB" );
-		qglGetCompressedTexImageARB = (PFNGLGETCOMPRESSEDTEXIMAGEARBPROC)GLimp_ExtensionPointer( "glGetCompressedTexImageARB" );
+		qglCompressedTexImage2DARB = (PFNGLCOMPRESSEDTEXIMAGE2DPROC)GLimp_ExtensionPointer( "glCompressedTexImage2DARB" );
+		qglCompressedTexSubImage2DARB = (PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC)GLimp_ExtensionPointer( "glCompressedTexSubImage2DARB" );
+		qglGetCompressedTexImageARB = (PFNGLGETCOMPRESSEDTEXIMAGEPROC)GLimp_ExtensionPointer( "glGetCompressedTexImageARB" );
 	}
 
 	// GL_EXT_texture_filter_anisotropic
@@ -387,18 +387,18 @@ static void R_CheckPortableExtensions() {
 	// GL_ARB_vertex_buffer_object
 	glConfig.vertexBufferObjectAvailable = R_CheckExtension( "GL_ARB_vertex_buffer_object" );
 	if ( glConfig.vertexBufferObjectAvailable ) {
-		qglBindBufferARB = (PFNGLBINDBUFFERARBPROC)GLimp_ExtensionPointer( "glBindBufferARB" );
+		qglBindBufferARB = (PFNGLBINDBUFFERPROC)GLimp_ExtensionPointer( "glBindBufferARB" );
 		qglBindBufferRange = (PFNGLBINDBUFFERRANGEPROC)GLimp_ExtensionPointer( "glBindBufferRange" );
-		qglDeleteBuffersARB = (PFNGLDELETEBUFFERSARBPROC)GLimp_ExtensionPointer( "glDeleteBuffersARB" );
-		qglGenBuffersARB = (PFNGLGENBUFFERSARBPROC)GLimp_ExtensionPointer( "glGenBuffersARB" );
-		qglIsBufferARB = (PFNGLISBUFFERARBPROC)GLimp_ExtensionPointer( "glIsBufferARB" );
-		qglBufferDataARB = (PFNGLBUFFERDATAARBPROC)GLimp_ExtensionPointer( "glBufferDataARB" );
-		qglBufferSubDataARB = (PFNGLBUFFERSUBDATAARBPROC)GLimp_ExtensionPointer( "glBufferSubDataARB" );
-		qglGetBufferSubDataARB = (PFNGLGETBUFFERSUBDATAARBPROC)GLimp_ExtensionPointer( "glGetBufferSubDataARB" );
-		qglMapBufferARB = (PFNGLMAPBUFFERARBPROC)GLimp_ExtensionPointer( "glMapBufferARB" );
-		qglUnmapBufferARB = (PFNGLUNMAPBUFFERARBPROC)GLimp_ExtensionPointer( "glUnmapBufferARB" );
-		qglGetBufferParameterivARB = (PFNGLGETBUFFERPARAMETERIVARBPROC)GLimp_ExtensionPointer( "glGetBufferParameterivARB" );
-		qglGetBufferPointervARB = (PFNGLGETBUFFERPOINTERVARBPROC)GLimp_ExtensionPointer( "glGetBufferPointervARB" );
+		qglDeleteBuffersARB = (PFNGLDELETEBUFFERSPROC)GLimp_ExtensionPointer( "glDeleteBuffersARB" );
+		qglGenBuffersARB = (PFNGLGENBUFFERSPROC)GLimp_ExtensionPointer( "glGenBuffersARB" );
+		qglIsBufferARB = (PFNGLISBUFFERPROC)GLimp_ExtensionPointer( "glIsBufferARB" );
+		qglBufferDataARB = (PFNGLBUFFERDATAPROC)GLimp_ExtensionPointer( "glBufferDataARB" );
+		qglBufferSubDataARB = (PFNGLBUFFERSUBDATAPROC)GLimp_ExtensionPointer( "glBufferSubDataARB" );
+		qglGetBufferSubDataARB = (PFNGLGETBUFFERSUBDATAPROC)GLimp_ExtensionPointer( "glGetBufferSubDataARB" );
+		qglMapBufferARB = (PFNGLMAPBUFFERPROC)GLimp_ExtensionPointer( "glMapBufferARB" );
+		qglUnmapBufferARB = (PFNGLUNMAPBUFFERPROC)GLimp_ExtensionPointer( "glUnmapBufferARB" );
+		qglGetBufferParameterivARB = (PFNGLGETBUFFERPARAMETERIVPROC)GLimp_ExtensionPointer( "glGetBufferParameterivARB" );
+		qglGetBufferPointervARB = (PFNGLGETBUFFERPOINTERVPROC)GLimp_ExtensionPointer( "glGetBufferPointervARB" );
 	}
 
 	// GL_ARB_map_buffer_range, map a section of a buffer object's data store
@@ -424,9 +424,9 @@ static void R_CheckPortableExtensions() {
 	// GL_ARB_vertex_program
 	glConfig.vertexProgramAvailable = R_CheckExtension( "GL_ARB_vertex_program" );
 	if ( glConfig.vertexProgramAvailable ) {
-		qglVertexAttribPointerARB = (PFNGLVERTEXATTRIBPOINTERARBPROC)GLimp_ExtensionPointer( "glVertexAttribPointerARB" );
-		qglEnableVertexAttribArrayARB = (PFNGLENABLEVERTEXATTRIBARRAYARBPROC)GLimp_ExtensionPointer( "glEnableVertexAttribArrayARB" );
-		qglDisableVertexAttribArrayARB = (PFNGLDISABLEVERTEXATTRIBARRAYARBPROC)GLimp_ExtensionPointer( "glDisableVertexAttribArrayARB" );
+		qglVertexAttribPointerARB = (PFNGLVERTEXATTRIBPOINTERPROC)GLimp_ExtensionPointer( "glVertexAttribPointerARB" );
+		qglEnableVertexAttribArrayARB = (PFNGLENABLEVERTEXATTRIBARRAYPROC)GLimp_ExtensionPointer( "glEnableVertexAttribArrayARB" );
+		qglDisableVertexAttribArrayARB = (PFNGLDISABLEVERTEXATTRIBARRAYPROC)GLimp_ExtensionPointer( "glDisableVertexAttribArrayARB" );
 
 		qglGetIntegerv( GL_MAX_TEXTURE_COORDS_ARB, (GLint *)&glConfig.maxTextureCoords );
 		qglGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS_ARB, (GLint *)&glConfig.maxTextureImageUnits );
@@ -470,8 +470,8 @@ static void R_CheckPortableExtensions() {
 	// ATI_separate_stencil / OpenGL 2.0 separate stencil
 	glConfig.twoSidedStencilAvailable = ( glConfig.glVersion >= 2.0f ) || R_CheckExtension( "GL_ATI_separate_stencil" );
 	if ( glConfig.twoSidedStencilAvailable ) {
-		qglStencilOpSeparate = (PFNGLSTENCILOPSEPARATEATIPROC)GLimp_ExtensionPointer( "glStencilOpSeparate" );
-		qglStencilFuncSeparate = (PFNGLSTENCILFUNCSEPARATEATIPROC)GLimp_ExtensionPointer( "glStencilFuncSeparate" );
+		qglStencilOpSeparate = (PFNGLSTENCILOPSEPARATEPROC)GLimp_ExtensionPointer( "glStencilOpSeparate" );
+		qglStencilFuncSeparate = (PFNGLSTENCILFUNCSEPARATEPROC)GLimp_ExtensionPointer( "glStencilFuncSeparate" );
 	}
 
 	// GL_EXT_depth_bounds_test
@@ -496,22 +496,22 @@ static void R_CheckPortableExtensions() {
 	glConfig.occlusionQueryAvailable = R_CheckExtension( "GL_ARB_occlusion_query" );
 	if ( glConfig.occlusionQueryAvailable ) {
 		// defined in GL_ARB_occlusion_query, which is required for GL_EXT_timer_query
-		qglGenQueriesARB = (PFNGLGENQUERIESARBPROC)GLimp_ExtensionPointer( "glGenQueriesARB" );
-		qglDeleteQueriesARB = (PFNGLDELETEQUERIESARBPROC)GLimp_ExtensionPointer( "glDeleteQueriesARB" );
-		qglIsQueryARB = (PFNGLISQUERYARBPROC)GLimp_ExtensionPointer( "glIsQueryARB" );
-		qglBeginQueryARB = (PFNGLBEGINQUERYARBPROC)GLimp_ExtensionPointer( "glBeginQueryARB" );
-		qglEndQueryARB = (PFNGLENDQUERYARBPROC)GLimp_ExtensionPointer( "glEndQueryARB" );
-		qglGetQueryivARB = (PFNGLGETQUERYIVARBPROC)GLimp_ExtensionPointer( "glGetQueryivARB" );
-		qglGetQueryObjectivARB = (PFNGLGETQUERYOBJECTIVARBPROC)GLimp_ExtensionPointer( "glGetQueryObjectivARB" );
-		qglGetQueryObjectuivARB = (PFNGLGETQUERYOBJECTUIVARBPROC)GLimp_ExtensionPointer( "glGetQueryObjectuivARB" );
+		qglGenQueriesARB = (PFNGLGENQUERIESPROC)GLimp_ExtensionPointer( "glGenQueriesARB" );
+		qglDeleteQueriesARB = (PFNGLDELETEQUERIESPROC)GLimp_ExtensionPointer( "glDeleteQueriesARB" );
+		qglIsQueryARB = (PFNGLISQUERYPROC)GLimp_ExtensionPointer( "glIsQueryARB" );
+		qglBeginQueryARB = (PFNGLBEGINQUERYPROC)GLimp_ExtensionPointer( "glBeginQueryARB" );
+		qglEndQueryARB = (PFNGLENDQUERYPROC)GLimp_ExtensionPointer( "glEndQueryARB" );
+		qglGetQueryivARB = (PFNGLGETQUERYIVPROC)GLimp_ExtensionPointer( "glGetQueryivARB" );
+		qglGetQueryObjectivARB = (PFNGLGETQUERYOBJECTIVPROC)GLimp_ExtensionPointer( "glGetQueryObjectivARB" );
+		qglGetQueryObjectuivARB = (PFNGLGETQUERYOBJECTUIVPROC)GLimp_ExtensionPointer( "glGetQueryObjectuivARB" );
 	}
 
 	// GL_ARB_timer_query
 	glConfig.timerQueryAvailable = R_CheckExtension( "GL_ARB_timer_query" ) || R_CheckExtension( "GL_EXT_timer_query" );
 	if ( glConfig.timerQueryAvailable ) {
-		qglGetQueryObjectui64vEXT = (PFNGLGETQUERYOBJECTUI64VEXTPROC)GLimp_ExtensionPointer( "glGetQueryObjectui64vARB" );
+		qglGetQueryObjectui64vEXT = (PFNGLGETQUERYOBJECTUI64VPROC)GLimp_ExtensionPointer( "glGetQueryObjectui64vARB" );
 		if ( qglGetQueryObjectui64vEXT == NULL ) {
-			qglGetQueryObjectui64vEXT = (PFNGLGETQUERYOBJECTUI64VEXTPROC)GLimp_ExtensionPointer( "glGetQueryObjectui64vEXT" );
+			qglGetQueryObjectui64vEXT = (PFNGLGETQUERYOBJECTUI64VPROC)GLimp_ExtensionPointer( "glGetQueryObjectui64vEXT" );
 		}
 	}
 
