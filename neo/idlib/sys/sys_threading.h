@@ -63,7 +63,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-#if _MSC_VER < 1900
+#if defined( _MSC_VER ) && _MSC_VER < 1900
 #define ID_TLS __declspec(thread) ptrdiff_t
 #else
 #define ID_TLS thread_local ptrdiff_t
