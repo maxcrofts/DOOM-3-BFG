@@ -415,35 +415,15 @@ idFileSystemLocal::OpenOSFile
 ================
 */
 idFileHandle idFileSystemLocal::OpenOSFile( const char *fileName, fsMode_t mode ) {
-	idFileHandle fp;
-
-
-	DWORD dwAccess = 0;
-	DWORD dwShare = 0;
-	DWORD dwCreate = 0;
-	DWORD dwFlags = 0;
+	idFileHandle fp = NULL;
 
 	if ( mode == FS_WRITE ) {
-		dwAccess = GENERIC_READ | GENERIC_WRITE;
-		dwShare = FILE_SHARE_READ;
-		dwCreate = CREATE_ALWAYS;
-		dwFlags = FILE_ATTRIBUTE_NORMAL;
+		fp = fopen( fileName, "wb" );
 	} else if ( mode == FS_READ ) {
-		dwAccess = GENERIC_READ;
-		dwShare = FILE_SHARE_READ;
-		dwCreate = OPEN_EXISTING;
-		dwFlags = FILE_ATTRIBUTE_NORMAL;
+		fp = fopen( fileName, "rb" );
 	} else if ( mode == FS_APPEND ) {
-		dwAccess = GENERIC_READ | GENERIC_WRITE;
-		dwShare = FILE_SHARE_READ;
-		dwCreate = OPEN_ALWAYS;
-		dwFlags = FILE_ATTRIBUTE_NORMAL;
-					}
-
-	fp = CreateFile( fileName, dwAccess, dwShare, NULL, dwCreate, dwFlags, NULL );
-	if ( fp == INVALID_HANDLE_VALUE ) {
-		return NULL;
-				}
+		fp = fopen( fileName, "ab" );
+	}
 	return fp;
 }
 
@@ -453,7 +433,7 @@ idFileSystemLocal::CloseOSFile
 ================
 */
 void idFileSystemLocal::CloseOSFile( idFileHandle o ) {
-	::CloseHandle( o );
+	fclose( o );
 }
 
 /*
@@ -462,7 +442,14 @@ idFileSystemLocal::DirectFileLength
 ================
 */
 int idFileSystemLocal::DirectFileLength( idFileHandle o ) {
-	return GetFileSize( o, NULL );
+	int		pos;
+	int		end;
+
+	pos = ftell( o );
+	fseek( o, 0, SEEK_END );
+	end = ftell( o );
+	fseek( o, pos, SEEK_SET );
+	return end;
 }
 
 /*

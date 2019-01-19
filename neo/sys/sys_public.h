@@ -522,7 +522,7 @@ void			Sys_ShowConsole( int visLevel, bool quitOnClose );
 
 // This really isn't the right place to have this, but since this is the 'top level' include
 // and has a function signature with 'FILE' in it, it kinda needs to be here =/
-typedef HANDLE idFileHandle;
+typedef FILE * idFileHandle;
 
 
 ID_TIME_T		Sys_FileTimeStamp( idFileHandle fp );

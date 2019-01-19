@@ -1164,7 +1164,7 @@ idFile_Permanent::~idFile_Permanent
 */
 idFile_Permanent::~idFile_Permanent() {
 	if ( o ) {
-		CloseHandle( o );
+		fclose( o );
 	}
 }
 
@@ -1196,11 +1196,7 @@ int idFile_Permanent::Read( void *buffer, int len ) {
 	tries = 0;
 	while( remaining ) {
 		block = remaining;
-		DWORD bytesRead;
-		if ( !ReadFile( o, buf, block, &bytesRead, NULL ) ) {
-			idLib::Warning( "idFile_Permanent::Read failed with %d from %s", GetLastError(), name.c_str() );
-		}
-		read = bytesRead;
+		read = fread( buf, 1, block, o );
 		if ( read == 0 ) {
 			// we might have been trying to read from a CD, which
 			// sometimes returns a 0 read on windows
@@ -1250,9 +1246,7 @@ int idFile_Permanent::Write( const void *buffer, int len ) {
 	tries = 0;
 	while( remaining ) {
 		block = remaining;
-		DWORD bytesWritten;
-		WriteFile( o, buf, block, &bytesWritten, NULL );
-		written = bytesWritten;
+		written = fwrite( buf, 1, block, o );
 		if ( written == 0 ) {
 			if ( !tries ) {
 				tries = 1;
@@ -1273,7 +1267,7 @@ int idFile_Permanent::Write( const void *buffer, int len ) {
 		fileSize += written;
 	}
 	if ( handleSync ) {
-		Flush();
+		fflush( o );
 	}
 	return len;
 }
@@ -1284,7 +1278,7 @@ idFile_Permanent::ForceFlush
 =================
 */
 void idFile_Permanent::ForceFlush() {
-	FlushFileBuffers( o );
+	setvbuf( o, NULL, _IONBF, 0 );
 }
 
 /*
@@ -1293,7 +1287,7 @@ idFile_Permanent::Flush
 =================
 */
 void idFile_Permanent::Flush() {
-	FlushFileBuffers( o );
+	fflush( o );
 }
 
 /*
@@ -1302,7 +1296,7 @@ idFile_Permanent::Tell
 =================
 */
 int idFile_Permanent::Tell() const {
-	return SetFilePointer( o, 0, NULL, FILE_CURRENT );
+	return ftell( o );
 }
 
 /*
@@ -1332,13 +1326,29 @@ idFile_Permanent::Seek
 =================
 */
 int idFile_Permanent::Seek( long offset, fsOrigin_t origin ) {
-	int retVal = INVALID_SET_FILE_POINTER;
+	int _origin;
+
 	switch( origin ) {
-		case FS_SEEK_CUR: retVal = SetFilePointer( o, offset, NULL, FILE_CURRENT ); break;
-		case FS_SEEK_END: retVal = SetFilePointer( o, offset, NULL, FILE_END ); break;
-		case FS_SEEK_SET: retVal = SetFilePointer( o, offset, NULL, FILE_BEGIN ); break;
+		case FS_SEEK_CUR: {
+			_origin = SEEK_CUR;
+			break;
+		}
+		case FS_SEEK_END: {
+			_origin = SEEK_END;
+			break;
+		}
+		case FS_SEEK_SET: {
+			_origin = SEEK_SET;
+			break;
+		}
+		default: {
+			_origin = SEEK_CUR;
+			common->FatalError( "idFile_Permanent::Seek: bad origin for %s\n", name.c_str() );
+			break;
+		}
 	}
-	return ( retVal == INVALID_SET_FILE_POINTER ) ? -1 : 0;
+
+	return fseek( o, offset, _origin );
 }
 
 #if 1
