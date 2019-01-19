@@ -104,7 +104,6 @@ struct glconfig_t {
 	int					stencilBits;
 
 	bool				multitextureAvailable;
-	bool				directStateAccess;
 	bool				textureCompressionAvailable;
 	bool				anisotropicFilterAvailable;
 	bool				textureLODBiasAvailable;

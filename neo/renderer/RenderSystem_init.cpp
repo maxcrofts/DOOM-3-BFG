@@ -197,9 +197,6 @@ idCVar stereoRender_deGhost( "stereoRender_deGhost", "0.05", CVAR_FLOAT | CVAR_A
 PFNGLACTIVETEXTUREPROC					qglActiveTextureARB;
 PFNGLCLIENTACTIVETEXTUREPROC			qglClientActiveTextureARB;
 
-// GL_EXT_direct_state_access
-PFNGLBINDMULTITEXTUREEXTPROC			qglBindMultiTextureEXT;
-
 // GL_ARB_texture_compression
 PFNGLCOMPRESSEDTEXIMAGE2DARBPROC		qglCompressedTexImage2DARB;
 PFNGLCOMPRESSEDTEXSUBIMAGE2DARBPROC		qglCompressedTexSubImage2DARB;
@@ -301,19 +298,6 @@ PFNGLGETDEBUGMESSAGELOGARBPROC			qglGetDebugMessageLogARB;
 PFNGLGETSTRINGIPROC						qglGetStringi;
 
 /*
-========================
-glBindMultiTextureEXT
-
-As of 2011/09/16 the Intel drivers for "Sandy Bridge" and "Ivy Bridge" integrated graphics do not support this extension.
-========================
-*/
-void APIENTRY glBindMultiTextureEXT( GLenum texunit, GLenum target, GLuint texture ) {
-	qglActiveTextureARB( texunit );
-	qglBindTexture( target, texture );
-}
-
-
-/*
 =================
 R_CheckExtension
 =================
@@ -368,14 +352,6 @@ static void R_CheckPortableExtensions() {
 	if ( glConfig.multitextureAvailable ) {
 		qglActiveTextureARB = (void(APIENTRY *)(GLenum))GLimp_ExtensionPointer( "glActiveTextureARB" );
 		qglClientActiveTextureARB = (void(APIENTRY *)(GLenum))GLimp_ExtensionPointer( "glClientActiveTextureARB" );
-	}
-
-	// GL_EXT_direct_state_access
-	glConfig.directStateAccess = R_CheckExtension( "GL_EXT_direct_state_access" );
-	if ( glConfig.directStateAccess ) {
-		qglBindMultiTextureEXT = (PFNGLBINDMULTITEXTUREEXTPROC)GLimp_ExtensionPointer( "glBindMultiTextureEXT" );
-	} else {
-		qglBindMultiTextureEXT = glBindMultiTextureEXT;
 	}
 
 	// GL_ARB_texture_compression + GL_S3_s3tc

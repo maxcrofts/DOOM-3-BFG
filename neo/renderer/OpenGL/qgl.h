@@ -63,8 +63,9 @@ GLExtension_t GLimp_ExtensionPointer( const char *name );
 	}
 #endif
 
-// GL_EXT_direct_state_access
-extern PFNGLBINDMULTITEXTUREEXTPROC			qglBindMultiTextureEXT;
+// GL_ARB_multitexture
+extern PFNGLACTIVETEXTUREPROC				qglActiveTextureARB;
+extern PFNGLCLIENTACTIVETEXTUREPROC			qglClientActiveTextureARB;
 
 // GL_ARB_texture_compression
 extern PFNGLCOMPRESSEDTEXIMAGE2DARBPROC		qglCompressedTexImage2DARB;

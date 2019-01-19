@@ -450,12 +450,14 @@ void idImage::Bind() {
 	if ( opts.textureType == TT_2D ) {
 		if ( tmu->current2DMap != texnum ) {
 			tmu->current2DMap = texnum;
-			qglBindMultiTextureEXT( GL_TEXTURE0_ARB + texUnit, GL_TEXTURE_2D, texnum );
+			qglActiveTextureARB( GL_TEXTURE0_ARB + texUnit );
+			qglBindTexture( GL_TEXTURE_2D, texnum );
 		}
 	} else if ( opts.textureType == TT_CUBIC ) {
 		if ( tmu->currentCubeMap != texnum ) {
 			tmu->currentCubeMap = texnum;
-			qglBindMultiTextureEXT( GL_TEXTURE0_ARB + texUnit, GL_TEXTURE_CUBE_MAP_EXT, texnum );
+			qglActiveTextureARB( GL_TEXTURE0_ARB + texUnit );
+			qglBindTexture( GL_TEXTURE_CUBE_MAP_EXT, texnum );
 		}
 	}
 
