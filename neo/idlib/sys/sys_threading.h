@@ -131,12 +131,6 @@ interlockedInt_t	Sys_InterlockedDecrement( interlockedInt_t & value );
 interlockedInt_t	Sys_InterlockedAdd( interlockedInt_t & value, interlockedInt_t i );
 interlockedInt_t	Sys_InterlockedSub( interlockedInt_t & value, interlockedInt_t i );
 
-interlockedInt_t	Sys_InterlockedExchange( interlockedInt_t & value, interlockedInt_t exchange );
-interlockedInt_t	Sys_InterlockedCompareExchange( interlockedInt_t & value, interlockedInt_t comparand, interlockedInt_t exchange );
-
-void *				Sys_InterlockedExchangePointer( void * & ptr, void * exchange );
-void *				Sys_InterlockedCompareExchangePointer( void * & ptr, void * comparand, void * exchange );
-
 void				Sys_Yield();
 
 const int MAX_CRITICAL_SECTIONS		= 4;

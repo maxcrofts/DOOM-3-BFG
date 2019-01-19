@@ -128,35 +128,6 @@ private:
 
 /*
 ================================================
-idSysInterlockedPointer is a C++ wrapper around the low level system interlocked pointer
-routine to atomically set a pointer while retrieving the previous value of the pointer.
-================================================
-*/
-template< typename T >
-class idSysInterlockedPointer {
-public:
-			idSysInterlockedPointer() : ptr( NULL ) {}
-
-	// atomically sets the pointer and returns the previous pointer value
-	T *		Set( T * newPtr ) { 
-				return (T *) Sys_InterlockedExchangePointer( (void * &) ptr, newPtr ); 
-			}
-
-	// atomically sets the pointer to 'newPtr' only if the previous pointer is equal to 'comparePtr'
-	// ptr = ( ptr == comparePtr ) ? newPtr : ptr
-	T *		CompareExchange( T * comparePtr, T * newPtr ) {
-				return (T *) Sys_InterlockedCompareExchangePointer( (void * &) ptr, comparePtr, newPtr );
-	}
-
-	// returns the current value of the pointer
-	T *		Get() const { return ptr; }
-
-private:
-	T *		ptr;
-};
-
-/*
-================================================
 idSysThread is an abstract base class, to be extended by classes implementing the
 idSysThread::Run() method. 
 
