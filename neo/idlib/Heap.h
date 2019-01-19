@@ -357,7 +357,7 @@ ID_INLINE void idBlockAlloc<_type_,_blockSize_,memTag>::AllocNewBlock() {
 	for ( int i = 0; i < _blockSize_; i++ ) {
 		block->elements[i].next = free;
 		free = &block->elements[i];
-		assert( ( ( (UINT_PTR)free ) & ( BLOCK_ALLOC_ALIGNMENT - 1 ) ) == 0 );
+		assert( ( ( (uintptr_t)free ) & ( BLOCK_ALLOC_ALIGNMENT - 1 ) ) == 0 );
 	}
 	total += _blockSize_;
 }
