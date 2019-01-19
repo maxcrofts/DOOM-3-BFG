@@ -34,6 +34,8 @@ if(MSVC)
         string(REPLACE ";" " " CLANG_FLAGS "${CLANG_FLAGS}")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CLANG_FLAGS}")
     endif()
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
 # doomclassic
