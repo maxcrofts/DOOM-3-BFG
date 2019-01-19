@@ -1,3 +1,7 @@
+if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+    message(FATAL_ERROR "Prevented in-source build. Please make a build subdirectory and run CMake from there.")
+endif()
+
 cmake_minimum_required(VERSION 3.6)
 project(doom3)
 
