@@ -57,6 +57,8 @@ If you have questions concerning this license or the applicable additional terms
 	#endif
 
 	#define ID_WIN
+#elif __APPLE__ && __MACH__
+	#define ID_MAC
 #else
 #error Unknown Platform
 #endif
@@ -67,7 +69,7 @@ If you have questions concerning this license or the applicable additional terms
 /*
 ================================================================================================
 
-	PC Windows
+	Windows
 
 ================================================================================================
 */
@@ -105,6 +107,44 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef WIN32
 	#define WIN32
 #endif
+
+#endif
+
+/*
+================================================================================================
+
+	macOS
+
+================================================================================================
+*/
+
+#if defined( ID_MAC )
+
+#if __x86_64__
+#define	CPUSTRING						"x86_64"
+#else
+#define	CPUSTRING						"i386"
+#endif
+
+#define	BUILD_STRING					"mac-" CPUSTRING
+
+#define ALIGN16( x )					__attribute__((aligned(16))) x
+#define ALIGNTYPE16						__attribute__((aligned(16)))
+#define ALIGNTYPE128					__attribute__((aligned(128)))
+#define FORMAT_PRINTF( x )
+
+#define PATHSEPARATOR_STR				"/"
+#define PATHSEPARATOR_CHAR				'/'
+#define NEWLINE							"\n"
+
+#define ID_INLINE						inline
+#define ID_FORCE_INLINE					__attribute__((always_inline))
+#define ID_INLINE_EXTERN				extern inline
+#define ID_FORCE_INLINE_EXTERN			extern __attribute__((always_inline))
+
+// TODO
+#define VERIFY_FORMAT_STRING
+#define NO_RETURN
 
 #endif
 
