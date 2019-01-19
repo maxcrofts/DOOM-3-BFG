@@ -300,43 +300,23 @@ void idImage::AllocImage() {
 		dataType = GL_UNSIGNED_SHORT_5_6_5;
 		break;
 	case FMT_ALPHA:
-#if defined( USE_CORE_PROFILE )
 		internalFormat = GL_R8;
 		dataFormat = GL_RED;
-#else
-		internalFormat = GL_ALPHA8;
-		dataFormat = GL_ALPHA;
-#endif
 		dataType = GL_UNSIGNED_BYTE;
 		break;
 	case FMT_L8A8:
-#if defined( USE_CORE_PROFILE )
 		internalFormat = GL_RG8;
 		dataFormat = GL_RG;
-#else
-		internalFormat = GL_LUMINANCE8_ALPHA8;
-		dataFormat = GL_LUMINANCE_ALPHA;
-#endif
 		dataType = GL_UNSIGNED_BYTE;
 		break;
 	case FMT_LUM8:
-#if defined( USE_CORE_PROFILE )
 		internalFormat = GL_R8;
 		dataFormat = GL_RED;
-#else
-		internalFormat = GL_LUMINANCE8;
-		dataFormat = GL_LUMINANCE;
-#endif
 		dataType = GL_UNSIGNED_BYTE;
 		break;
 	case FMT_INT8:
-#if defined( USE_CORE_PROFILE )
 		internalFormat = GL_R8;
 		dataFormat = GL_RED;
-#else
-		internalFormat = GL_INTENSITY8;
-		dataFormat = GL_LUMINANCE;
-#endif
 		dataType = GL_UNSIGNED_BYTE;
 		break;
 	case FMT_DXT1:
@@ -355,13 +335,13 @@ void idImage::AllocImage() {
 		dataType = GL_UNSIGNED_BYTE;
 		break;
 	case FMT_X16:
-		internalFormat = GL_INTENSITY16;
-		dataFormat = GL_LUMINANCE;
+		internalFormat = GL_R16;
+		dataFormat = GL_RED;
 		dataType = GL_UNSIGNED_SHORT;
 		break;
 	case FMT_Y16_X16:
-		internalFormat = GL_LUMINANCE16_ALPHA16;
-		dataFormat = GL_LUMINANCE_ALPHA;
+		internalFormat = GL_RG16;
+		dataFormat = GL_RG;
 		dataType = GL_UNSIGNED_SHORT;
 		break;
 	default:
