@@ -384,29 +384,6 @@ void GL_State( uint64 stateBits, bool forceGlState ) {
 		}
 	}
 
-#if !defined( USE_CORE_PROFILE )
-	//
-	// alpha test
-	//
-	if ( diff & ( GLS_ALPHATEST_FUNC_BITS | GLS_ALPHATEST_FUNC_REF_BITS ) ) {
-		if ( ( stateBits & GLS_ALPHATEST_FUNC_BITS ) != 0 ) {
-			qglEnable( GL_ALPHA_TEST );
-
-			GLenum func = GL_ALWAYS;
-			switch ( stateBits & GLS_ALPHATEST_FUNC_BITS ) {
-				case GLS_ALPHATEST_FUNC_LESS:		func = GL_LESS; break;
-				case GLS_ALPHATEST_FUNC_EQUAL:		func = GL_EQUAL; break;
-				case GLS_ALPHATEST_FUNC_GREATER:	func = GL_GEQUAL; break;
-				default: assert( false );
-			}
-			GLclampf ref = ( ( stateBits & GLS_ALPHATEST_FUNC_REF_BITS ) >> GLS_ALPHATEST_FUNC_REF_SHIFT ) / (float)0xFF;
-			qglAlphaFunc( func, ref );
-		} else {
-			qglDisable( GL_ALPHA_TEST );
-		}
-	}
-#endif
-
 	//
 	// stencil
 	//
