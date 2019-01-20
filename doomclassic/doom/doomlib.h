@@ -93,8 +93,8 @@ struct ExpansionData {
 
 namespace DoomLib
 {
-	typedef int ( *RecvFunc)( char* buff, DWORD *numRecv );
-	typedef int ( *SendFunc)( const char* buff, DWORD size, sockaddr_in *target, int toNode );
+	typedef int ( *RecvFunc)( char* buff, unsigned int *numRecv );
+	typedef int ( *SendFunc)( const char* buff, unsigned int size, sockaddr_in *target, int toNode );
 	typedef int ( *SendRemoteFunc)();
 
 	void InitGlobals( void *ptr = NULL );
