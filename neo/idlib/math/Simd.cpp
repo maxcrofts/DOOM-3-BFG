@@ -1202,7 +1202,7 @@ idSIMD::Test_f
 */
 void idSIMD::Test_f( const idCmdArgs &args ) {
 
-	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL );
+	SDL_SetThreadPriority( SDL_THREAD_PRIORITY_HIGH );
 
 	p_simd = processor;
 	p_generic = generic;
@@ -1255,5 +1255,5 @@ void idSIMD::Test_f( const idCmdArgs &args ) {
 	p_simd = NULL;
 	p_generic = NULL;
 
-	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_NORMAL );
+	SDL_SetThreadPriority( SDL_THREAD_PRIORITY_NORMAL );
 }
