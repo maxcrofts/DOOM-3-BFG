@@ -234,7 +234,7 @@ void idCommonLocal::ParseCommandLine( int argc, const char * const * argv ) {
 	for ( i = 0; i < argc; i++ ) {
 		if ( idStr::Icmp( argv[ i ], "+connect_lobby" ) == 0 ) {
 			// Handle Steam bootable invites.
-			session->HandleBootableInvite( _atoi64( argv[ i + 1 ] ) );
+			session->HandleBootableInvite( strtoll( argv[ i + 1 ], NULL, 10 ) );
 		} else if ( argv[ i ][ 0 ] == '+' ) {
 			com_numConsoleLines++;
 			com_consoleLines[ com_numConsoleLines-1 ].AppendArg( argv[ i ] + 1 );
