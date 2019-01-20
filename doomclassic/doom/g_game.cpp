@@ -1419,7 +1419,7 @@ qboolean G_DoLoadGame ()
 		loadingGame = false;
 		waitingForWipe = false;
 
-		return FALSE;				// bad version
+		return false;				// bad version
 	}
 
 	::g->save_p += VERSIONSIZE; 
@@ -1461,7 +1461,7 @@ qboolean G_DoLoadGame ()
 
 	Z_Free(g->savebuffer);
 
-	return TRUE;
+	return true;
 } 
 
 

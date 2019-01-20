@@ -105,7 +105,7 @@ M_DrawText
 //
 // M_WriteFile
 //
-boolean M_WriteFile ( char const*	name, void*		source, int		length ) {
+qboolean M_WriteFile ( char const*	name, void*		source, int		length ) {
 	
 	idFile *		handle = NULL;
 	int		count;
