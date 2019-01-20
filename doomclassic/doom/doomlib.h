@@ -139,7 +139,7 @@ namespace DoomLib
 	extern bool					expansionDirty;
 
 	extern bool					skipToLoad;
-	extern char					loadGamePath[MAX_PATH];
+	extern char					loadGamePath[MAX_OSPATH];
 
 	extern bool					skipToNew;
 	extern int					chosenSkill;

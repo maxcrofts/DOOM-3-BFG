@@ -348,7 +348,7 @@ char			saveOldString[SAVESTRINGSIZE];
 qboolean			inhelpscreens;
 qboolean			menuactive;
 char			savegamestrings[10][SAVESTRINGSIZE];
-char			savegamepaths[10][MAX_PATH];
+char			savegamepaths[10][MAX_OSPATH];
 char	endstring[160];
 short		itemOn;			// menu item skull is on
 short		skullAnimCounter;	// skull animation counter
