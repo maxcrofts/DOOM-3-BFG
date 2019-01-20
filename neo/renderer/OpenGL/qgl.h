@@ -33,6 +33,13 @@ If you have questions concerning this license or the applicable additional terms
 #define __QGL_H__
 
 
+#ifdef ID_MAC
+
+#include <OpenGL/gl3.h>
+#include <OpenGL/gl3ext.h>
+
+#else
+
 #include <gl/gl.h>
 
 
@@ -48,6 +55,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef GL_GLEXT_VERSION
 
 #include "glext.h"
+
+#endif
 
 #endif
 
