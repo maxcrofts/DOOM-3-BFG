@@ -688,7 +688,7 @@ P_TraverseIntercepts
 	
     while (count--)
     {
-	dist = MAXINT;
+	dist = MAX_TYPE(int);
 	for (scan = ::g->intercepts ; scan < ::g->intercept_p ; scan++)
 	{
 	    if (scan->frac < dist)
@@ -716,7 +716,7 @@ P_TraverseIntercepts
         if ( !func (in) )
 	    return false;	// don't bother going farther
 
-	in->frac = MAXINT;
+	in->frac = MAX_TYPE(int);
     }
 	
     return true;		// everything was traversed

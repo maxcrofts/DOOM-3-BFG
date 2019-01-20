@@ -447,8 +447,8 @@ R_StoreWallRange
 	::g->ds_p->silhouette = SIL_BOTH;
 	::g->ds_p->sprtopclip = ::g->screenheightarray;
 	::g->ds_p->sprbottomclip = ::g->negonearray;
-	::g->ds_p->bsilheight = MAXINT;
-	::g->ds_p->tsilheight = MININT;
+	::g->ds_p->bsilheight = MAX_TYPE(int);
+	::g->ds_p->tsilheight = MIN_TYPE(int);
     }
     else
     {
@@ -464,7 +464,7 @@ R_StoreWallRange
 	else if (::g->backsector->floorheight > ::g->viewz)
 	{
 	    ::g->ds_p->silhouette = SIL_BOTTOM;
-	    ::g->ds_p->bsilheight = MAXINT;
+	    ::g->ds_p->bsilheight = MAX_TYPE(int);
 	    // ::g->ds_p->sprbottomclip = ::g->negonearray;
 	}
 	
@@ -476,21 +476,21 @@ R_StoreWallRange
 	else if (::g->backsector->ceilingheight < ::g->viewz)
 	{
 	    ::g->ds_p->silhouette |= SIL_TOP;
-	    ::g->ds_p->tsilheight = MININT;
+	    ::g->ds_p->tsilheight = MIN_TYPE(int);
 	    // ::g->ds_p->sprtopclip = ::g->screenheightarray;
 	}
 		
 	if (::g->backsector->ceilingheight <= ::g->frontsector->floorheight)
 	{
 	    ::g->ds_p->sprbottomclip = ::g->negonearray;
-	    ::g->ds_p->bsilheight = MAXINT;
+	    ::g->ds_p->bsilheight = MAX_TYPE(int);
 	    ::g->ds_p->silhouette |= SIL_BOTTOM;
 	}
 	
 	if (::g->backsector->floorheight >= ::g->frontsector->ceilingheight)
 	{
 	    ::g->ds_p->sprtopclip = ::g->screenheightarray;
-	    ::g->ds_p->tsilheight = MININT;
+	    ::g->ds_p->tsilheight = MIN_TYPE(int);
 	    ::g->ds_p->silhouette |= SIL_TOP;
 	}
 	
@@ -705,12 +705,12 @@ R_StoreWallRange
     if (::g->maskedtexture && !(::g->ds_p->silhouette&SIL_TOP))
     {
 	::g->ds_p->silhouette |= SIL_TOP;
-	::g->ds_p->tsilheight = MININT;
+	::g->ds_p->tsilheight = MIN_TYPE(int);
     }
     if (::g->maskedtexture && !(::g->ds_p->silhouette&SIL_BOTTOM))
     {
 	::g->ds_p->silhouette |= SIL_BOTTOM;
-	::g->ds_p->bsilheight = MAXINT;
+	::g->ds_p->bsilheight = MAX_TYPE(int);
     }
     ::g->ds_p++;
 }

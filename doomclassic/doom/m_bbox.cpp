@@ -41,8 +41,8 @@ If you have questions concerning this license or the applicable additional terms
 
 void M_ClearBox (fixed_t *box)
 {
-    box[BOXTOP] = box[BOXRIGHT] = MININT;
-    box[BOXBOTTOM] = box[BOXLEFT] = MAXINT;
+    box[BOXTOP] = box[BOXRIGHT] = MIN_TYPE(int);
+    box[BOXBOTTOM] = box[BOXLEFT] = MAX_TYPE(int);
 }
 
 void

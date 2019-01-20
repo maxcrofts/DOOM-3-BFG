@@ -667,7 +667,7 @@ bool TryRunTics ( idUserCmdMgr * userCmdMgr )
 	// get available tics
 	NetUpdate ( userCmdMgr );
 
-	::g->trt_lowtic = MAXINT;
+	::g->trt_lowtic = MAX_TYPE(int);
 	::g->trt_numplaying = 0;
 
 	for (i=0 ; i < ::g->doomcom.numnodes ; i++) {
