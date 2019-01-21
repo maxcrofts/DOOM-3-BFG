@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../idlib/precompiled.h"
 
 #include "Game_local.h"
-#include "..\framework\Common_local.h"
+#include "../framework/Common_local.h"
 
 static const int SNAP_GAMESTATE = 0;
 static const int SNAP_SHADERPARMS = 1;
