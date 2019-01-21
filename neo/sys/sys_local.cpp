@@ -93,7 +93,7 @@ bool idSysLocal::UnlockMemory( void *ptr, int bytes ) {
 	return Sys_UnlockMemory( ptr, bytes );
 }
 
-int idSysLocal::DLL_Load( const char *dllName ) {
+void *idSysLocal::DLL_Load( const char *dllName ) {
 	return Sys_DLL_Load( dllName );
 }
 
