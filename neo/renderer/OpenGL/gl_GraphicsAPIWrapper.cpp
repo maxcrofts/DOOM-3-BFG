@@ -251,7 +251,9 @@ void GL_SetDefaultState() {
 	qglPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 
 	// These should never be changed
+#ifndef USE_CORE_PROFILE
 	qglShadeModel( GL_SMOOTH );
+#endif
 	qglEnable( GL_DEPTH_TEST );
 	qglEnable( GL_BLEND );
 	qglEnable( GL_SCISSOR_TEST );
