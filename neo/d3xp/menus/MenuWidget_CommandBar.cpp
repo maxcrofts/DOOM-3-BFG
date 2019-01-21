@@ -171,7 +171,7 @@ void idMenuWidget_CommandBar::Update() {
 			buttonSprite->SetVisible( false );
 			idSWFScriptObject * const shortcutKeys = GetSWFObject()->GetGlobal( "shortcutKeys" ).GetObject();
 			if ( verify( shortcutKeys != NULL ) ) {
-				buttonSprite->GetScriptObject()->Set( "onPress", NULL );
+				buttonSprite->GetScriptObject()->Set( "onPress", 0 );
 				 // bind the main action - need to use all caps here because shortcuts are stored that way
 				shortcutName = buttonName;
 				shortcutName.ToUpper();
