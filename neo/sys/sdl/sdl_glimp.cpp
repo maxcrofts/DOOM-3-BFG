@@ -391,7 +391,7 @@ static bool GLimp_CreateWindow( glimpParms_t parms ) {
 	SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 8 );
 	SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 8 );
 	SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 8 );
-	SDL_GL_SetAttribute( SDL_GL_STEREO, ( parms.stereo ? TRUE : FALSE ) );
+	SDL_GL_SetAttribute( SDL_GL_STEREO, parms.stereo );
 
 	int useOpenGL32 = r_useOpenGL32.GetInteger();
 	const int glMajorVersion = ( useOpenGL32 != 0 ) ? 3 : 2;
