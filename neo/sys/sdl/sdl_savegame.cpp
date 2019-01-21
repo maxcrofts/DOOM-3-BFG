@@ -102,7 +102,7 @@ int idSaveGameThread::Save() {
 		}
 	}
 
-	int ret = ERROR_SUCCESS;
+	int ret = 0;
 
 	// Check size of previous files if needed
 	// ALL THE FILES RIGHT NOW----  could use pattern later...
@@ -143,7 +143,7 @@ int idSaveGameThread::Save() {
 	}
 
 	// Save the raw files.
-	for ( int i = 0; i < callback->files.Num() && ret == ERROR_SUCCESS && !callback->cancelled; i++ ) {
+	for ( int i = 0; i < callback->files.Num() && ret == 0 && !callback->cancelled; i++ ) {
 		idFile_SaveGame * file = callback->files[i];
 
 		idStr fileName = saveFolder;
@@ -152,7 +152,12 @@ int idSaveGameThread::Save() {
 
 		idFile * outputFile = fileSystem->OpenFileWrite( tempFileName, "fs_savePath" );
 		if ( outputFile == NULL ) {
-			idLib::Warning( "[%s]: Couldn't open file for writing, %s. Error = %08x", __FUNCTION__, tempFileName.c_str(), GetLastError() );
+#ifdef ID_WIN
+			const int err = GetLastError();
+#else
+			const int err = errno;
+#endif
+			idLib::Warning( "[%s]: Couldn't open file for writing, %s. Error = %08x", __FUNCTION__, tempFileName.c_str(), err );
 			file->error = true;
 			callback->errorCode = SAVEGAME_E_UNKNOWN;
 			ret = -1;
@@ -167,7 +172,12 @@ int idSaveGameThread::Save() {
 			blockForIO_t block;
 			while ( inputFile->NextWriteBlock( & block ) ) {
 				if ( (size_t)outputFile->Write( block.data, block.bytes ) != block.bytes ) {
-					idLib::Warning( "[%s]: Write failed. Error = %08x", __FUNCTION__, GetLastError() );
+#ifdef ID_WIN
+					const int err = GetLastError();
+#else
+					const int err = errno;
+#endif
+					idLib::Warning( "[%s]: Write failed. Error = %08x", __FUNCTION__, err );
 					file->error = true;
 					callback->errorCode = SAVEGAME_E_INSUFFICIENT_ROOM;
 					ret = -1;
@@ -182,7 +192,13 @@ int idSaveGameThread::Save() {
 					unsigned int checksum = MD5_BlockChecksum( file->GetDataPtr(), file->Length() );
 					size_t size = outputFile->WriteBig( checksum );
 					if ( size != sizeof( checksum ) ) {
-						idLib::Warning( "[%s]: Write failed. Error = %08x", __FUNCTION__, GetLastError() );
+						
+#ifdef ID_WIN
+						const int err = GetLastError();
+#else
+						const int err = errno;
+#endif
+						idLib::Warning( "[%s]: Write failed. Error = %08x", __FUNCTION__, err );
 						file->error = true;
 						callback->errorCode = SAVEGAME_E_INSUFFICIENT_ROOM;
 						ret = -1;
@@ -192,7 +208,12 @@ int idSaveGameThread::Save() {
 
 			size_t size = outputFile->Write( file->GetDataPtr(), file->Length() );
 			if ( size != (size_t)file->Length() ) {
-				idLib::Warning( "[%s]: Write failed. Error = %08x", __FUNCTION__, GetLastError() );
+#ifdef ID_WIN
+				const int err = GetLastError();
+#else
+				const int err = errno;
+#endif
+				idLib::Warning( "[%s]: Write failed. Error = %08x", __FUNCTION__, err );
 				file->error = true;
 				callback->errorCode = SAVEGAME_E_INSUFFICIENT_ROOM;
 				ret = -1;
@@ -203,7 +224,7 @@ int idSaveGameThread::Save() {
 
 		delete outputFile;
 
-		if ( ret == ERROR_SUCCESS ) {
+		if ( ret == 0 ) {
 			// Remove the old file
 			if ( !fileSystem->RenameFile( tempFileName, fileName, "fs_savePath" ) ) {
 				idLib::Warning( "Could not start to rename temporary file %s to %s.", tempFileName.c_str(), fileName.c_str() );
@@ -252,8 +273,8 @@ int idSaveGameThread::Load() {
 		return -1;
 	}
 
-	int ret = ERROR_SUCCESS;
-	for ( int i = 0; i < callback->files.Num() && ret == ERROR_SUCCESS && !callback->cancelled; i++ ) {
+	int ret = 0;
+	for ( int i = 0; i < callback->files.Num() && ret == 0 && !callback->cancelled; i++ ) {
 		idFile_SaveGame * file = callback->files[i];
 
 		idStr filename = saveFolder;
@@ -344,7 +365,7 @@ int idSaveGameThread::Delete() {
 
 	saveFolder.AppendPath( callback->directory );
 
-	int ret = ERROR_SUCCESS;
+	int ret = 0;
 	if ( fileSystem->IsFolder( saveFolder, "fs_savePath" ) == FOLDER_YES ) {
 		idFileList * files = fileSystem->ListFilesTree( saveFolder, "/|*" );
 		for ( int i = 0; i < files->GetNumFiles() && !callback->cancelled; i++ ) {
@@ -376,7 +397,7 @@ int idSaveGameThread::Enumerate() {
 
 	callback->detailList.Clear();
 
-	int ret = ERROR_SUCCESS;
+	int ret = 0;
 	if ( fileSystem->IsFolder( saveFolder, "fs_savePath" ) == FOLDER_YES ) {
 		idFileList * files = fileSystem->ListFilesTree( saveFolder, SAVEGAME_DETAILS_FILENAME );
 		const idStrList & fileList = files->GetList();
@@ -401,27 +422,8 @@ int idSaveGameThread::Enumerate() {
 				}
 
 				// Use the date from the directory
-				WIN32_FILE_ATTRIBUTE_DATA attrData;
-				BOOL attrRet = GetFileAttributesEx( file->GetFullPath(), GetFileExInfoStandard, &attrData );
+				details->date = file->Timestamp();
 				delete file;
-				if ( attrRet == TRUE ) {
-					FILETIME		lastWriteTime = attrData.ftLastWriteTime;
-					const ULONGLONG second = 10000000L; // One second = 10,000,000 * 100 nsec
-					SYSTEMTIME		base_st = { 1970, 1, 0, 1, 0, 0, 0, 0 };
-					ULARGE_INTEGER	itime;
-					FILETIME		base_ft;
-					BOOL			success = SystemTimeToFileTime( &base_st, &base_ft );
-
-					itime.QuadPart = ((ULARGE_INTEGER *)&lastWriteTime)->QuadPart;
-					if ( success ) {
-						itime.QuadPart -= ((ULARGE_INTEGER *)&base_ft)->QuadPart;
-					} else {
-						// Hard coded number of 100-nanosecond units from 1/1/1601 to 1/1/1970
-						itime.QuadPart -= 116444736000000000LL;
-					}
-					itime.QuadPart /= second;
-					details->date = itime.QuadPart;
-				}
 			} else {
 				details->damaged = true;
 			}
@@ -457,7 +459,7 @@ int idSaveGameThread::EnumerateFiles() {
 
 	callback->files.Clear();
 
-	int ret = ERROR_SUCCESS;
+	int ret = 0;
 	if ( fileSystem->IsFolder( folder, "fs_savePath" ) == FOLDER_YES ) {
 		// get listing of all the files, but filter out below
 		idFileList * files = fileSystem->ListFilesTree( folder, "*.*" );
@@ -530,7 +532,7 @@ int idSaveGameThread::DeleteFiles() {
 		fileSystem->RemoveFile( fullpath );
 	}
 	
-	int ret = ERROR_SUCCESS;
+	int ret = 0;
 	if ( fileSystem->IsFolder( folder, "fs_savePath" ) == FOLDER_YES ) {
 		// get listing of all the files, but filter out below
 		idFileList * files = fileSystem->ListFilesTree( folder, "*.*" );
@@ -573,7 +575,7 @@ This deletes all savegame directories
 int idSaveGameThread::DeleteAll() {
 	idSaveLoadParms * callback = data.saveLoadParms;
 	idStr saveFolder = "savegame";
-	int ret = ERROR_SUCCESS;
+	int ret = 0;
 
 	if ( fileSystem->IsFolder( saveFolder, "fs_savePath" ) == FOLDER_YES ) {
 		idFileList * files = fileSystem->ListFilesTree( saveFolder, "/|*" );
@@ -605,7 +607,7 @@ idSaveGameThread::Run
 ========================
 */
 int idSaveGameThread::Run() {
-	int ret = ERROR_SUCCESS;
+	int ret = 0;
 
 	try {
 		idLocalUserSDL * user = GetLocalUserFromSaveParms( data );
