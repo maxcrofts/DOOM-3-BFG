@@ -49,6 +49,10 @@ If you have questions concerning this license or the applicable additional terms
 #pragma warning( disable : 4100 )	// unreferenced formal parameter
 #pragma warning( disable : 4127 )	// conditional expression is constant
 
+#ifndef ID_WIN
+#include <signal.h>					// for raise
+#endif
+
 
 
 
