@@ -318,8 +318,10 @@ For ARB_debug_output
 static void CALLBACK DebugCallback(unsigned int source, unsigned int type,
 								   unsigned int id, unsigned int severity, int length, const char * message, void * userParam) {
 	// it probably isn't safe to do an idLib::Printf at this point
+#ifdef ID_WIN
 	OutputDebugString( message );
 	OutputDebugString( "\n" );
+#endif
 }
 
 /*
@@ -805,6 +807,7 @@ void R_InitOpenGL() {
 	// Reset our gamma
 	R_SetColorMappings();
 
+#ifdef ID_WIN
 	static bool glCheck = false;
 	if ( !glCheck ) {
 		glCheck = true;
@@ -824,6 +827,7 @@ void R_InitOpenGL() {
 			}
 		}
 	}
+#endif
 }
 
 /*

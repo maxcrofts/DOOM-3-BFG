@@ -92,7 +92,11 @@ Sys_LockMemory
 ================
 */
 bool Sys_LockMemory( void *ptr, int bytes ) {
+#ifdef ID_WIN
 	return ( VirtualLock( ptr, (SIZE_T)bytes ) != FALSE );
+#else
+	return false;
+#endif
 }
 
 /*
@@ -101,7 +105,11 @@ Sys_UnlockMemory
 ================
 */
 bool Sys_UnlockMemory( void *ptr, int bytes ) {
+#ifdef ID_WIN
 	return ( VirtualUnlock( ptr, (SIZE_T)bytes ) != FALSE );
+#else
+	return false;
+#endif
 }
 
 /*
@@ -110,7 +118,9 @@ Sys_SetPhysicalWorkMemory
 ================
 */
 void Sys_SetPhysicalWorkMemory( int minBytes, int maxBytes ) {
+#ifdef ID_WIN
 	::SetProcessWorkingSetSize( GetCurrentProcess(), minBytes, maxBytes );
+#endif
 }
 
 /*
@@ -122,10 +132,11 @@ char *Sys_GetCurrentUser() {
 	static char s_userName[1024];
 	unsigned long size = sizeof( s_userName );
 
-
+#ifdef ID_WIN
 	if ( !GetUserName( s_userName, &size ) ) {
 		strcpy( s_userName, "player" );
 	}
+#endif
 
 	if ( !s_userName[0] ) {
 		strcpy( s_userName, "player" );

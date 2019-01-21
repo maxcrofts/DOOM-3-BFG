@@ -41,6 +41,7 @@ IsWriteCombined
 ==================
 */
 bool IsWriteCombined( void * base ) {
+#ifdef ID_WIN
 	MEMORY_BASIC_INFORMATION info;
 	SIZE_T size = VirtualQueryEx( GetCurrentProcess(), base, &info, sizeof( info ) );
 	if ( size == 0 ) {
@@ -50,6 +51,7 @@ bool IsWriteCombined( void * base ) {
 	}
 	bool isWriteCombined = ( ( info.AllocationProtect & PAGE_WRITECOMBINE ) != 0 );
 	return isWriteCombined;
+#endif
 }
 
 
