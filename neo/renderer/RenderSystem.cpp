@@ -118,9 +118,9 @@ void idRenderSystemLocal::RenderCommandBuffers( const emptyCommand_t * const cmd
 			if ( tr.timerQueryId == 0 ) {
 				qglGenQueriesARB( 1, & tr.timerQueryId );
 			}
-			qglBeginQueryARB( GL_TIME_ELAPSED_EXT, tr.timerQueryId );
+			qglBeginQueryARB( GL_TIME_ELAPSED, tr.timerQueryId );
 			RB_ExecuteBackEndCommands( cmdHead );
-			qglEndQueryARB( GL_TIME_ELAPSED_EXT );
+			qglEndQueryARB( GL_TIME_ELAPSED );
 			qglFlush();
 		} else {
 			RB_ExecuteBackEndCommands( cmdHead );
@@ -260,9 +260,9 @@ static void R_CheckCvars() {
 
 	if ( r_multiSamples.IsModified() ) {
 		if ( r_multiSamples.GetInteger() > 0 ) {
-			qglEnable( GL_MULTISAMPLE_ARB );
+			qglEnable( GL_MULTISAMPLE );
 		} else {
-			qglDisable( GL_MULTISAMPLE_ARB );
+			qglDisable( GL_MULTISAMPLE );
 		}
 	}
 

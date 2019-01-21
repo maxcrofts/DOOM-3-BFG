@@ -450,14 +450,14 @@ void idImage::Bind() {
 	if ( opts.textureType == TT_2D ) {
 		if ( tmu->current2DMap != texnum ) {
 			tmu->current2DMap = texnum;
-			qglActiveTextureARB( GL_TEXTURE0_ARB + texUnit );
+			qglActiveTextureARB( GL_TEXTURE0 + texUnit );
 			qglBindTexture( GL_TEXTURE_2D, texnum );
 		}
 	} else if ( opts.textureType == TT_CUBIC ) {
 		if ( tmu->currentCubeMap != texnum ) {
 			tmu->currentCubeMap = texnum;
-			qglActiveTextureARB( GL_TEXTURE0_ARB + texUnit );
-			qglBindTexture( GL_TEXTURE_CUBE_MAP_EXT, texnum );
+			qglActiveTextureARB( GL_TEXTURE0 + texUnit );
+			qglBindTexture( GL_TEXTURE_CUBE_MAP, texnum );
 		}
 	}
 
@@ -483,7 +483,7 @@ CopyFramebuffer
 void idImage::CopyFramebuffer( int x, int y, int imageWidth, int imageHeight ) {
 
 
-	qglBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP_EXT : GL_TEXTURE_2D, texnum );
+	qglBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, texnum );
 
 	qglReadBuffer( GL_BACK );
 
@@ -507,7 +507,7 @@ CopyDepthbuffer
 ====================
 */
 void idImage::CopyDepthbuffer( int x, int y, int imageWidth, int imageHeight ) {
-	qglBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP_EXT : GL_TEXTURE_2D, texnum );
+	qglBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, texnum );
 
 	opts.width = imageWidth;
 	opts.height = imageHeight;
@@ -712,6 +712,6 @@ void idImage::SetSamplerState( textureFilter_t tf, textureRepeat_t tr ) {
 	}
 	filter = tf;
 	repeat = tr;
-	qglBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP_EXT : GL_TEXTURE_2D, texnum );
+	qglBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, texnum );
 	SetTexParameters();
 }

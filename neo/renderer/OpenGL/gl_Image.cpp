@@ -77,8 +77,8 @@ void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int 
 		target = GL_TEXTURE_2D;
 		uploadTarget = GL_TEXTURE_2D;
 	} else if ( opts.textureType == TT_CUBIC ) {
-		target = GL_TEXTURE_CUBE_MAP_EXT;
-		uploadTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X_EXT + z;
+		target = GL_TEXTURE_CUBE_MAP;
+		uploadTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X + z;
 	} else {
 		assert( !"invalid opts.textureType" );
 		target = GL_TEXTURE_2D;
@@ -144,7 +144,7 @@ void idImage::SetTexParameters() {
 			target = GL_TEXTURE_2D;
 			break;
 		case TT_CUBIC:
-			target = GL_TEXTURE_CUBE_MAP_EXT;
+			target = GL_TEXTURE_CUBE_MAP;
 			break;
 		default:
 			idLib::FatalError( "%s: bad texture type %d", GetName(), opts.textureType );
@@ -223,7 +223,7 @@ void idImage::SetTexParameters() {
 	}
 	if ( glConfig.textureLODBiasAvailable && ( usage != TD_FONT ) ) {
 		// use a blurring LOD bias in combination with high anisotropy to fix our aliasing grate textures...
-		qglTexParameterf(target, GL_TEXTURE_LOD_BIAS_EXT, r_lodBias.GetFloat() );
+		qglTexParameterf(target, GL_TEXTURE_LOD_BIAS, r_lodBias.GetFloat() );
 	}
 
 	// set the wrap/clamp modes
@@ -357,8 +357,8 @@ void idImage::AllocImage() {
 		target = uploadTarget = GL_TEXTURE_2D;
 		numSides = 1;
 	} else if ( opts.textureType == TT_CUBIC ) {
-		target = GL_TEXTURE_CUBE_MAP_EXT;
-		uploadTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X_EXT;
+		target = GL_TEXTURE_CUBE_MAP;
+		uploadTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
 		numSides = 6;
 	} else {
 		assert( !"opts.textureType" );

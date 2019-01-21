@@ -430,7 +430,7 @@ static void R_CheckPortableExtensions() {
 		qglEnableVertexAttribArrayARB = (PFNGLENABLEVERTEXATTRIBARRAYPROC)GLimp_ExtensionPointer( "glEnableVertexAttribArrayARB" );
 		qglDisableVertexAttribArrayARB = (PFNGLDISABLEVERTEXATTRIBARRAYPROC)GLimp_ExtensionPointer( "glDisableVertexAttribArrayARB" );
 
-		qglGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS_ARB, (GLint *)&glConfig.maxTextureImageUnits );
+		qglGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS, (GLint *)&glConfig.maxTextureImageUnits );
 	}
 
 	// GLSL, core in OpenGL > 2.0
