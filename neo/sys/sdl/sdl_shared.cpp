@@ -31,6 +31,10 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "sdl_local.h"
 
+#ifndef ID_WIN
+#include <sys/statvfs.h>
+#endif
+
 /*
 ================
 Sys_Milliseconds
@@ -62,14 +66,23 @@ Sys_GetDriveFreeSpaceInBytes
 ========================
 */
 int64 Sys_GetDriveFreeSpaceInBytes( const char * path ) {
+	int64 ret = 1;
+	
+#ifdef ID_WIN
 	DWORDLONG lpFreeBytesAvailable;
 	DWORDLONG lpTotalNumberOfBytes;
 	DWORDLONG lpTotalNumberOfFreeBytes;
-	int64 ret = 1;
 	//FIXME: see why this is failing on some machines
 	if ( ::GetDiskFreeSpaceEx( path, (PULARGE_INTEGER)&lpFreeBytesAvailable, (PULARGE_INTEGER)&lpTotalNumberOfBytes, (PULARGE_INTEGER)&lpTotalNumberOfFreeBytes ) ) {
 		ret = lpFreeBytesAvailable;
 	}
+#else
+	struct statvfs buffer;
+	if ( statvfs( path, &buffer ) == 0 ) {
+		ret = buffer.f_bsize * buffer.f_bavail;
+	}
+#endif
+	
 	return ret;
 }
 
