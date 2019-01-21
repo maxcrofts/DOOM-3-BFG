@@ -31,6 +31,10 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "sdl/sdl_local.h"
 
+#ifndef ID_WIN
+#include <cpuid.h>
+#endif
+
 #pragma warning(disable:4740)	// warning C4740: flow in or out of inline asm code suppresses global optimization
 #pragma warning(disable:4731)	// warning C4731: 'XXX' : frame pointer register 'ebx' modified by inline assembly code
 
@@ -89,7 +93,11 @@ CPUID
 ================
 */
 static void CPUID( int func, unsigned regs[4] ) {
+#ifdef ID_WIN
 	__cpuid( (int *)regs, func );
+#else
+	__get_cpuid( func, &regs[_REG_EAX], &regs[_REG_EBX], &regs[_REG_ECX], &regs[_REG_EDX] );
+#endif
 }
 
 
@@ -626,7 +634,7 @@ Sys_FPU_SetPrecision
 ===============
 */
 void Sys_FPU_SetPrecision( int precision ) {
-#if 1
+#ifdef ID_WIN
 	int precisionBitTable[3] = { _PC_24, _PC_53, _PC_64 };
 	int precisionBits = precisionBitTable[precision];
 	int precisionMask = _MCW_PC;
