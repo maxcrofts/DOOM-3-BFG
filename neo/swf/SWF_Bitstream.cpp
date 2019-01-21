@@ -48,8 +48,6 @@ int signForNumBits[33] = {	NBS( 0x01 ), NBS( 0x01 ), NBS( 0x02 ), NBS( 0x03 ),
 							NBS( 0x18 ), NBS( 0x19 ), NBS( 0x1A ), NBS( 0x1B ),
 							NBS( 0x1C ), NBS( 0x1D ), NBS( 0x1E ), NBS( 0x1F ), NBS( 0x20 ) };
 
-#define ID_FORCEINLINE __forceinline
-
 /*
 ========================
 idSWFBitStream::idSWFBitStream
@@ -161,7 +159,7 @@ const byte * idSWFBitStream::ReadData( int size ) {
 idSWFBitStream::ReadInternalU
 ========================
 */
-ID_FORCEINLINE unsigned int idSWFBitStream::ReadInternalU( uint64 & regCurrentBit, uint64 & regCurrentByte, unsigned int numBits ) {
+ID_FORCE_INLINE unsigned int idSWFBitStream::ReadInternalU( uint64 & regCurrentBit, uint64 & regCurrentByte, unsigned int numBits ) {
 	assert( numBits <= 32 );
 
 	// read bits with only one microcoded shift instruction (shift with variable) on the consoles
@@ -181,7 +179,7 @@ ID_FORCEINLINE unsigned int idSWFBitStream::ReadInternalU( uint64 & regCurrentBi
 idSWFBitStream::ReadInternalS
 ========================
 */
-ID_FORCEINLINE int idSWFBitStream::ReadInternalS( uint64 & regCurrentBit, uint64 & regCurrentByte, unsigned int numBits ) {
+ID_FORCE_INLINE int idSWFBitStream::ReadInternalS( uint64 & regCurrentBit, uint64 & regCurrentByte, unsigned int numBits ) {
 	int i = (int)ReadInternalU( regCurrentBit, regCurrentByte, numBits );
 
 	// sign extend without microcoded shift instrunction (shift with variable) on the consoles
