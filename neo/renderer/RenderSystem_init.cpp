@@ -428,7 +428,6 @@ static void R_CheckPortableExtensions() {
 		qglEnableVertexAttribArrayARB = (PFNGLENABLEVERTEXATTRIBARRAYPROC)GLimp_ExtensionPointer( "glEnableVertexAttribArrayARB" );
 		qglDisableVertexAttribArrayARB = (PFNGLDISABLEVERTEXATTRIBARRAYPROC)GLimp_ExtensionPointer( "glDisableVertexAttribArrayARB" );
 
-		qglGetIntegerv( GL_MAX_TEXTURE_COORDS_ARB, (GLint *)&glConfig.maxTextureCoords );
 		qglGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS_ARB, (GLint *)&glConfig.maxTextureImageUnits );
 	}
 
@@ -1603,7 +1602,6 @@ void GfxInfo_f( const idCmdArgs &args ) {
 	}
 #endif
 	common->Printf( "GL_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize );
-	common->Printf( "GL_MAX_TEXTURE_COORDS_ARB: %d\n", glConfig.maxTextureCoords );
 	common->Printf( "GL_MAX_TEXTURE_IMAGE_UNITS_ARB: %d\n", glConfig.maxTextureImageUnits );
 
 	// print all the display adapters, monitors, and video modes

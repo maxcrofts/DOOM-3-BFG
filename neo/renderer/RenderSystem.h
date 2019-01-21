@@ -94,7 +94,6 @@ struct glconfig_t {
 	graphicsVendor_t	vendor;
 
 	int					maxTextureSize;			// queried from GL
-	int					maxTextureCoords;
 	int					maxTextureImageUnits;
 	int					uniformBufferOffsetAlignment;
 	float				maxTextureAnisotropy;
