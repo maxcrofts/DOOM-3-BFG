@@ -45,6 +45,8 @@ Contains the windows implementation of the network session
 #include "../stub/stub_achievements.h"
 #include "../sdl/sdl_local.h"
 
+class idLobbyToSessionCBLocal;
+
 /*
 ========================
 Global variables
