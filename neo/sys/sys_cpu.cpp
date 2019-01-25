@@ -640,7 +640,7 @@ void Sys_FPU_SetPrecision( int precision ) {
 	int precisionMask = _MCW_PC;
 
 	_controlfp( precisionBits, precisionMask );
-#else
+#if 0
 	short precisionBitTable[4] = { 0, 1, 3, 0 };
 	short precisionBits = precisionBitTable[precision & 3] << 8;
 	short precisionMask = ~( ( 1 << 9 ) | ( 1 << 8 ) );
@@ -655,6 +655,7 @@ void Sys_FPU_SetPrecision( int precision ) {
 		mov			word ptr [eax], bx
 		fldcw		word ptr [eax]
 	}
+#endif
 #endif
 }
 
