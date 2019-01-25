@@ -1273,7 +1273,7 @@ idZipBuilder::GetFileTime
 ========================
 */
 bool idZipBuilder::GetFileTime( const idStr &filename, unsigned long *dostime ) const {
-#if ID_WIN
+#ifdef ID_WIN
 	{
 		FILETIME filetime;
 		WIN32_FIND_DATA fileData;
