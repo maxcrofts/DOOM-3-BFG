@@ -415,6 +415,7 @@ set(DOOM3BFG_SYS_FILES
     "sys/sys_local.h"
     "sys/sys_localuser.cpp"
     "sys/sys_localuser.h"
+    "sys/sys_net.cpp"
     "sys/sys_profile.cpp"
     "sys/sys_profile.h"
     "sys/sys_public.h"
@@ -475,7 +476,6 @@ if(WIN32)
 
     set(DOOM3BFG_SYS_WIN32_FILES
         "sys/win32/win_main.cpp"
-        "sys/win32/win_net.cpp"
         "sys/win32/win_syscon.cpp"
     )
     source_group("Sys\\Win32" FILES ${DOOM3BFG_SYS_WIN32_FILES})
