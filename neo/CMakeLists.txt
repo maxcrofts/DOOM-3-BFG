@@ -480,6 +480,13 @@ if(WIN32)
     )
     source_group("Sys\\Win32" FILES ${DOOM3BFG_SYS_WIN32_FILES})
     set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_SYS_WIN32_FILES})
+else()
+    set(DOOM3BFG_SYS_POSIX_FILES
+        "sys/posix/posix_main.cpp"
+        "sys/posix/posix_syscon.cpp"
+    )
+    source_group("Sys\\Posix" FILES ${DOOM3BFG_SYS_POSIX_FILES})
+    set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_SYS_POSIX_FILES})
 endif()
 
 # precompiled headers
