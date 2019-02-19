@@ -515,14 +515,20 @@ if(MSVC)
     set_source_files_properties("sound/mojoal.c" PROPERTIES COMPILE_FLAGS "/W0")
 endif()
 
-# copy dlls to target dir
-foreach(dll
-    ${SDL2_DLL}
+# copy shaders to target directory
+add_custom_command(
+    TARGET Doom3BFG
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND}
+    ARGS -E copy_directory ${CMAKE_SOURCE_DIR}/base/renderprogs $<TARGET_FILE_DIR:Doom3BFG>/base/renderprogs
 )
+
+if(SDL2_DLL)
+    # copy SDL2 shared library to target dir
     add_custom_command(
         TARGET Doom3BFG
         POST_BUILD
         COMMAND ${CMAKE_COMMAND}
-        ARGS -E copy ${dll} $<TARGET_FILE_DIR:Doom3BFG>
+        ARGS -E copy ${SDL2_DLL} $<TARGET_FILE_DIR:Doom3BFG>
     )
-endforeach()
+endif()

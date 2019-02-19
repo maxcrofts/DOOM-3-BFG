@@ -113,27 +113,27 @@ attribInfo_t attribsPC[] = {
 	{ "float",		"facing",		"FACE",			"gl_FrontFacing",		0,	AT_PS_IN,		0 },
 
 	// fragment program output
-	{ "float4",		"color",		"COLOR",		"gl_FragColor",		0,	AT_PS_OUT,		0 }, // GLSL version 1.2 doesn't allow for custom color name mappings
-	{ "half4",		"hcolor",		"COLOR",		"gl_FragColor",		0,	AT_PS_OUT,		0 },
-	{ "float4",		"color0",		"COLOR0",		"gl_FragColor",		0,	AT_PS_OUT,		0 },
-	{ "float4",		"color1",		"COLOR1",		"gl_FragColor",		1,	AT_PS_OUT,		0 },
-	{ "float4",		"color2",		"COLOR2",		"gl_FragColor",		2,	AT_PS_OUT,		0 },
-	{ "float4",		"color3",		"COLOR3",		"gl_FragColor",		3,	AT_PS_OUT,		0 },
+	{ "float4",		"color",		"COLOR",		"FragColor",		0,	AT_PS_OUT,		0 },
+	{ "half4",		"hcolor",		"COLOR",		"FragColor",		0,	AT_PS_OUT,		0 },
+	{ "float4",		"color0",		"COLOR0",		"FragColor",		0,	AT_PS_OUT,		0 },
+	{ "float4",		"color1",		"COLOR1",		"FragColor",		1,	AT_PS_OUT,		0 },
+	{ "float4",		"color2",		"COLOR2",		"FragColor",		2,	AT_PS_OUT,		0 },
+	{ "float4",		"color3",		"COLOR3",		"FragColor",		3,	AT_PS_OUT,		0 },
 	{ "float",		"depth",		"DEPTH",		"gl_FragDepth",		4,	AT_PS_OUT,		0 },
 
 	// vertex to fragment program pass through
-	{ "float4",		"color",		"COLOR",		"gl_FrontColor",			0,	AT_VS_OUT,	0 },
-	{ "float4",		"color0",		"COLOR0",		"gl_FrontColor",			0,	AT_VS_OUT,	0 },
-	{ "float4",		"color1",		"COLOR1",		"gl_FrontSecondaryColor",	0,	AT_VS_OUT,	0 },
+	{ "float4",		"color",		"COLOR",		"Color",			0,	AT_VS_OUT,	0 },
+	{ "float4",		"color0",		"COLOR0",		"Color",			0,	AT_VS_OUT,	0 },
+	{ "float4",		"color1",		"COLOR1",		"SecondaryColor",	0,	AT_VS_OUT,	0 },
 
 
-	{ "float4",		"color",		"COLOR",		"gl_Color",				0,	AT_PS_IN,	0 },
-	{ "float4",		"color0",		"COLOR0",		"gl_Color",				0,	AT_PS_IN,	0 },
-	{ "float4",		"color1",		"COLOR1",		"gl_SecondaryColor",	0,	AT_PS_IN,	0 },
+	{ "float4",		"color",		"COLOR",		"Color",				0,	AT_PS_IN,	0 },
+	{ "float4",		"color0",		"COLOR0",		"Color",				0,	AT_PS_IN,	0 },
+	{ "float4",		"color1",		"COLOR1",		"SecondaryColor",		0,	AT_PS_IN,	0 },
 
-	{ "half4",		"hcolor",		"COLOR",		"gl_Color",				0,	AT_PS_IN,		0 },
-	{ "half4",		"hcolor0",		"COLOR0",		"gl_Color",				0,	AT_PS_IN,		0 },
-	{ "half4",		"hcolor1",		"COLOR1",		"gl_SecondaryColor",	0,	AT_PS_IN,		0 },
+	{ "half4",		"hcolor",		"COLOR",		"Color",				0,	AT_PS_IN,		0 },
+	{ "half4",		"hcolor0",		"COLOR0",		"Color",				0,	AT_PS_IN,		0 },
+	{ "half4",		"hcolor1",		"COLOR1",		"SecondaryColor",		0,	AT_PS_IN,		0 },
 
 	{ "float4",		"texcoord0",	"TEXCOORD0_centroid",	"vofi_TexCoord0",	0,	AT_PS_IN,	0 },
 	{ "float4",		"texcoord1",	"TEXCOORD1_centroid",	"vofi_TexCoord1",	0,	AT_PS_IN,	0 },
@@ -167,8 +167,8 @@ attribInfo_t attribsPC[] = {
 	{ "half4",		"htexcoord7",	"TEXCOORD7",	"vofi_TexCoord7",		0,	AT_PS_IN,		0 },
 	{ "half4",		"htexcoord8",	"TEXCOORD8",	"vofi_TexCoord8",		0,	AT_PS_IN,		0 },
 	{ "half4",		"htexcoord9",	"TEXCOORD9",	"vofi_TexCoord9",		0,	AT_PS_IN,		0 },
-	{ "float",		"fog",			"FOG",			"gl_FogFragCoord",		0,	AT_VS_OUT,		0 },
-	{ "float4",		"fog",			"FOG",			"gl_FogFragCoord",		0,	AT_PS_IN,		0 },
+	{ "float",		"fog",			"FOG",			"FogFragCoord",			0,	AT_VS_OUT,		0 },
+	{ "float4",		"fog",			"FOG",			"FogFragCoord",			0,	AT_PS_IN,		0 },
 	{ NULL,			NULL,			NULL,			NULL,					0,	0,				0 }
 };
 
@@ -612,7 +612,7 @@ void ParseInOutStruct( idLexer & src, int attribType, idList< inOutVariable_t > 
 		}
 
 		// check if it was defined previously
-		var.declareInOut = true;
+		var.declareInOut = var.nameGLSL.IcmpPrefix("gl_");
 		for ( int i = 0; i < inOutVars.Num(); i++ ) {
 			if ( var.nameGLSL == inOutVars[i].nameGLSL ) {
 				var.declareInOut = false;
@@ -934,27 +934,12 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char * name, id
 		outFileUniforms += "_vertex.uniforms";
 	}
 
-	// first check whether we already have a valid GLSL file and compare it to the hlsl timestamp;
-	ID_TIME_T hlslTimeStamp;
-	int hlslFileLength = fileSystem->ReadFile( inFile.c_str(), NULL, &hlslTimeStamp );
-
-	ID_TIME_T glslTimeStamp;
-	int glslFileLength = fileSystem->ReadFile( outFileGLSL.c_str(), NULL, &glslTimeStamp );
-
-	// if the glsl file doesn't exist or we have a newer HLSL file we need to recreate the glsl file.
+	void * hlslFileBuffer = NULL;
+	int hlslFileLength = fileSystem->ReadFile( inFile.c_str(), &hlslFileBuffer );
+	
 	idStr programGLSL;
 	idStr programUniforms;
-	if ( ( glslFileLength <= 0 ) || ( hlslTimeStamp > glslTimeStamp ) ) {
-		if ( hlslFileLength <= 0 ) {
-			// hlsl file doesn't even exist bail out
-			return false;
-		}
-
-		void * hlslFileBuffer = NULL;
-		int len = fileSystem->ReadFile( inFile.c_str(), &hlslFileBuffer );
-		if ( len <= 0 ) {
-			return false;
-		}
+	if ( hlslFileLength > 0 ) {
 		idStr hlslCode( ( const char* ) hlslFileBuffer );
 		idStr programHLSL = StripDeadCode( hlslCode, inFile );
 		programGLSL = ConvertCG2GLSL( programHLSL, inFile, target == GL_VERTEX_SHADER, programUniforms );
