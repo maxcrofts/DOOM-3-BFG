@@ -177,13 +177,15 @@ bool Sys_SignalWait( signalHandle_t & handle, int timeout ) {
 			handle->signaled = false;
 		}
 	} else {
-		if ( timeout == idSysSignal::WAIT_INFINITE ) {
+		if ( timeout == 0 ) {
+			result = false;
+		} else if ( timeout == idSysSignal::WAIT_INFINITE ) {
 			while ( !handle->signaled ) {
 				SDL_CondWait( handle->condition, handle->mutex );
 			}
 		} else {
 			while ( !handle->signaled ) {
-				if ( SDL_CondWaitTimeout( handle->condition, handle->mutex, timeout ) == SDL_MUTEX_MAXWAIT ) {
+				if ( SDL_CondWaitTimeout( handle->condition, handle->mutex, timeout ) == SDL_MUTEX_TIMEDOUT ) {
 					result = false;
 					break;
 				}
