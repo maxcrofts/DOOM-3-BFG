@@ -63,11 +63,41 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-#if defined( _MSC_VER ) && _MSC_VER < 1900
-#define ID_TLS __declspec(thread) ptrdiff_t
-#else
-#define ID_TLS thread_local ptrdiff_t
-#endif
+	class idSysThreadLocalStorage {
+	public:
+		idSysThreadLocalStorage() {
+			if (!tlsIndex) {
+				SDL_AtomicLock(&tlsLock);
+				if (!tlsIndex) {
+					tlsIndex = SDL_TLSCreate();
+				}
+				SDL_AtomicUnlock(&tlsLock);
+			}
+		}
+		idSysThreadLocalStorage( const ptrdiff_t &val ) {
+			if (!tlsIndex) {
+				SDL_AtomicLock(&tlsLock);
+				if (!tlsIndex) {
+					tlsIndex = SDL_TLSCreate();
+				}
+				SDL_AtomicUnlock(&tlsLock);
+			}
+			SDL_TLSSet( tlsIndex, (void *)val, 0 );
+		}
+		~idSysThreadLocalStorage() {}
+		operator ptrdiff_t() {
+			return (ptrdiff_t)SDL_TLSGet( tlsIndex );
+		}
+		const ptrdiff_t & operator = ( const ptrdiff_t &val ) {
+			SDL_TLSSet( tlsIndex, (void *)val, 0 );
+			return val;
+		}
+	private:
+		SDL_SpinLock tlsLock;
+		SDL_TLSID tlsIndex;
+	};
+
+#define ID_TLS idSysThreadLocalStorage
 
 
 #endif // __TYPEINFOGEN__
