@@ -345,14 +345,14 @@ static void R_CheckPortableExtensions() {
 	}
 
 	// GL_ARB_multitexture
-	glConfig.multitextureAvailable = R_CheckExtension( "GL_ARB_multitexture" );
+	glConfig.multitextureAvailable = ( glConfig.glVersion >= 1.3f || R_CheckExtension( "GL_ARB_multitexture" ) );
 	if ( glConfig.multitextureAvailable ) {
 		qglActiveTextureARB = (void(APIENTRY *)(GLenum))GLimp_ExtensionPointer( "glActiveTextureARB" );
 	}
 
 	// GL_ARB_texture_compression + GL_S3_s3tc
 	// DRI drivers may have GL_ARB_texture_compression but no GL_EXT_texture_compression_s3tc
-	glConfig.textureCompressionAvailable = R_CheckExtension( "GL_ARB_texture_compression" ) && R_CheckExtension( "GL_EXT_texture_compression_s3tc" );
+	glConfig.textureCompressionAvailable = ( glConfig.glVersion >= 1.3f || ( R_CheckExtension( "GL_ARB_texture_compression" ) && R_CheckExtension( "GL_EXT_texture_compression_s3tc" ) ) );
 	if ( glConfig.textureCompressionAvailable ) {
 		qglCompressedTexImage2DARB = (PFNGLCOMPRESSEDTEXIMAGE2DPROC)GLimp_ExtensionPointer( "glCompressedTexImage2DARB" );
 		qglCompressedTexSubImage2DARB = (PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC)GLimp_ExtensionPointer( "glCompressedTexSubImage2DARB" );
@@ -371,7 +371,7 @@ static void R_CheckPortableExtensions() {
 	// GL_EXT_texture_lod_bias
 	// The actual extension is broken as specificed, storing the state in the texture unit instead
 	// of the texture object.  The behavior in GL 1.4 is the behavior we use.
-	glConfig.textureLODBiasAvailable = ( glConfig.glVersion >= 1.4 || R_CheckExtension( "GL_EXT_texture_lod_bias" ) );
+	glConfig.textureLODBiasAvailable = ( glConfig.glVersion >= 1.4f || R_CheckExtension( "GL_EXT_texture_lod_bias" ) );
 	if ( glConfig.textureLODBiasAvailable ) {
 		common->Printf( "...using %s\n", "GL_EXT_texture_lod_bias" );
 	} else {
@@ -379,15 +379,15 @@ static void R_CheckPortableExtensions() {
 	}
 
 	// GL_ARB_seamless_cube_map
-	glConfig.seamlessCubeMapAvailable = R_CheckExtension( "GL_ARB_seamless_cube_map" );
+	glConfig.seamlessCubeMapAvailable = ( glConfig.glVersion >= 3.2f || R_CheckExtension( "GL_ARB_seamless_cube_map" ) );
 	r_useSeamlessCubeMap.SetModified();		// the CheckCvars() next frame will enable / disable it
 
 	// GL_ARB_framebuffer_sRGB
-	glConfig.sRGBFramebufferAvailable = R_CheckExtension( "GL_ARB_framebuffer_sRGB" );
+	glConfig.sRGBFramebufferAvailable = ( glConfig.glVersion >= 3.0f || R_CheckExtension( "GL_ARB_framebuffer_sRGB" ) );
 	r_useSRGB.SetModified();		// the CheckCvars() next frame will enable / disable it
 
 	// GL_ARB_vertex_buffer_object
-	glConfig.vertexBufferObjectAvailable = R_CheckExtension( "GL_ARB_vertex_buffer_object" );
+	glConfig.vertexBufferObjectAvailable = ( glConfig.glVersion >= 3.0f || R_CheckExtension( "GL_ARB_vertex_buffer_object" ) );
 	if ( glConfig.vertexBufferObjectAvailable ) {
 		qglBindBufferARB = (PFNGLBINDBUFFERPROC)GLimp_ExtensionPointer( "glBindBufferARB" );
 		qglBindBufferRange = (PFNGLBINDBUFFERRANGEPROC)GLimp_ExtensionPointer( "glBindBufferRange" );
@@ -404,13 +404,13 @@ static void R_CheckPortableExtensions() {
 	}
 
 	// GL_ARB_map_buffer_range, map a section of a buffer object's data store
-	glConfig.mapBufferRangeAvailable = R_CheckExtension( "GL_ARB_map_buffer_range" );
+	glConfig.mapBufferRangeAvailable = ( glConfig.glVersion >= 3.0f || R_CheckExtension( "GL_ARB_map_buffer_range" ) );
 	if ( glConfig.mapBufferRangeAvailable ) {
 		qglMapBufferRange = (PFNGLMAPBUFFERRANGEPROC)GLimp_ExtensionPointer( "glMapBufferRange" );
 	}
 
 	// GL_ARB_vertex_array_object
-	glConfig.vertexArrayObjectAvailable = R_CheckExtension( "GL_ARB_vertex_array_object" );
+	glConfig.vertexArrayObjectAvailable = ( glConfig.glVersion >= 3.0f || R_CheckExtension( "GL_ARB_vertex_array_object" ) );
 	if ( glConfig.vertexArrayObjectAvailable ) {
 		qglGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)GLimp_ExtensionPointer( "glGenVertexArrays" );
 		qglBindVertexArray = (PFNGLBINDVERTEXARRAYPROC)GLimp_ExtensionPointer( "glBindVertexArray" );
@@ -418,13 +418,13 @@ static void R_CheckPortableExtensions() {
 	}
 
 	// GL_ARB_draw_elements_base_vertex
-	glConfig.drawElementsBaseVertexAvailable = R_CheckExtension( "GL_ARB_draw_elements_base_vertex" );
+	glConfig.drawElementsBaseVertexAvailable = ( glConfig.glVersion >= 3.2f || R_CheckExtension( "GL_ARB_draw_elements_base_vertex" ) );
 	if ( glConfig.drawElementsBaseVertexAvailable ) {
 		qglDrawElementsBaseVertex = (PFNGLDRAWELEMENTSBASEVERTEXPROC)GLimp_ExtensionPointer( "glDrawElementsBaseVertex" );
 	}
 
 	// GL_ARB_vertex_program
-	glConfig.vertexProgramAvailable = R_CheckExtension( "GL_ARB_vertex_program" );
+	glConfig.vertexProgramAvailable = ( glConfig.glVersion >= 2.0f || R_CheckExtension( "GL_ARB_vertex_program" ) );
 	if ( glConfig.vertexProgramAvailable ) {
 		qglVertexAttribPointerARB = (PFNGLVERTEXATTRIBPOINTERPROC)GLimp_ExtensionPointer( "glVertexAttribPointerARB" );
 		qglEnableVertexAttribArrayARB = (PFNGLENABLEVERTEXATTRIBARRAYPROC)GLimp_ExtensionPointer( "glEnableVertexAttribArrayARB" );
@@ -457,7 +457,7 @@ static void R_CheckPortableExtensions() {
 	}
 
 	// GL_ARB_uniform_buffer_object
-	glConfig.uniformBufferAvailable = R_CheckExtension( "GL_ARB_uniform_buffer_object" );
+	glConfig.uniformBufferAvailable = ( glConfig.glVersion >= 3.1f || R_CheckExtension( "GL_ARB_uniform_buffer_object" ) );
 	if ( glConfig.uniformBufferAvailable ) {
 		qglGetUniformBlockIndex = (PFNGLGETUNIFORMBLOCKINDEXPROC)GLimp_ExtensionPointer( "glGetUniformBlockIndex" );
 		qglUniformBlockBinding = (PFNGLUNIFORMBLOCKBINDINGPROC)GLimp_ExtensionPointer( "glUniformBlockBinding" );
@@ -469,7 +469,7 @@ static void R_CheckPortableExtensions() {
 	}
 
 	// ATI_separate_stencil / OpenGL 2.0 separate stencil
-	glConfig.twoSidedStencilAvailable = ( glConfig.glVersion >= 2.0f ) || R_CheckExtension( "GL_ATI_separate_stencil" );
+	glConfig.twoSidedStencilAvailable = ( glConfig.glVersion >= 2.0f || R_CheckExtension( "GL_ATI_separate_stencil" ) );
 	if ( glConfig.twoSidedStencilAvailable ) {
 		qglStencilOpSeparate = (PFNGLSTENCILOPSEPARATEPROC)GLimp_ExtensionPointer( "glStencilOpSeparate" );
 		qglStencilFuncSeparate = (PFNGLSTENCILFUNCSEPARATEPROC)GLimp_ExtensionPointer( "glStencilFuncSeparate" );
@@ -482,7 +482,7 @@ static void R_CheckPortableExtensions() {
  	}
 
 	// GL_ARB_sync
-	glConfig.syncAvailable = R_CheckExtension( "GL_ARB_sync" ) &&
+	glConfig.syncAvailable = ( glConfig.glVersion >= 3.2f || R_CheckExtension( "GL_ARB_sync" ) ) &&
 		// as of 5/24/2012 (driver version 15.26.12.64.2761) sync objects
 		// do not appear to work for the Intel HD 4000 graphics
 		( glConfig.vendor != VENDOR_INTEL || r_skipIntelWorkarounds.GetBool() );
@@ -494,7 +494,7 @@ static void R_CheckPortableExtensions() {
 	}
 
 	// GL_ARB_occlusion_query
-	glConfig.occlusionQueryAvailable = R_CheckExtension( "GL_ARB_occlusion_query" );
+	glConfig.occlusionQueryAvailable = ( glConfig.glVersion >= 1.5f || R_CheckExtension( "GL_ARB_occlusion_query" ) );
 	if ( glConfig.occlusionQueryAvailable ) {
 		// defined in GL_ARB_occlusion_query, which is required for GL_EXT_timer_query
 		qglGenQueriesARB = (PFNGLGENQUERIESPROC)GLimp_ExtensionPointer( "glGenQueriesARB" );
