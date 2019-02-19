@@ -38,8 +38,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "../win32/rc/doom_resource.h"
 #include "../../renderer/tr_local.h"
 
-idCVar r_useOpenGL32( "r_useOpenGL32", "1", CVAR_INTEGER, "0 = OpenGL 2.0, 1 = OpenGL 3.2 compatibility profile, 2 = OpenGL 3.2 core profile", 0, 2 );
-
 /*
 ====================
 GLimp_TestSwapBuffers
@@ -393,17 +391,17 @@ static bool GLimp_CreateWindow( glimpParms_t parms ) {
 	SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 8 );
 	SDL_GL_SetAttribute( SDL_GL_STEREO, parms.stereo );
 
-	int useOpenGL32 = r_useOpenGL32.GetInteger();
-	const int glMajorVersion = ( useOpenGL32 != 0 ) ? 3 : 2;
-	const int glMinorVersion = ( useOpenGL32 != 0 ) ? 2 : 0;
-	const int glDebugFlag = r_debugContext.GetBool() ? SDL_GL_CONTEXT_DEBUG_FLAG : 0;
-	const int glProfile = ( useOpenGL32 == 1 ) ? SDL_GL_CONTEXT_PROFILE_COMPATIBILITY : ( ( useOpenGL32 == 2 ) ? SDL_GL_CONTEXT_PROFILE_CORE : 0 );
-	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, glMajorVersion );
-	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, glMinorVersion );
-	SDL_GL_SetAttribute( SDL_GL_CONTEXT_FLAGS, glDebugFlag );
-	if ( useOpenGL32 != 0 ) {
-		SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, glProfile );
-	}
+	int glFlags = r_debugContext.GetBool() ? SDL_GL_CONTEXT_DEBUG_FLAG : 0;
+	int glProfile = SDL_GL_CONTEXT_PROFILE_COMPATIBILITY;
+#ifdef USE_CORE_PROFILE
+	glFlags |= SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG;
+	glProfile = SDL_GL_CONTEXT_PROFILE_CORE;
+#endif
+	
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 2 );
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_FLAGS, glFlags );
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, glProfile );
 
 	sdl.window = SDL_CreateWindow( GAME_NAME, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, flags);
 	
