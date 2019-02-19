@@ -626,7 +626,6 @@ void idSessionLocalStub::DestroyLobbyBackend( idLobbyBackend * lobbyBackend ) {
 	lobbyBackends[lobbyBackend->GetLobbyType()] = NULL;
 
 	lobbyBackend->Shutdown();
-	delete lobbyBackend;
 }
 
 /*
