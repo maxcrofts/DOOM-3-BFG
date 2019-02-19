@@ -58,6 +58,10 @@ If you have questions concerning this license or the applicable additional terms
 
 	#define ID_WIN
 #elif __APPLE__ && __MACH__
+	#define ID_X86_MMX_INTRIN
+	#define ID_X86_SSE_INTRIN
+	#define ID_X86_SSE2_INTRIN
+
 	#define ID_MAC
 #else
 #error Unknown Platform
@@ -138,9 +142,9 @@ If you have questions concerning this license or the applicable additional terms
 #define NEWLINE							"\n"
 
 #define ID_INLINE						inline
-#define ID_FORCE_INLINE					__attribute__((always_inline))
+#define ID_FORCE_INLINE					inline
 #define ID_INLINE_EXTERN				extern inline
-#define ID_FORCE_INLINE_EXTERN			extern __attribute__((always_inline))
+#define ID_FORCE_INLINE_EXTERN			extern inline
 
 // TODO
 #define VERIFY_FORMAT_STRING
