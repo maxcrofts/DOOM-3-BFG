@@ -472,7 +472,6 @@ void idFileSystemLocal::CreateOSPath( const char *OSPath ) {
 	}
 
 	idStrStatic< MAX_OSPATH > path( OSPath );
-	path.SlashesToBackSlashes();
 	for( ofs = &path[ 1 ]; *ofs ; ofs++ ) {
 		if ( *ofs == PATHSEPARATOR_CHAR ) {	
 			// create the directory
