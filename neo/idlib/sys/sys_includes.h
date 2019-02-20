@@ -52,6 +52,7 @@ If you have questions concerning this license or the applicable additional terms
 #if defined( ID_WIN )
 
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// prevent auto literal to string conversion
+#define _CRT_NO_POSIX_ERROR_CODES
 
 #ifndef GAME_DLL
 

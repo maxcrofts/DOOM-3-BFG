@@ -48,6 +48,12 @@ static bool	winsockInitialized = false;
 #pragma comment(lib, "iphlpapi.lib" )
 #pragma comment(lib, "wsock32.lib" )
 
+#define EWOULDBLOCK WSAEWOULDBLOCK
+#define EADDRNOTAVAIL WSAEADDRNOTAVAIL
+#define EAFNOSUPPORT WSAEAFNOSUPPORT
+#define ECONNRESET WSAECONNRESET
+
+#undef errno
 #define errno WSAGetLastError()
 
 typedef int socklen_t;
@@ -55,7 +61,7 @@ typedef int socklen_t;
 #else
 
 #include <unistd.h>
-#include <fcntl.h>
+#include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -66,6 +72,7 @@ typedef int socklen_t;
 #include <ifaddrs.h>
 
 #define closesocket close
+#define ioctlsocket ioctl
 
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1
@@ -314,26 +321,11 @@ int NET_IPSocket( const char *net_interface, int port, netadr_t *bound_to ) {
 	}
 
 	// make it non-blocking
-#ifdef ID_WIN
 	if( ioctlsocket( newsocket, FIONBIO, &_true ) == SOCKET_ERROR ) {
 		idLib::Printf( "WARNING: UDP_OpenSocket: ioctl FIONBIO: %s\n", NET_ErrorString() );
 		closesocket( newsocket );
 		return 0;
 	}
-#else
-	int flags = fcntl( newsocket, F_GETFL, 0 );
-	if( flags < 0 ) {
-		idLib::Printf( "WARNING: UDP_OpenSocket: fcntl F_GETFL: %s\n", NET_ErrorString() );
-		closesocket( newsocket );
-		return 0;
-	}
-	flags |= O_NONBLOCK;
-	if( fcntl( newsocket, F_SETFL, flags ) < 0 ) {
-		idLib::Printf( "WARNING: UDP_OpenSocket: fcntl F_SETFL with O_NONBLOCK: %s\n", NET_ErrorString() );
-		closesocket( newsocket );
-		return 0;
-	}
-#endif
 
 	// make it broadcast capable
 	if( setsockopt( newsocket, SOL_SOCKET, SO_BROADCAST, (char *)&i, sizeof(i) ) == SOCKET_ERROR ) {
@@ -693,7 +685,7 @@ void Sys_InitNetworking() {
 	if ( winsockInitialized ) {
 		return;
 	}
-	r = WSAStartup( MAKEWORD( 1, 1 ), &winsockdata );
+	int r = WSAStartup( MAKEWORD( 1, 1 ), &winsockdata );
 	if( r ) {
 		idLib::Printf( "WARNING: Winsock initialization failed, returned %d\n", r );
 		return;
