@@ -42,7 +42,8 @@ Sys_InterlockedIncrement
 ========================
 */
 interlockedInt_t Sys_InterlockedIncrement( interlockedInt_t & value ) {
-	return SDL_AtomicAdd( (SDL_atomic_t *) & value, 1 ) + 1;
+	SDL_AtomicIncRef( (SDL_atomic_t *) & value );
+	return SDL_AtomicGet( (SDL_atomic_t *) & value );
 }
 
 /*
@@ -51,7 +52,8 @@ Sys_InterlockedDecrement
 ========================
 */
 interlockedInt_t Sys_InterlockedDecrement( interlockedInt_t & value ) {
-	return SDL_AtomicAdd( (SDL_atomic_t *) & value, -1 ) - 1;
+	SDL_AtomicDecRef( (SDL_atomic_t *) & value );
+	return SDL_AtomicGet( (SDL_atomic_t *) & value );
 }
 
 /*
