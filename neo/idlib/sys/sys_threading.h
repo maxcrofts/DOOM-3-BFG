@@ -33,20 +33,13 @@ If you have questions concerning this license or the applicable additional terms
 /*
 ================================================================================================
 
-	Platform specific mutex, signal and atomic integer.
+	Platform specific mutex, condition variable and atomic integer.
 
 ================================================================================================
 */
 
-	struct Signal {
-		bool						manualReset;
-		bool						signaled;
-		SDL_mutex *					mutex;
-		SDL_cond *					condition;
-	};
-
 	typedef SDL_mutex *				mutexHandle_t;
-	typedef Signal *				signalHandle_t;
+	typedef SDL_cond *				condHandle_t;
 	typedef int						interlockedInt_t;
 
 
@@ -142,13 +135,12 @@ uintptr_t			Sys_CreateThread( xthread_t function, void *parms, xthreadPriority p
 
 void				Sys_WaitForThread( uintptr_t threadHandle );
 void				Sys_DestroyThread( uintptr_t threadHandle );
-void				Sys_SetCurrentThreadName( const char *name );
 
-void				Sys_SignalCreate( signalHandle_t & handle, bool manualReset );
-void				Sys_SignalDestroy( signalHandle_t & handle );
-void				Sys_SignalRaise( signalHandle_t & handle );
-void				Sys_SignalClear( signalHandle_t & handle );
-bool				Sys_SignalWait( signalHandle_t & handle, int timeout );
+void				Sys_CondCreate( condHandle_t & handle );
+void				Sys_CondDestroy( condHandle_t & handle );
+void				Sys_CondBroadcast( condHandle_t & handle );
+void				Sys_CondSignal( condHandle_t & handle );
+int					Sys_CondWait( condHandle_t & condHandle, mutexHandle_t & mutexHandle, int timeout = SDL_MUTEX_MAXWAIT );
 
 void				Sys_MutexCreate( mutexHandle_t & handle );
 void				Sys_MutexDestroy( mutexHandle_t & handle );

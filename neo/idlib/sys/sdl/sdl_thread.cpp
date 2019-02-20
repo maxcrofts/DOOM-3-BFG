@@ -38,15 +38,6 @@ If you have questions concerning this license or the applicable additional terms
 
 /*
 ========================
-Sys_SetCurrentThreadName
-========================
-*/
-void Sys_SetCurrentThreadName( const char * name ) {
-
-}
-
-/*
-========================
 Sys_CreateThread
 ========================
 */
@@ -100,101 +91,59 @@ Sys_Yield
 ========================
 */
 void Sys_Yield() {
-
 }
 
 /*
 ================================================================================================
 
-	Signal
+	Condition Variable
 
 ================================================================================================
 */
 
 /*
 ========================
-Sys_SignalCreate
+Sys_CondCreate
 ========================
 */
-void Sys_SignalCreate( signalHandle_t & handle, bool manualReset ) {
-	handle = (signalHandle_t) malloc( sizeof( Signal ) );
-	handle->manualReset = manualReset;
-	handle->signaled = false;
-	handle->mutex = SDL_CreateMutex();
-	handle->condition = SDL_CreateCond();
+void Sys_CondCreate( condHandle_t & handle ) {
+	handle = SDL_CreateCond();
 }
 
 /*
 ========================
-Sys_SignalDestroy
+Sys_CondDestroy
 ========================
 */
-void Sys_SignalDestroy( signalHandle_t &handle ) {
-	SDL_DestroyMutex( handle->mutex );
-	SDL_DestroyCond( handle->condition );
-	free( handle );
+void Sys_CondDestroy( condHandle_t & handle ) {
+	SDL_DestroyCond( handle );
 }
 
 /*
 ========================
-Sys_SignalRaise
+Sys_CondBroadcast
 ========================
 */
-void Sys_SignalRaise( signalHandle_t & handle ) {
-	SDL_LockMutex( handle->mutex );
-	if ( handle->manualReset ) {
-		handle->signaled = true;
-		SDL_UnlockMutex( handle->mutex );
-		SDL_CondBroadcast( handle->condition );
-	} else {
-		handle->signaled = true;
-		SDL_UnlockMutex( handle->mutex );
-		SDL_CondSignal( handle->condition );
-	}
+void Sys_CondBroadcast( condHandle_t & handle ) {
+	SDL_CondBroadcast( handle );
 }
 
 /*
 ========================
-Sys_SignalClear
+Sys_CondSignal
 ========================
 */
-void Sys_SignalClear( signalHandle_t & handle ) {
-	SDL_LockMutex( handle->mutex );
-	handle->signaled = false;
-	SDL_UnlockMutex( handle->mutex );
+void Sys_CondSignal( condHandle_t & handle ) {
+	SDL_CondSignal( handle );
 }
 
 /*
 ========================
-Sys_SignalWait
+Sys_CondWait
 ========================
 */
-bool Sys_SignalWait( signalHandle_t & handle, int timeout ) {
-	SDL_LockMutex( handle->mutex );
-	bool result = true;
-	if ( handle->signaled ) {
-		if ( !handle->manualReset ) {
-			handle->signaled = false;
-		}
-	} else {
-		if ( timeout == 0 ) {
-			result = false;
-		} else if ( timeout == idSysSignal::WAIT_INFINITE ) {
-			while ( !handle->signaled ) {
-				SDL_CondWait( handle->condition, handle->mutex );
-			}
-		} else {
-			while ( !handle->signaled ) {
-				if ( SDL_CondWaitTimeout( handle->condition, handle->mutex, timeout ) == SDL_MUTEX_TIMEDOUT ) {
-					result = false;
-					break;
-				}
-			}
-		}
-	}
-	SDL_UnlockMutex( handle->mutex );
-	assert( result || ( timeout != idSysSignal::WAIT_INFINITE && !result ) );
-	return result;
+int Sys_CondWait( condHandle_t & condHandle, mutexHandle_t & mutexHandle, int timeout ) {
+	return SDL_CondWaitTimeout( condHandle, mutexHandle, timeout );
 }
 
 /*
