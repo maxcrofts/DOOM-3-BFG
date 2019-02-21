@@ -54,7 +54,7 @@ public:
 	int				Tell();
 	void			ForceFlush();
 	void			Flush();
-	int				Seek( long offset, fsOrigin_t origin );
+	int				Seek( int offset, fsOrigin_t origin );
 
 protected:
 	idFile *		file;
@@ -214,7 +214,7 @@ void idCompressor_None::Flush() {
 idCompressor_None::Seek
 ================
 */
-int idCompressor_None::Seek( long offset, fsOrigin_t origin ) {
+int idCompressor_None::Seek( int offset, fsOrigin_t origin ) {
 	common->Error( "cannot seek on idCompressor" );
 	return -1;
 }
@@ -1482,7 +1482,7 @@ idCompressor_Arithmetic::GetCurrentCount
 ================
 */
 int idCompressor_Arithmetic::GetCurrentCount() {
-    return (unsigned int) ( ( ( ( (long) code - low ) + 1 ) * scale - 1 ) / ( ( (long) high - low ) + 1 ) );
+    return (unsigned int) ( ( ( ( (int) code - low ) + 1 ) * scale - 1 ) / ( ( (int) high - low ) + 1 ) );
 }
 
 /*
@@ -1551,9 +1551,9 @@ idCompressor_Arithmetic::RemoveSymbolFromStream
 ================
 */
 void idCompressor_Arithmetic::RemoveSymbolFromStream( acSymbol_t* symbol ) {
-    long range;
+    int range;
 
-	range	= ( long )( high - low ) + 1;
+	range	= ( int )( high - low ) + 1;
 	high	= low + ( unsigned short )( ( range * symbol->high ) / scale - 1 );
 	low		= low + ( unsigned short )( ( range * symbol->low ) / scale );
 

@@ -69,7 +69,7 @@ public:
 							// Causes any buffered data to be written to the file.
 	virtual void			Flush();
 							// Seek on a file.
-	virtual int				Seek( long offset, fsOrigin_t origin );
+	virtual int				Seek( int offset, fsOrigin_t origin );
 							// Go back to the beginning of the file.
 	virtual void			Rewind();
 							// Like fprintf.
@@ -163,7 +163,7 @@ public:
 	virtual int				Tell() const;
 	virtual void			ForceFlush();
 	virtual void			Flush();
-	virtual int				Seek( long offset, fsOrigin_t origin );
+	virtual int				Seek( int offset, fsOrigin_t origin );
 
 	// Set the given length and don't allow the file to grow.
 	void					SetMaxLength( size_t len );
@@ -222,7 +222,7 @@ public:
 	virtual int				Tell() const;
 	virtual void			ForceFlush();
 	virtual void			Flush();
-	virtual int				Seek( long offset, fsOrigin_t origin );
+	virtual int				Seek( int offset, fsOrigin_t origin );
 
 private:
 	idStr					name;			// name of the file
@@ -247,7 +247,7 @@ public:
 	virtual int				Tell() const;
 	virtual void			ForceFlush();
 	virtual void			Flush();
-	virtual int				Seek( long offset, fsOrigin_t origin );
+	virtual int				Seek( int offset, fsOrigin_t origin );
 
 	// returns file pointer
 	idFileHandle			GetFilePtr() { return o; }
@@ -272,7 +272,7 @@ public:
 	virtual int				Read( void *buffer, int len );
 
 	virtual int				Tell() const;
-	virtual int				Seek( long offset, fsOrigin_t origin );
+	virtual int				Seek( int offset, fsOrigin_t origin );
 
 private:
 	uint64				internalFilePos;
@@ -298,7 +298,7 @@ public:
 	virtual int				Tell() const;
 	virtual void			ForceFlush();
 	virtual void			Flush();
-	virtual int				Seek( long offset, fsOrigin_t origin );
+	virtual int				Seek( int offset, fsOrigin_t origin );
 
 private:
 	idStr					name;			// name of the file in the pak
@@ -323,7 +323,7 @@ public:
 	virtual int				Length() const { return length; }
 	virtual ID_TIME_T		Timestamp() const { return 0; }
 	virtual int				Tell() const;
-	virtual int				Seek( long offset, fsOrigin_t origin );
+	virtual int				Seek( int offset, fsOrigin_t origin );
 	void					SetResourceBuffer( byte * buf ) {
 		resourceBuffer = buf;
 		internalFilePos = 0;

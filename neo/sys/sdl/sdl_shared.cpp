@@ -130,7 +130,7 @@ Sys_GetCurrentUser
 */
 char *Sys_GetCurrentUser() {
 	static char s_userName[1024];
-	unsigned long size = sizeof( s_userName );
+	unsigned int size = sizeof( s_userName );
 
 #ifdef ID_WIN
 	if ( !GetUserName( s_userName, &size ) ) {

@@ -123,14 +123,14 @@ void idSIMD::Shutdown() {
 
 idSIMDProcessor *p_simd;
 idSIMDProcessor *p_generic;
-long baseClocks = 0;
+int baseClocks = 0;
 
 
 #define TIME_TYPE int
 
 #pragma warning(disable : 4731)     // frame pointer register 'ebx' modified by inline assembly code
 
-long saved_ebx = 0;
+int saved_ebx = 0;
 
 #define StartRecordTime( start )			\
 	start = __rdtsc();

@@ -135,7 +135,7 @@ public:
 	virtual int				Length() const  { return compressedLength; }
 	virtual void			SetLength( size_t len ) { compressedLength = len; }
 	virtual int				Tell() const { assert( 0 ); return 0; }
-	virtual int				Seek( long offset, fsOrigin_t origin ) { assert( 0 ); return 0; }
+	virtual int				Seek( int offset, fsOrigin_t origin ) { assert( 0 ); return 0; }
 
 	virtual ID_TIME_T		Timestamp()	const { return 0; }
 

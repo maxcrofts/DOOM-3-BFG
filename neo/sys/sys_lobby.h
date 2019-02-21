@@ -308,7 +308,7 @@ public:
 		int					lastProcTime;				// Used to determine when a packet was processed for sending to this peer
 		int					lastInBandProcTime;			// Last time a in-band packet was processed for sending
 		int					lastFragmentSendTime;		// Last time a fragment was sent out (fragments are processed msg's, waiting to be fully sent)
-		unsigned long		networkChecksum;			// Checksum used to determine if a peer loaded the network resources the EXACT same as the server did
+		unsigned int        networkChecksum;			// Checksum used to determine if a peer loaded the network resources the EXACT same as the server did
 		int					pauseSnapshots;
 
 		lobbyAddress_t	address;

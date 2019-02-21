@@ -848,7 +848,7 @@ idStr::FileNameHash
 */
 int idStr::FileNameHash() const {
 	int		i;
-	long	hash;
+    int    hash;
 	char	letter;
 
 	hash = 0;
@@ -861,7 +861,7 @@ int idStr::FileNameHash() const {
 		if ( letter =='\\' ) {
 			letter = '/';
 		}
-		hash += (long)(letter)*(i+119);
+		hash += (int)(letter)*(i+119);
 		i++;
 	}
 	hash &= (FILE_HASH_SIZE-1);

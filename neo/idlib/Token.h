@@ -90,7 +90,7 @@ public:
 
 	double			GetDoubleValue();				// double value of TT_NUMBER
 	float			GetFloatValue();				// float value of TT_NUMBER
-	unsigned long	GetUnsignedLongValue();		// unsigned long value of TT_NUMBER
+	unsigned int    GetUnsignedLongValue();		// unsigned long value of TT_NUMBER
 	int				GetIntValue();				// int value of TT_NUMBER
 	int				WhiteSpaceBeforeToken() const;// returns length of whitespace before token
 	void			ClearTokenWhiteSpace();		// forget whitespace before token
@@ -98,7 +98,7 @@ public:
 	void			NumberValue();				// calculate values for a TT_NUMBER
 
 private:
-	unsigned long	intvalue;							// integer value
+	unsigned int    intvalue;							// integer value
 	double			floatvalue;							// floating point value
 	const char *	whiteSpaceStart_p;					// start of white space before token, only used by idLexer
 	const char *	whiteSpaceEnd_p;					// end of white space before token, only used by idLexer
@@ -139,7 +139,7 @@ ID_INLINE float idToken::GetFloatValue() {
 	return (float) GetDoubleValue();
 }
 
-ID_INLINE unsigned long	idToken::GetUnsignedLongValue() {
+ID_INLINE unsigned int	idToken::GetUnsignedLongValue() {
 	if ( type != TT_NUMBER ) {
 		return 0;
 	}

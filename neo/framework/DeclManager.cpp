@@ -273,7 +273,7 @@ typedef struct huffmanNode_s {
 } huffmanNode_t;
 
 typedef struct huffmanCode_s {
-	unsigned long			bits[8];
+	unsigned int            bits[8];
 	int						numBits;
 } huffmanCode_t;
 

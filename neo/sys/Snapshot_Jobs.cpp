@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "Snapshot_Jobs.h"
 
 uint32 SnapObjChecksum( const uint8 * data, int length ) {
-	extern unsigned long CRC32_BlockChecksum( const void *data, int length );
+	extern unsigned int CRC32_BlockChecksum( const void *data, int length );
 	return CRC32_BlockChecksum( data, length );
 }
 

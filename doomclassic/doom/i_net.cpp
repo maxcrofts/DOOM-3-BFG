@@ -83,7 +83,7 @@ namespace {
 int	DOOMPORT = 1002;	// DHM - Nerve :: On original XBox, ports 1000 - 1255 saved you a byte on every packet.  360 too?
 
 
-unsigned long GetServerIP() {
+unsigned int GetServerIP() {
 	return ::g->sendaddress[::g->doomcom.consoleplayer].sin_addr.s_addr;
 }
 

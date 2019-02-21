@@ -390,7 +390,7 @@ struct sysMemoryStats_t {
 	int availExtendedVirtual;
 };
 
-typedef unsigned long address_t;
+typedef unsigned int address_t;
 
 void			Sys_Init();
 void			Sys_Shutdown();

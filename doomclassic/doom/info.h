@@ -1152,8 +1152,8 @@ typedef enum
 typedef struct
 {
   spritenum_t	sprite;
-  long			frame;
-  long			tics;
+  int            frame;
+  int            tics;
   // void		(*action) ();
 
   // GCC 4.1 for PS3 gives the error "braces around scalar initializer"
@@ -1165,7 +1165,7 @@ typedef struct
  // };
 
   statenum_t			nextstate;
-  long			misc1, misc2;
+  int            misc1, misc2;
 } state_t;
 
 extern const state_t	tempStates[NUMSTATES];

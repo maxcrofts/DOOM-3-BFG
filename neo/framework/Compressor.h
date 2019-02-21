@@ -67,7 +67,7 @@ public:
 	virtual int				Tell() = 0;
 	virtual void			ForceFlush() = 0;
 	virtual void			Flush() = 0;
-	virtual int				Seek( long offset, fsOrigin_t origin ) = 0;
+	virtual int				Seek( int offset, fsOrigin_t origin ) = 0;
 };
 
 #endif /* !__COMPRESSOR_H__ */

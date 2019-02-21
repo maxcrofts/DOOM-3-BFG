@@ -36,8 +36,8 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // reads a variable length integer
-unsigned long ReadVarLen( char* buffer ) {
-	unsigned long value;
+unsigned int ReadVarLen( char* buffer ) {
+	unsigned int value;
 	byte c;
 
 	if ((value = *buffer++) & 0x80) {
@@ -50,9 +50,9 @@ unsigned long ReadVarLen( char* buffer ) {
 }
 
 // Writes a variable length integer to a buffer, and returns bytes written
-int WriteVarLen( long value, byte* out ) 
+int WriteVarLen( int value, byte* out ) 
 {
-	long buffer, count = 0;
+    int buffer, count = 0;
 
 	buffer = value & 0x7f;
 	while ((value >>= 7) > 0) {
