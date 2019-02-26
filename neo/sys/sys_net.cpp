@@ -300,7 +300,7 @@ NET_IPSocket
 int NET_IPSocket( const char *net_interface, int port, netadr_t *bound_to ) {
 	SOCKET				newsocket;
 	sockaddr_in			address;
-	unsigned int        _true = 1;
+	unsigned long		_true = 1;
 	int					i = 1;
 	int					err;
 

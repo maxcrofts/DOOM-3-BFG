@@ -130,9 +130,9 @@ Sys_GetCurrentUser
 */
 char *Sys_GetCurrentUser() {
 	static char s_userName[1024];
-	unsigned int size = sizeof( s_userName );
 
 #ifdef ID_WIN
+	DWORD size = sizeof( s_userName );
 	if ( !GetUserName( s_userName, &size ) ) {
 		strcpy( s_userName, "player" );
 	}
