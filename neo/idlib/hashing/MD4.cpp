@@ -38,7 +38,7 @@ typedef unsigned char *POINTER;
 typedef unsigned short int UINT2;
 
 /* UINT4 defines a four byte word */
-typedef unsigned long long UINT4;
+typedef unsigned int UINT4;
 
 /* MD4 context. */
 typedef struct {
