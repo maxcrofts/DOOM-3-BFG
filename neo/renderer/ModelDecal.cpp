@@ -697,7 +697,7 @@ idRenderModelDecal::CreateDecalDrawSurf
 =====================
 */
 drawSurf_t * idRenderModelDecal::CreateDecalDrawSurf( const viewEntity_t *space, unsigned int index ) {
-	if ( index < 0 || index >= numDecalMaterials ) {
+	if ( index >= numDecalMaterials ) {
 		return NULL;
 	}
 
