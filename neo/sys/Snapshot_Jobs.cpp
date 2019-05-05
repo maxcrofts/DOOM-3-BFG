@@ -295,7 +295,7 @@ void LZWJobInternal( lzwParm_t * parm, unsigned int dmaTag ) {
 
 	dmaTag = dmaTag;
 
-	ALIGN16( idLZWCompressor lzwCompressor( parm->ioData->lzwData ) );
+	idLZWCompressor ALIGNTYPE16 lzwCompressor( parm->ioData->lzwData );
 
 	if ( parm->fragmented ) {
 		// This packet was partially written out, we need to continue writing, using previous lzw dictionary values

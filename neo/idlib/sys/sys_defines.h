@@ -132,7 +132,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #define	BUILD_STRING					"mac-" CPUSTRING
 
-#define ALIGN16( x )					__attribute__((aligned(16))) x
+#define ALIGN16( x )					x __attribute__((aligned(16)))
 #define ALIGNTYPE16						__attribute__((aligned(16)))
 #define ALIGNTYPE128					__attribute__((aligned(128)))
 #define FORMAT_PRINTF( x )
