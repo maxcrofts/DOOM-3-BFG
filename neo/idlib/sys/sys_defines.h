@@ -146,9 +146,9 @@ If you have questions concerning this license or the applicable additional terms
 #define ID_INLINE_EXTERN				extern inline
 #define ID_FORCE_INLINE_EXTERN			extern inline
 
-// TODO
 #define VERIFY_FORMAT_STRING
-#define NO_RETURN
+
+#define NO_RETURN __attribute__((noreturn))
 
 #endif
 
