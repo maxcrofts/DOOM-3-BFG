@@ -57,7 +57,11 @@ public:
 ===============================================================================
 */
 
+#if defined(_M_IX86) || defined(__i386__)
 #define VPCALL __fastcall
+#else
+#define VPCALL
+#endif
 
 class idVec2;
 class idVec3;
