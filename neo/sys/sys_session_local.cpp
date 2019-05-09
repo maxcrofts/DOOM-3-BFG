@@ -2232,8 +2232,6 @@ idPlayerProfile * idSessionLocal::GetProfileFromMasterLocalUser() {
 
 /*
 ========================
-/*
-========================
 idSessionLocal::MoveToPressStart
 ========================
 */
