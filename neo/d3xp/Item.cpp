@@ -409,7 +409,7 @@ bool idItem::Pickup( idPlayer *player ) {
 
 	if ( respawn && !dropped && !no_respawn ) {
 		const char *sfx = spawnArgs.GetString( "fxRespawn" );
-		if ( sfx != NULL && *sfx != NULL ) {
+		if ( sfx != NULL && *sfx != '\0' ) {
 			PostEventSec( &EV_RespawnFx, respawn - 0.5f );
 		} 
 		PostEventSec( &EV_RespawnItem, respawn );
@@ -583,7 +583,7 @@ void idItem::Event_RespawnFx() {
 		ServerSendEvent( EVENT_RESPAWNFX, NULL, false );
 	}
 	const char *sfx = spawnArgs.GetString( "fxRespawn" );
-	if ( sfx != NULL && *sfx != NULL ) {
+	if ( sfx != NULL && *sfx != '\0' ) {
 		idEntityFx::StartFx( sfx, NULL, NULL, this, true );
 	}
 }

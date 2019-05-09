@@ -744,7 +744,7 @@ const char *idWindow::HandleEvent(const sysEvent_t *event, bool *updateVisuals) 
 							//}
 							SetFocus(child);
 							const char *childRet = child->HandleEvent(event, updateVisuals);
-							if (childRet != NULL && *childRet != NULL) {
+							if (childRet != NULL && *childRet != '\0') {
 								return childRet;
 							} 
 							if (child->flags & WIN_MODAL) {
@@ -915,7 +915,7 @@ const char *idWindow::HandleEvent(const sysEvent_t *event, bool *updateVisuals) 
 				*updateVisuals = true;
 			}
 			const char *mouseRet = RouteMouseCoords(event->evValue, event->evValue2);
-			if (mouseRet != NULL && *mouseRet != NULL) {
+			if (mouseRet != NULL && *mouseRet != '\0') {
 				return mouseRet;
 			}
 		} else if (event->evType == SE_NONE) {
@@ -2050,7 +2050,7 @@ bool idWindow::ParseRegEntry(const char *name, idTokenParser *src) {
 	work = name;
 	work.ToLower();
 
-	idWinVar *var = GetWinVarByName(work, NULL);
+	idWinVar *var = GetWinVarByName(work, false);
 	if ( var ) {
 		for (int i = 0; i < NumRegisterVars; i++) {
 			if (idStr::Icmp(work, RegisterVars[i].name) == 0) {

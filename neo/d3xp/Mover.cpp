@@ -3606,7 +3606,7 @@ void idDoor::Lock( int f ) {
 				if ( door->sndTrigger == NULL ) {
 					// in this case the sound trigger never got spawned
 					const char *sndtemp = door->spawnArgs.GetString( "snd_locked" );
-					if ( sndtemp != NULL && *sndtemp != NULL ) {
+					if ( sndtemp != NULL && *sndtemp != '\0' ) {
 						door->PostEventMS( &EV_Door_SpawnSoundTrigger, 0 );
 					}
 				}
@@ -3769,7 +3769,7 @@ void idDoor::Event_SpawnDoorTrigger() {
 	}
 
 	const char *sndtemp = spawnArgs.GetString( "snd_locked" );
-	if ( spawnArgs.GetInt( "locked" ) && sndtemp != NULL && *sndtemp != NULL ) {
+	if ( spawnArgs.GetInt( "locked" ) && sndtemp != NULL && *sndtemp != '\0' ) {
 		PostEventMS( &EV_Door_SpawnSoundTrigger, 0 );
 	}
 

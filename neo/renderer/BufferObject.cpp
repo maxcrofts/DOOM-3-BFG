@@ -137,7 +137,7 @@ idVertexBuffer::idVertexBuffer
 idVertexBuffer::idVertexBuffer() {
 	size = 0;
 	offsetInOtherBuffer = OWNS_BUFFER_FLAG;
-	apiObject = NULL;
+	apiObject = 0;
 	SetUnmapped();
 }
 
@@ -219,7 +219,7 @@ void idVertexBuffer::FreeBufferObject() {
 		return;
 	}
 
-	if ( apiObject == NULL ) {
+	if ( apiObject == 0 ) {
 		return;
 	}
 
@@ -360,7 +360,7 @@ idVertexBuffer::ClearWithoutFreeing
 void idVertexBuffer::ClearWithoutFreeing() {
 	size = 0;
 	offsetInOtherBuffer = OWNS_BUFFER_FLAG;
-	apiObject = NULL;
+	apiObject = 0;
 }
 
 /*
@@ -379,7 +379,7 @@ idIndexBuffer::idIndexBuffer
 idIndexBuffer::idIndexBuffer() {
 	size = 0;
 	offsetInOtherBuffer = OWNS_BUFFER_FLAG;
-	apiObject = NULL;
+	apiObject = 0;
 	SetUnmapped();
 }
 
@@ -462,7 +462,7 @@ void idIndexBuffer::FreeBufferObject() {
 		return;
 	}
 
-	if ( apiObject == NULL ) {
+	if ( apiObject == 0 ) {
 		return;
 	}
 
@@ -605,7 +605,7 @@ idIndexBuffer::ClearWithoutFreeing
 void idIndexBuffer::ClearWithoutFreeing() {
 	size = 0;
 	offsetInOtherBuffer = OWNS_BUFFER_FLAG;
-	apiObject = NULL;
+	apiObject = 0;
 }
 
 /*
@@ -624,7 +624,7 @@ idJointBuffer::idJointBuffer
 idJointBuffer::idJointBuffer() {
 	numJoints = 0;
 	offsetInOtherBuffer = OWNS_BUFFER_FLAG;
-	apiObject = NULL;
+	apiObject = 0;
 	SetUnmapped();
 }
 
@@ -691,7 +691,7 @@ void idJointBuffer::FreeBufferObject() {
 		return;
 	}
 
-	if ( apiObject == NULL ) {
+	if ( apiObject == 0 ) {
 		return;
 	}
 
@@ -822,7 +822,7 @@ idJointBuffer::ClearWithoutFreeing
 void idJointBuffer::ClearWithoutFreeing() {
 	numJoints = 0;
 	offsetInOtherBuffer = OWNS_BUFFER_FLAG;
-	apiObject = NULL;
+	apiObject = 0;
 }
 
 /*

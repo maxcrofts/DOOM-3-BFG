@@ -2691,7 +2691,7 @@ bool idFileSystemLocal::GetResourceCacheEntry( const char *fileName, idResourceC
 	if ( strstr( fileName, ":") != NULL ) {
 		// os path, convert to relative? scripts can pass in an OS path
 		//idLib::Printf( "RESOURCE: os path passed %s\n", fileName );
-		return NULL;
+		return false;
 	} else {
 		canonical = fileName;
 	}

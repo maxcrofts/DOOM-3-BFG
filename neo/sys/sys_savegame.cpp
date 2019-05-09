@@ -228,7 +228,7 @@ void idSaveGameDetails::Clear() {
 	descriptors.Clear();
 	damaged = false;
 	date = 0;
-	slotName[0] = NULL;
+	slotName[0] = '\0';
 }
 
 /*

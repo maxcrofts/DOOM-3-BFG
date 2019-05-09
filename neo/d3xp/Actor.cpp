@@ -454,7 +454,7 @@ idActor::idActor() {
 
 	waitState			= "";
 	
-	blink_anim			= NULL;
+	blink_anim			= 0;
 	blink_time			= 0;
 	blink_min			= 0;
 	blink_max			= 0;
@@ -3210,7 +3210,7 @@ idActor::Event_HasAnim
 ================
 */
 void idActor::Event_HasAnim( int channel, const char *animname ) {
-	if ( GetAnim( channel, animname ) != NULL ) {
+	if ( !GetAnim( channel, animname ) ) {
 		idThread::ReturnFloat( 1.0f );
 	} else {
 		idThread::ReturnFloat( 0.0f );

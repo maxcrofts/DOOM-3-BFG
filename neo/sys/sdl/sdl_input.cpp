@@ -268,7 +268,7 @@ Sys_SetRumble
 */
 void Sys_SetRumble( int device, int low, int hi ) {
 	SDL_HapticEffect effect;
-	static int effectId = NULL;
+	static int effectId = 0;
 	SDL_HapticDestroyEffect( haptic, effectId );
 	if ( low == 0 && hi == 0) {
 		return;
@@ -775,7 +775,7 @@ void IN_PollEvents() {
 				b = K_MOUSE5;
 				break;
 			default:
-				b = NULL;
+				b = 0;
 				break;
 			}
 			bool buttonDown = ( event.type == SDL_MOUSEBUTTONDOWN );
