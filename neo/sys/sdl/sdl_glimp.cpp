@@ -151,7 +151,7 @@ void DumpAllDisplayDevices() {
 				break;
 			}
 
-			if ( SDL_BITSPERPIXEL( displayMode.format ) >= 24 ) {
+			if ( SDL_BITSPERPIXEL( displayMode.format ) < 24 ) {
 				continue;
 			}
 			if ( ( displayMode.refresh_rate != 60 ) && ( displayMode.refresh_rate != 120 ) ) {
@@ -198,7 +198,7 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t> &
 				break;
 			}
 
-			if ( SDL_BITSPERPIXEL( displayMode.format ) >= 24 ) {
+			if ( SDL_BITSPERPIXEL( displayMode.format ) < 24 ) {
 				continue;
 			}
 			if ( ( displayMode.refresh_rate != 60 ) && ( displayMode.refresh_rate != 120 ) ) {
