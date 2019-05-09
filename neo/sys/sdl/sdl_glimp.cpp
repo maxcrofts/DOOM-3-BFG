@@ -125,47 +125,12 @@ DumpAllDisplayDevices
 ====================
 */
 void DumpAllDisplayDevices() {
+	idList<vidMode_t> modeList;
+	
 	common->Printf( "\n" );
-	for ( int deviceNum = 0 ; ; deviceNum++ ) {
-		if ( deviceNum >= SDL_GetNumVideoDisplays() ) {
+	for ( int deviceNum = 0; ; deviceNum++ ) {
+		if ( !R_GetModeListForDisplay( deviceNum, modeList, true ) ) {
 			break;
-		}
-
-		common->Printf( "display device: %i\n", deviceNum );
-		common->Printf( "  DisplayName : %s\n", SDL_GetDisplayName( deviceNum ) );
-
-		SDL_DisplayMode displayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
-
-		if ( SDL_GetCurrentDisplayMode( deviceNum, &displayMode ) != 0 ) {
-			common->Printf( "ERROR:  SDL_GetCurrentDisplayMode failed!\n" );
-		}
-		common->Printf( "      -------------------\n" );
-		common->Printf( "      CurrentDisplayMode\n" );
-		common->Printf( "      format              : %s\n", SDL_GetPixelFormatName( displayMode.format ) );
-		common->Printf( "      w                   : %i\n", displayMode.w );
-		common->Printf( "      h                   : %i\n", displayMode.h );
-		common->Printf( "      refresh_rate        : %i\n", displayMode.refresh_rate );
-
-		for ( int modeNum = 0 ; ; modeNum++ ) {
-			if ( SDL_GetDisplayMode( deviceNum, modeNum, &displayMode ) != 0 ) {
-				break;
-			}
-
-			if ( SDL_BITSPERPIXEL( displayMode.format ) < 24 ) {
-				continue;
-			}
-			if ( ( displayMode.refresh_rate != 60 ) && ( displayMode.refresh_rate != 120 ) ) {
-				continue;
-			}
-			if ( displayMode.h < 720 ) {
-				continue;
-			}
-			common->Printf( "      -------------------\n" );
-			common->Printf( "      modeNum             : %i\n", modeNum );
-			common->Printf( "      format              : %s\n", SDL_GetPixelFormatName( displayMode.format ) );
-			common->Printf( "      w                   : %i\n", displayMode.w );
-			common->Printf( "      h                   : %i\n", displayMode.h );
-			common->Printf( "      refresh_rate        : %i\n", displayMode.refresh_rate );
 		}
 	}
 	common->Printf( "\n" );
@@ -176,22 +141,27 @@ void DumpAllDisplayDevices() {
 R_GetModeListForDisplay
 ====================
 */
-bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t> & modeList ) {
+bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t> & modeList, bool verbose ) {
 	modeList.Clear();
 
-	bool	verbose = false;
+	SDL_DisplayMode displayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
 
-	for ( int displayNum = requestedDisplayNum; ; displayNum++ ) {
-		if ( displayNum >= SDL_GetNumVideoDisplays() ) {
-			break;
-		}
-
+	int numDisplays = SDL_GetNumVideoDisplays();
+	for ( int displayNum = requestedDisplayNum; displayNum < numDisplays; displayNum++ ) {
 		if ( verbose ) {
 			common->Printf( "display device: %i\n", displayNum );
 			common->Printf( "  DisplayName : %s\n", SDL_GetDisplayName( displayNum ) );
-		}
 
-		SDL_DisplayMode displayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
+			if ( SDL_GetCurrentDisplayMode( displayNum, &displayMode ) != 0 ) {
+				common->Printf( "ERROR:  SDL_GetCurrentDisplayMode failed!\n" );
+			}
+			common->Printf( "      -------------------\n" );
+			common->Printf( "      CurrentDisplayMode\n" );
+			common->Printf( "      format              : %s\n", SDL_GetPixelFormatName( displayMode.format ) );
+			common->Printf( "      w                   : %i\n", displayMode.w );
+			common->Printf( "      h                   : %i\n", displayMode.h );
+			common->Printf( "      refresh_rate        : %i\n", displayMode.refresh_rate );
+		}
 
 		for ( int modeNum = 0 ; ; modeNum++ ) {
 			if ( SDL_GetDisplayMode( displayNum, modeNum, &displayMode ) != 0 ) {
@@ -222,7 +192,6 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t> &
 			modeList.AddUnique( mode );
 		}
 		if ( modeList.Num() > 0 ) {
-
 			class idSort_VidMode : public idSort_Quick< vidMode_t, idSort_VidMode > {
 			public:
 				int Compare( const vidMode_t & a, const vidMode_t & b ) const {
@@ -239,7 +208,7 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t> &
 			return true;
 		}
 	}
-	// Never gets here
+
 	return false;
 }
 
