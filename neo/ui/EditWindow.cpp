@@ -102,7 +102,7 @@ void idEditWindow::CommonInit() {
 	sizeBias = 0;
 	lastTextLength = 0;
 	forceScroll = false;
-	password = NULL;
+	password = false;
 	cvar = NULL;
 	liveUpdate = true;
 	readonly = false;
@@ -189,7 +189,7 @@ const char *idEditWindow::HandleEvent(const sysEvent_t *event, bool *updateVisua
 	if ( wrap ) {
 		// need to call this to allow proper focus and capturing on embedded children
 		const char * ret = idWindow::HandleEvent( event, updateVisuals );
-		if ( ret != NULL && *ret != NULL ) {
+		if ( ret != NULL && *ret != '\0' ) {
 			return ret;
 		}
 	}

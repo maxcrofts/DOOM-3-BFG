@@ -217,7 +217,7 @@ void idGuiModel::EmitFullScreen() {
 
 	bool stereoEnabled = ( renderSystem->GetStereo3DMode() != STEREO3D_OFF );
 	if ( stereoEnabled ) {
-		float	GetScreenSeparationForGuis();
+		extern float GetScreenSeparationForGuis();
 		const float screenSeparation = GetScreenSeparationForGuis();
 
 		// this will be negated on the alternate eyes, both rendered each frame

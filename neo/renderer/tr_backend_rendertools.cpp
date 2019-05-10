@@ -35,6 +35,59 @@ If you have questions concerning this license or the applicable additional terms
 idCVar r_showCenterOfProjection( "r_showCenterOfProjection", "0", CVAR_RENDERER | CVAR_BOOL, "Draw a cross to show the center of projection" );
 idCVar r_showLines( "r_showLines", "0", CVAR_RENDERER | CVAR_INTEGER, "1 = draw alternate horizontal lines, 2 = draw alternate vertical lines" );
 
+#ifdef USE_CORE_PROFILE
+
+float RB_DrawTextLength( const char *text, float scale, int len ) {
+	return 0.0f;
+}
+
+void RB_AddDebugText( const char *text, const idVec3 &origin, float scale, const idVec4 &color, const idMat3 &viewAxis, const int align, const int lifetime, const bool depthTest ) {
+}
+
+void RB_ClearDebugText( int time ) {
+}
+
+void RB_AddDebugLine( const idVec4 &color, const idVec3 &start, const idVec3 &end, const int lifeTime, const bool depthTest ) {
+}
+
+void RB_ClearDebugLines( int time ) {
+}
+
+void RB_AddDebugPolygon( const idVec4 &color, const idWinding &winding, const int lifeTime, const bool depthTest ) {
+}
+
+void RB_ClearDebugPolygons( int time ) {
+}
+
+void RB_DrawBounds( const idBounds &bounds ) {
+}
+
+void RB_ShowLights( drawSurf_t **drawSurfs, int numDrawSurfs ) {
+}
+
+void RB_ShowLightCount( drawSurf_t **drawSurfs, int numDrawSurfs ) {
+}
+
+void RB_PolygonClear() {
+}
+
+void RB_ScanStencilBuffer() {
+}
+
+void RB_ShowDestinationAlpha() {
+}
+
+void RB_ShowOverdraw() {
+}
+
+void RB_RenderDebugTools( drawSurf_t **drawSurfs, int numDrawSurfs ) {
+}
+
+void RB_ShutdownDebugTools() {
+}
+
+#else
+
 #define MAX_DEBUG_LINES			16384
 
 typedef struct debugLine_s {
@@ -2637,3 +2690,5 @@ void RB_ShutdownDebugTools() {
 		rb_debugPolygons[i].winding.Clear();
 	}
 }
+
+#endif

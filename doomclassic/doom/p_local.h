@@ -98,8 +98,8 @@ void	P_PlayerThink (player_t* player);
 //
 // P_MOBJ
 //
-#define ONFLOORZ		MININT
-#define ONCEILINGZ		MAXINT
+#define ONFLOORZ		MIN_TYPE(int)
+#define ONCEILINGZ		MAX_TYPE(int)
 
 // Time interval for item respawning.
 #define ITEMQUESIZE		128

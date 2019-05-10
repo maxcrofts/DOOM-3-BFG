@@ -57,6 +57,12 @@ If you have questions concerning this license or the applicable additional terms
 	#endif
 
 	#define ID_WIN
+#elif __APPLE__ && __MACH__
+	#define ID_X86_MMX_INTRIN
+	#define ID_X86_SSE_INTRIN
+	#define ID_X86_SSE2_INTRIN
+
+	#define ID_MAC
 #else
 #error Unknown Platform
 #endif
@@ -67,7 +73,7 @@ If you have questions concerning this license or the applicable additional terms
 /*
 ================================================================================================
 
-	PC Windows
+	Windows
 
 ================================================================================================
 */
@@ -111,12 +117,54 @@ If you have questions concerning this license or the applicable additional terms
 /*
 ================================================================================================
 
+	macOS
+
+================================================================================================
+*/
+
+#if defined( ID_MAC )
+
+#if __x86_64__
+#define	CPUSTRING						"x86_64"
+#else
+#define	CPUSTRING						"i386"
+#endif
+
+#define	BUILD_STRING					"mac-" CPUSTRING
+
+#define ALIGN16( x )					x __attribute__((aligned(16)))
+#define ALIGNTYPE16						__attribute__((aligned(16)))
+#define ALIGNTYPE128					__attribute__((aligned(128)))
+#define FORMAT_PRINTF( x )
+
+#define PATHSEPARATOR_STR				"/"
+#define PATHSEPARATOR_CHAR				'/'
+#define NEWLINE							"\n"
+
+#define ID_INLINE						inline
+#define ID_FORCE_INLINE					inline
+#define ID_INLINE_EXTERN				extern inline
+#define ID_FORCE_INLINE_EXTERN			extern inline
+
+#define VERIFY_FORMAT_STRING
+
+#define NO_RETURN __attribute__((noreturn))
+
+#endif
+
+/*
+================================================================================================
+
 Defines and macros usable in all code
 
 ================================================================================================
 */
 
 #define ALIGN( x, a ) ( ( ( x ) + ((a)-1) ) & ~((a)-1) )
+
+#ifndef ID_WIN
+#define _alloca alloca
+#endif
 
 #define _alloca16( x )					((void *)ALIGN( (uintptr_t)_alloca( ALIGN( x, 16 ) + 16 ), 16 ) )
 #define _alloca128( x )					((void *)ALIGN( (uintptr_t)_alloca( ALIGN( x, 128 ) + 128 ), 128 ) )

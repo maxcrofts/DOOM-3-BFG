@@ -513,7 +513,7 @@ void R_AddSingleModel( viewEntity_t * vEntity ) {
 		if ( tri == NULL ) {
 			continue;
 		}
-		if ( tri->numIndexes == NULL ) {
+		if ( tri->numIndexes == 0 ) {
 			continue;		// happens for particles
 		}
 		const idMaterial * shader = surf->shader;

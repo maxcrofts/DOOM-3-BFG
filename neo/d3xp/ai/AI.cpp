@@ -4374,7 +4374,7 @@ void idAI::DirectDamage( const char *meleeDefName, idEntity *ent ) {
 	// do the damage
 	//
 	p = meleeDef->GetString( "snd_hit" );
-	if ( p != NULL && *p != NULL ) {
+	if ( p != NULL && *p != '\0' ) {
 		shader = declManager->FindSound( p );
 		StartSoundShader( shader, SND_CHANNEL_DAMAGE, 0, false, NULL );
 	}
@@ -4467,7 +4467,7 @@ bool idAI::AttackMelee( const char *meleeDefName ) {
 
 	if ( enemyEnt == NULL ) {
 		p = meleeDef->GetString( "snd_miss" );
-		if ( p != NULL && *p != NULL ) {
+		if ( p != NULL && *p != '\0' ) {
 			shader = declManager->FindSound( p );
 			StartSoundShader( shader, SND_CHANNEL_DAMAGE, 0, false, NULL );
 		}
@@ -4499,7 +4499,7 @@ bool idAI::AttackMelee( const char *meleeDefName ) {
 	if ( forceMiss || !TestMelee() ) {
 		// missed
 		p = meleeDef->GetString( "snd_miss" );
-		if ( p != NULL && *p != NULL ) {
+		if ( p != NULL && *p != '\0' ) {
 			shader = declManager->FindSound( p );
 			StartSoundShader( shader, SND_CHANNEL_DAMAGE, 0, false, NULL );
 		}
@@ -4510,7 +4510,7 @@ bool idAI::AttackMelee( const char *meleeDefName ) {
 	// do the damage
 	//
 	p = meleeDef->GetString( "snd_hit" );
-	if ( p != NULL && *p != NULL ) {
+	if ( p != NULL && *p != '\0' ) {
 		shader = declManager->FindSound( p );
 		StartSoundShader( shader, SND_CHANNEL_DAMAGE, 0, false, NULL );
 	}
@@ -4712,7 +4712,7 @@ void idAI::SetChatSound() {
 		snd = NULL;
 	}
 
-	if ( snd != NULL && *snd != NULL ) {
+	if ( snd != NULL && *snd != '\0' ) {
 		chat_snd = declManager->FindSound( snd );
 
 		// set the next chat time

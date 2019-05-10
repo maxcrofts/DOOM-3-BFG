@@ -30,9 +30,101 @@ If you have questions concerning this license or the applicable additional terms
 
 /*
 ================================================================================================
-Contains the vartious ThreadingClass implementations.
+Contains the various ThreadingClass implementations.
 ================================================================================================
 */
+
+/*
+================================================================================================
+
+	idSysSignal
+
+================================================================================================
+*/
+
+/*
+========================
+idSysSignal::idSysSignal
+========================
+*/
+idSysSignal::idSysSignal( bool manualReset ) :
+		manualReset( manualReset ),
+		signaled( false ) {
+	Sys_MutexCreate( mutex );
+	Sys_CondCreate( condition );
+}
+
+/*
+========================
+idSysSignal::~idSysSignal
+========================
+*/
+idSysSignal::~idSysSignal() {
+	Sys_MutexDestroy( mutex );
+	Sys_CondDestroy( condition );
+}
+
+/*
+========================
+idSysSignal::Raise
+========================
+*/
+void idSysSignal::Raise() {
+	Sys_MutexLock( mutex, true );
+	if ( manualReset ) {
+		signaled = true;
+		Sys_MutexUnlock( mutex );
+		Sys_CondBroadcast( condition );
+	} else {
+		signaled = true;
+		Sys_MutexUnlock( mutex );
+		Sys_CondSignal( condition );
+	}
+}
+
+/*
+========================
+idSysSignal::Clear
+========================
+*/
+void idSysSignal::Clear() {
+	Sys_MutexLock( mutex, true );
+	signaled = false;
+	Sys_MutexUnlock( mutex );
+}
+
+/*
+========================
+idSysSignal::Wait
+========================
+*/
+bool idSysSignal::Wait( int timeout ) {
+	Sys_MutexLock( mutex, true );
+	bool result = true;
+	if ( signaled ) {
+		if ( !manualReset ) {
+			signaled = false;
+		}
+	} else {
+		if ( timeout == 0 ) {
+			result = false;
+		} else if ( timeout == idSysSignal::WAIT_INFINITE ) {
+			while ( !signaled ) {
+				Sys_CondWait( condition, mutex );
+			}
+		} else {
+			while ( !signaled ) {
+				if ( Sys_CondWait( condition, mutex, timeout ) ) {
+					result = false;
+					break;
+				}
+			}
+		}
+	}
+	Sys_MutexUnlock( mutex );
+	assert( result || ( timeout != idSysSignal::WAIT_INFINITE && !result ) );
+	return result;
+}
 
 /*
 ================================================================================================

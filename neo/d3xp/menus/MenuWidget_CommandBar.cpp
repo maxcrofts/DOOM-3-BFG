@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
-#include "../../idLib/precompiled.h"
+#include "../../idlib/precompiled.h"
 #include "../Game_local.h"
 
 /*
@@ -171,7 +171,7 @@ void idMenuWidget_CommandBar::Update() {
 			buttonSprite->SetVisible( false );
 			idSWFScriptObject * const shortcutKeys = GetSWFObject()->GetGlobal( "shortcutKeys" ).GetObject();
 			if ( verify( shortcutKeys != NULL ) ) {
-				buttonSprite->GetScriptObject()->Set( "onPress", NULL );
+				buttonSprite->GetScriptObject()->Set( "onPress", 0 );
 				 // bind the main action - need to use all caps here because shortcuts are stored that way
 				shortcutName = buttonName;
 				shortcutName.ToUpper();

@@ -45,6 +45,8 @@ Contains the windows implementation of the network session
 #include "../stub/stub_achievements.h"
 #include "../sdl/sdl_local.h"
 
+class idLobbyToSessionCBLocal;
+
 /*
 ========================
 Global variables
@@ -624,7 +626,6 @@ void idSessionLocalStub::DestroyLobbyBackend( idLobbyBackend * lobbyBackend ) {
 	lobbyBackends[lobbyBackend->GetLobbyType()] = NULL;
 
 	lobbyBackend->Shutdown();
-	delete lobbyBackend;
 }
 
 /*

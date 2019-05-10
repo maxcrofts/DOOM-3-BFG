@@ -1,41 +1,3 @@
-# compiler flags
-if(MSVC)
-    # enable multi-processor compilation
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-
-    # disable warnings introduced after Visual Studio 2013
-    if(MSVC_VERSION GREATER 1800)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4467 /wd4595")
-    endif()
-
-    # disable some clang specific warnings
-    if(CLANG)
-        set(CLANG_FLAGS
-            "-Wno-braced-scalar-init"
-            "-Wno-deprecated-declarations"
-            "-Wno-ignored-attributes"
-            "-Wno-implicit-exception-spec-mismatch"
-            "-Wno-inline-new-delete"
-            "-Wno-microsoft-include"
-            "-Wno-missing-braces"
-            "-Wno-overloaded-virtual"
-            "-Wno-parentheses-equality"
-            "-Wno-pragma-pack"
-            "-Wno-reorder"
-            "-Wno-reserved-user-defined-literal"
-            "-Wno-sometimes-uninitialized"
-            "-Wno-switch"
-            "-Wno-unused-const-variable"
-            "-Wno-unused-function"
-            "-Wno-unused-local-typedef"
-            "-Wno-unused-variable"
-            "-Wno-writable-strings"
-        )
-        string(REPLACE ";" " " CLANG_FLAGS "${CLANG_FLAGS}")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CLANG_FLAGS}")
-    endif()
-endif()
-
 # doomclassic
 set(DOOMCLASSIC_FILES
     "doom/am_map.cpp"
@@ -182,8 +144,7 @@ add_library(doomclassic ${DOOMCLASSIC_FILES})
 target_include_directories(doomclassic PUBLIC "../neo" ${SDL2_INCLUDE_DIR} ${OPENAL_INCLUDE_DIR})
 
 if(MSVC)
-    # disable warning C4146: unary minus operator applied to unsigned type, result still unsigned
-    target_compile_options(doomclassic PRIVATE "/wd4146")
+    target_compile_options(doomclassic PRIVATE /WX-)
 endif()
 
 add_subdirectory("timidity")

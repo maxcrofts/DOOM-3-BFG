@@ -173,9 +173,9 @@ DLL Loading
 Sys_DLL_Load
 =====================
 */
-int Sys_DLL_Load( const char *dllName ) {
+void *Sys_DLL_Load( const char *dllName ) {
 	void *libHandle = SDL_LoadObject( dllName );
-	return (int)libHandle;
+	return libHandle;
 }
 
 /*

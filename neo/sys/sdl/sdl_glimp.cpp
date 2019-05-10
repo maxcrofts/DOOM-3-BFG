@@ -38,8 +38,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "../win32/rc/doom_resource.h"
 #include "../../renderer/tr_local.h"
 
-idCVar r_useOpenGL32( "r_useOpenGL32", "1", CVAR_INTEGER, "0 = OpenGL 2.0, 1 = OpenGL 3.2 compatibility profile, 2 = OpenGL 3.2 core profile", 0, 2 );
-
 /*
 ====================
 GLimp_TestSwapBuffers
@@ -127,47 +125,12 @@ DumpAllDisplayDevices
 ====================
 */
 void DumpAllDisplayDevices() {
+	idList<vidMode_t> modeList;
+	
 	common->Printf( "\n" );
-	for ( int deviceNum = 0 ; ; deviceNum++ ) {
-		if ( deviceNum >= SDL_GetNumVideoDisplays() ) {
+	for ( int deviceNum = 0; ; deviceNum++ ) {
+		if ( !R_GetModeListForDisplay( deviceNum, modeList, true ) ) {
 			break;
-		}
-
-		common->Printf( "display device: %i\n", deviceNum );
-		common->Printf( "  DisplayName : %s\n", SDL_GetDisplayName( deviceNum ) );
-
-		SDL_DisplayMode displayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
-
-		if ( SDL_GetCurrentDisplayMode( deviceNum, &displayMode ) != 0 ) {
-			common->Printf( "ERROR:  SDL_GetCurrentDisplayMode failed!\n" );
-		}
-		common->Printf( "      -------------------\n" );
-		common->Printf( "      CurrentDisplayMode\n" );
-		common->Printf( "      format              : %s\n", SDL_GetPixelFormatName( displayMode.format ) );
-		common->Printf( "      w                   : %i\n", displayMode.w );
-		common->Printf( "      h                   : %i\n", displayMode.h );
-		common->Printf( "      refresh_rate        : %i\n", displayMode.refresh_rate );
-
-		for ( int modeNum = 0 ; ; modeNum++ ) {
-			if ( SDL_GetDisplayMode( deviceNum, modeNum, &displayMode ) != 0 ) {
-				break;
-			}
-
-			if ( SDL_BITSPERPIXEL( displayMode.format ) != 24 ) {
-				continue;
-			}
-			if ( ( displayMode.refresh_rate != 60 ) && ( displayMode.refresh_rate != 120 ) ) {
-				continue;
-			}
-			if ( displayMode.h < 720 ) {
-				continue;
-			}
-			common->Printf( "      -------------------\n" );
-			common->Printf( "      modeNum             : %i\n", modeNum );
-			common->Printf( "      format              : %s\n", SDL_GetPixelFormatName( displayMode.format ) );
-			common->Printf( "      w                   : %i\n", displayMode.w );
-			common->Printf( "      h                   : %i\n", displayMode.h );
-			common->Printf( "      refresh_rate        : %i\n", displayMode.refresh_rate );
 		}
 	}
 	common->Printf( "\n" );
@@ -178,29 +141,34 @@ void DumpAllDisplayDevices() {
 R_GetModeListForDisplay
 ====================
 */
-bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t> & modeList ) {
+bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t> & modeList, bool verbose ) {
 	modeList.Clear();
 
-	bool	verbose = false;
+	SDL_DisplayMode displayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
 
-	for ( int displayNum = requestedDisplayNum; ; displayNum++ ) {
-		if ( displayNum >= SDL_GetNumVideoDisplays() ) {
-			break;
-		}
-
+	int numDisplays = SDL_GetNumVideoDisplays();
+	for ( int displayNum = requestedDisplayNum; displayNum < numDisplays; displayNum++ ) {
 		if ( verbose ) {
 			common->Printf( "display device: %i\n", displayNum );
 			common->Printf( "  DisplayName : %s\n", SDL_GetDisplayName( displayNum ) );
-		}
 
-		SDL_DisplayMode displayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
+			if ( SDL_GetCurrentDisplayMode( displayNum, &displayMode ) != 0 ) {
+				common->Printf( "ERROR:  SDL_GetCurrentDisplayMode failed!\n" );
+			}
+			common->Printf( "      -------------------\n" );
+			common->Printf( "      CurrentDisplayMode\n" );
+			common->Printf( "      format              : %s\n", SDL_GetPixelFormatName( displayMode.format ) );
+			common->Printf( "      w                   : %i\n", displayMode.w );
+			common->Printf( "      h                   : %i\n", displayMode.h );
+			common->Printf( "      refresh_rate        : %i\n", displayMode.refresh_rate );
+		}
 
 		for ( int modeNum = 0 ; ; modeNum++ ) {
 			if ( SDL_GetDisplayMode( displayNum, modeNum, &displayMode ) != 0 ) {
 				break;
 			}
 
-			if ( SDL_BITSPERPIXEL( displayMode.format ) != 24 ) {
+			if ( SDL_BITSPERPIXEL( displayMode.format ) < 24 ) {
 				continue;
 			}
 			if ( ( displayMode.refresh_rate != 60 ) && ( displayMode.refresh_rate != 120 ) ) {
@@ -224,7 +192,6 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t> &
 			modeList.AddUnique( mode );
 		}
 		if ( modeList.Num() > 0 ) {
-
 			class idSort_VidMode : public idSort_Quick< vidMode_t, idSort_VidMode > {
 			public:
 				int Compare( const vidMode_t & a, const vidMode_t & b ) const {
@@ -241,7 +208,7 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t> &
 			return true;
 		}
 	}
-	// Never gets here
+
 	return false;
 }
 
@@ -391,19 +358,19 @@ static bool GLimp_CreateWindow( glimpParms_t parms ) {
 	SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 8 );
 	SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 8 );
 	SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 8 );
-	SDL_GL_SetAttribute( SDL_GL_STEREO, ( parms.stereo ? TRUE : FALSE ) );
+	SDL_GL_SetAttribute( SDL_GL_STEREO, parms.stereo );
 
-	int useOpenGL32 = r_useOpenGL32.GetInteger();
-	const int glMajorVersion = ( useOpenGL32 != 0 ) ? 3 : 2;
-	const int glMinorVersion = ( useOpenGL32 != 0 ) ? 2 : 0;
-	const int glDebugFlag = r_debugContext.GetBool() ? SDL_GL_CONTEXT_DEBUG_FLAG : 0;
-	const int glProfile = ( useOpenGL32 == 1 ) ? SDL_GL_CONTEXT_PROFILE_COMPATIBILITY : ( ( useOpenGL32 == 2 ) ? SDL_GL_CONTEXT_PROFILE_CORE : 0 );
-	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, glMajorVersion );
-	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, glMinorVersion );
-	SDL_GL_SetAttribute( SDL_GL_CONTEXT_FLAGS, glDebugFlag );
-	if ( useOpenGL32 != 0 ) {
-		SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, glProfile );
-	}
+	int glFlags = r_debugContext.GetBool() ? SDL_GL_CONTEXT_DEBUG_FLAG : 0;
+	int glProfile = SDL_GL_CONTEXT_PROFILE_COMPATIBILITY;
+#ifdef USE_CORE_PROFILE
+	glFlags |= SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG;
+	glProfile = SDL_GL_CONTEXT_PROFILE_CORE;
+#endif
+	
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 2 );
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_FLAGS, glFlags );
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, glProfile );
 
 	sdl.window = SDL_CreateWindow( GAME_NAME, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, flags);
 	

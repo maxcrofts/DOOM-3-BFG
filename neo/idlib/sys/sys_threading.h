@@ -33,20 +33,13 @@ If you have questions concerning this license or the applicable additional terms
 /*
 ================================================================================================
 
-	Platform specific mutex, signal and atomic integer.
+	Platform specific mutex, condition variable and atomic integer.
 
 ================================================================================================
 */
 
-	struct Signal {
-		bool						manualReset;
-		bool						signaled;
-		SDL_mutex *					mutex;
-		SDL_cond *					condition;
-	};
-
 	typedef SDL_mutex *				mutexHandle_t;
-	typedef Signal *				signalHandle_t;
+	typedef SDL_cond *				condHandle_t;
 	typedef int						interlockedInt_t;
 
 
@@ -63,11 +56,41 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-#if _MSC_VER < 1900
-#define ID_TLS __declspec(thread) ptrdiff_t
-#else
-#define ID_TLS thread_local ptrdiff_t
-#endif
+	class idSysThreadLocalStorage {
+	public:
+		idSysThreadLocalStorage() {
+			if (!tlsIndex) {
+				SDL_AtomicLock(&tlsLock);
+				if (!tlsIndex) {
+					tlsIndex = SDL_TLSCreate();
+				}
+				SDL_AtomicUnlock(&tlsLock);
+			}
+		}
+		idSysThreadLocalStorage( const ptrdiff_t &val ) {
+			if (!tlsIndex) {
+				SDL_AtomicLock(&tlsLock);
+				if (!tlsIndex) {
+					tlsIndex = SDL_TLSCreate();
+				}
+				SDL_AtomicUnlock(&tlsLock);
+			}
+			SDL_TLSSet( tlsIndex, (void *)val, 0 );
+		}
+		~idSysThreadLocalStorage() {}
+		operator ptrdiff_t() {
+			return (ptrdiff_t)SDL_TLSGet( tlsIndex );
+		}
+		const ptrdiff_t & operator = ( const ptrdiff_t &val ) {
+			SDL_TLSSet( tlsIndex, (void *)val, 0 );
+			return val;
+		}
+	private:
+		SDL_SpinLock tlsLock;
+		SDL_TLSID tlsIndex;
+	};
+
+#define ID_TLS idSysThreadLocalStorage
 
 
 #endif // __TYPEINFOGEN__
@@ -112,13 +135,12 @@ uintptr_t			Sys_CreateThread( xthread_t function, void *parms, xthreadPriority p
 
 void				Sys_WaitForThread( uintptr_t threadHandle );
 void				Sys_DestroyThread( uintptr_t threadHandle );
-void				Sys_SetCurrentThreadName( const char *name );
 
-void				Sys_SignalCreate( signalHandle_t & handle, bool manualReset );
-void				Sys_SignalDestroy( signalHandle_t & handle );
-void				Sys_SignalRaise( signalHandle_t & handle );
-void				Sys_SignalClear( signalHandle_t & handle );
-bool				Sys_SignalWait( signalHandle_t & handle, int timeout );
+void				Sys_CondCreate( condHandle_t & handle );
+void				Sys_CondDestroy( condHandle_t & handle );
+void				Sys_CondBroadcast( condHandle_t & handle );
+void				Sys_CondSignal( condHandle_t & handle );
+int					Sys_CondWait( condHandle_t & condHandle, mutexHandle_t & mutexHandle, int timeout = SDL_MUTEX_MAXWAIT );
 
 void				Sys_MutexCreate( mutexHandle_t & handle );
 void				Sys_MutexDestroy( mutexHandle_t & handle );

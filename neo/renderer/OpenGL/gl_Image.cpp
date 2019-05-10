@@ -77,8 +77,8 @@ void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int 
 		target = GL_TEXTURE_2D;
 		uploadTarget = GL_TEXTURE_2D;
 	} else if ( opts.textureType == TT_CUBIC ) {
-		target = GL_TEXTURE_CUBE_MAP_EXT;
-		uploadTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X_EXT + z;
+		target = GL_TEXTURE_CUBE_MAP;
+		uploadTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X + z;
 	} else {
 		assert( !"invalid opts.textureType" );
 		target = GL_TEXTURE_2D;
@@ -144,7 +144,7 @@ void idImage::SetTexParameters() {
 			target = GL_TEXTURE_2D;
 			break;
 		case TT_CUBIC:
-			target = GL_TEXTURE_CUBE_MAP_EXT;
+			target = GL_TEXTURE_CUBE_MAP;
 			break;
 		default:
 			idLib::FatalError( "%s: bad texture type %d", GetName(), opts.textureType );
@@ -153,7 +153,6 @@ void idImage::SetTexParameters() {
 
 	// ALPHA, LUMINANCE, LUMINANCE_ALPHA, and INTENSITY have been removed
 	// in OpenGL 3.2. In order to mimic those modes, we use the swizzle operators
-#if defined( USE_CORE_PROFILE )
 	if ( opts.colorFormat == CFM_GREEN_ALPHA ) {
 		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_R, GL_ONE );
 		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_G, GL_ONE );
@@ -185,19 +184,6 @@ void idImage::SetTexParameters() {
 		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_B, GL_BLUE );
 		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_A, GL_ALPHA );
 	}
-#else
-	if ( opts.colorFormat == CFM_GREEN_ALPHA ) {
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_R, GL_ONE );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_G, GL_ONE );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_B, GL_ONE );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_A, GL_GREEN );
-	} else if ( opts.format == FMT_ALPHA ) {
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_R, GL_ONE );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_G, GL_ONE );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_B, GL_ONE );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_A, GL_RED );
-	}
-#endif
 
 	switch( filter ) {
 		case TF_DEFAULT:
@@ -237,7 +223,7 @@ void idImage::SetTexParameters() {
 	}
 	if ( glConfig.textureLODBiasAvailable && ( usage != TD_FONT ) ) {
 		// use a blurring LOD bias in combination with high anisotropy to fix our aliasing grate textures...
-		qglTexParameterf(target, GL_TEXTURE_LOD_BIAS_EXT, r_lodBias.GetFloat() );
+		qglTexParameterf(target, GL_TEXTURE_LOD_BIAS, r_lodBias.GetFloat() );
 	}
 
 	// set the wrap/clamp modes
@@ -300,43 +286,23 @@ void idImage::AllocImage() {
 		dataType = GL_UNSIGNED_SHORT_5_6_5;
 		break;
 	case FMT_ALPHA:
-#if defined( USE_CORE_PROFILE )
 		internalFormat = GL_R8;
 		dataFormat = GL_RED;
-#else
-		internalFormat = GL_ALPHA8;
-		dataFormat = GL_ALPHA;
-#endif
 		dataType = GL_UNSIGNED_BYTE;
 		break;
 	case FMT_L8A8:
-#if defined( USE_CORE_PROFILE )
 		internalFormat = GL_RG8;
 		dataFormat = GL_RG;
-#else
-		internalFormat = GL_LUMINANCE8_ALPHA8;
-		dataFormat = GL_LUMINANCE_ALPHA;
-#endif
 		dataType = GL_UNSIGNED_BYTE;
 		break;
 	case FMT_LUM8:
-#if defined( USE_CORE_PROFILE )
 		internalFormat = GL_R8;
 		dataFormat = GL_RED;
-#else
-		internalFormat = GL_LUMINANCE8;
-		dataFormat = GL_LUMINANCE;
-#endif
 		dataType = GL_UNSIGNED_BYTE;
 		break;
 	case FMT_INT8:
-#if defined( USE_CORE_PROFILE )
 		internalFormat = GL_R8;
 		dataFormat = GL_RED;
-#else
-		internalFormat = GL_INTENSITY8;
-		dataFormat = GL_LUMINANCE;
-#endif
 		dataType = GL_UNSIGNED_BYTE;
 		break;
 	case FMT_DXT1:
@@ -355,13 +321,13 @@ void idImage::AllocImage() {
 		dataType = GL_UNSIGNED_BYTE;
 		break;
 	case FMT_X16:
-		internalFormat = GL_INTENSITY16;
-		dataFormat = GL_LUMINANCE;
+		internalFormat = GL_R16;
+		dataFormat = GL_RED;
 		dataType = GL_UNSIGNED_SHORT;
 		break;
 	case FMT_Y16_X16:
-		internalFormat = GL_LUMINANCE16_ALPHA16;
-		dataFormat = GL_LUMINANCE_ALPHA;
+		internalFormat = GL_RG16;
+		dataFormat = GL_RG;
 		dataType = GL_UNSIGNED_SHORT;
 		break;
 	default:
@@ -391,8 +357,8 @@ void idImage::AllocImage() {
 		target = uploadTarget = GL_TEXTURE_2D;
 		numSides = 1;
 	} else if ( opts.textureType == TT_CUBIC ) {
-		target = GL_TEXTURE_CUBE_MAP_EXT;
-		uploadTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X_EXT;
+		target = GL_TEXTURE_CUBE_MAP;
+		uploadTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
 		numSides = 6;
 	} else {
 		assert( !"opts.textureType" );
@@ -424,11 +390,12 @@ void idImage::AllocImage() {
 				// As of 2011-10-6 using NVIDIA hardware and drivers we have to allocate the memory with HeapAlloc
 				// with the exact size otherwise large image allocation (for instance for physical page textures)
 				// may fail on Vista 32-bit.
-				void * data = HeapAlloc( GetProcessHeap(), 0, compressedSize );
+//				void * data = HeapAlloc( GetProcessHeap(), 0, compressedSize );
+				void * data = NULL;
 				qglCompressedTexImage2DARB( uploadTarget+side, level, internalFormat, w, h, 0, compressedSize, data );
-				if ( data != NULL ) {
-					HeapFree( GetProcessHeap(), 0, data );
-				}
+//				if ( data != NULL ) {
+//					HeapFree( GetProcessHeap(), 0, data );
+//				}
 			} else {
 				qglTexImage2D( uploadTarget + side, level, internalFormat, w, h, 0, dataFormat, dataType, NULL );
 			}

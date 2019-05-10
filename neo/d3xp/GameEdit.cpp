@@ -1053,7 +1053,7 @@ int idGameEdit::MapGetUniqueMatchingKeyVals( const char *key, const char *list[]
 			idMapEntity *ent = mapFile->GetEntity( i );
 			if ( ent ) {
 				const char *k = ent->epairs.GetString( key );
-				if ( k != NULL && *k != NULL && count < max ) {
+				if ( k != NULL && *k != '\0' && count < max ) {
 					list[count++] = k;
 				}
 			}

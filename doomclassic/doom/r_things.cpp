@@ -795,7 +795,7 @@ void R_SortVisSprites (void)
     ::g->vsprsortedhead.next = ::g->vsprsortedhead.prev = &::g->vsprsortedhead;
     for (i=0 ; i<count ; i++)
     {
-	bestscale = MAXINT;
+	bestscale = MAX_TYPE(int);
 	for (ds=unsorted.next ; ds!= &unsorted ; ds=ds->next)
 	{
 	    if (ds->scale < bestscale)

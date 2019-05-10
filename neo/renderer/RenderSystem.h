@@ -94,7 +94,6 @@ struct glconfig_t {
 	graphicsVendor_t	vendor;
 
 	int					maxTextureSize;			// queried from GL
-	int					maxTextureCoords;
 	int					maxTextureImageUnits;
 	int					uniformBufferOffsetAlignment;
 	float				maxTextureAnisotropy;
@@ -104,7 +103,6 @@ struct glconfig_t {
 	int					stencilBits;
 
 	bool				multitextureAvailable;
-	bool				directStateAccess;
 	bool				textureCompressionAvailable;
 	bool				anisotropicFilterAvailable;
 	bool				textureLODBiasAvailable;
@@ -114,7 +112,7 @@ struct glconfig_t {
 	bool				mapBufferRangeAvailable;
 	bool				vertexArrayObjectAvailable;
 	bool				drawElementsBaseVertexAvailable;
-	bool				fragmentProgramAvailable;
+	bool				vertexProgramAvailable;
 	bool				glslAvailable;
 	bool				uniformBufferAvailable;
 	bool				twoSidedStencilAvailable;

@@ -472,7 +472,6 @@ void idFileSystemLocal::CreateOSPath( const char *OSPath ) {
 	}
 
 	idStrStatic< MAX_OSPATH > path( OSPath );
-	path.SlashesToBackSlashes();
 	for( ofs = &path[ 1 ]; *ofs ; ofs++ ) {
 		if ( *ofs == PATHSEPARATOR_CHAR ) {	
 			// create the directory
@@ -1538,11 +1537,11 @@ void idFileSystemLocal::RemoveFile( const char *relativePath ) {
 
 	if ( fs_basepath.GetString()[0] ) {
 		OSPath = BuildOSPath( fs_basepath.GetString(), gameFolder, relativePath );
-		::DeleteFile( OSPath );
+		remove( OSPath );
 	}
 
 	OSPath = BuildOSPath( fs_savepath.GetString(), gameFolder, relativePath );
-	::DeleteFile( OSPath );
+	remove( OSPath );
 }
 
 /*
@@ -1742,15 +1741,21 @@ bool idFileSystemLocal::RenameFile( const char * relativePath, const char * newN
 	idStr oldOSPath = BuildOSPath( path, gameFolder, relativePath );
 	idStr newOSPath = BuildOSPath( path, gameFolder, newName );
 
+#ifdef ID_WIN
 	// this gives atomic-delete-on-rename, like POSIX rename()
 	// There is a MoveFileTransacted() on vista and above, not sure if that means there
 	// is a race condition inside MoveFileEx...
 	const bool success = ( MoveFileEx( oldOSPath.c_str(), newOSPath.c_str(), MOVEFILE_REPLACE_EXISTING ) != 0 );
-
 	if ( !success ) {
 		const int err = GetLastError();
 		idLib::Warning( "RenameFile( %s, %s ) error %i", newOSPath.c_str(), oldOSPath.c_str(), err );
 	}
+#else
+	const bool success = ( rename( oldOSPath.c_str(), newOSPath.c_str() ) != 0 );
+	if ( !success ) {
+		idLib::Warning( "RenameFile( %s, %s ) error %i", newOSPath.c_str(), oldOSPath.c_str(), errno );
+	}
+#endif
 	return success;
 }
 
@@ -2311,7 +2316,7 @@ void idFileSystemLocal::CreateCRCsForResourceFileList( const idFileList & list )
 		}
 
 		// All tables read, now seek to each one and calculate the CRC.
-		idTempArray< unsigned long > innerFileCRCs( numFileResources );
+		idTempArray< unsigned int > innerFileCRCs( numFileResources );
 		for ( int innerFileIndex = 0; innerFileIndex < numFileResources; ++innerFileIndex ) {
 			const char * innerFileDataBegin = currentFile->GetDataPtr() + cacheEntries[innerFileIndex].offset;
 
@@ -2319,7 +2324,7 @@ void idFileSystemLocal::CreateCRCsForResourceFileList( const idFileList & list )
 		}
 
 		// Get the CRC for all the CRCs.
-		const unsigned long totalCRC = CRC32_BlockChecksum( innerFileCRCs.Ptr(), innerFileCRCs.Size() );
+		const unsigned int totalCRC = CRC32_BlockChecksum( innerFileCRCs.Ptr(), innerFileCRCs.Size() );
 
 		// Write the .crc file corresponding to the .resources file.
 		idStr crcFilename = list.GetFile( fileIndex );
@@ -2686,7 +2691,7 @@ bool idFileSystemLocal::GetResourceCacheEntry( const char *fileName, idResourceC
 	if ( strstr( fileName, ":") != NULL ) {
 		// os path, convert to relative? scripts can pass in an OS path
 		//idLib::Printf( "RESOURCE: os path passed %s\n", fileName );
-		return NULL;
+		return false;
 	} else {
 		canonical = fileName;
 	}

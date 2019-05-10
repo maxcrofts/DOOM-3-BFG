@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "Snapshot_Jobs.h"
 
 uint32 SnapObjChecksum( const uint8 * data, int length ) {
-	extern unsigned long CRC32_BlockChecksum( const void *data, int length );
+	extern unsigned int CRC32_BlockChecksum( const void *data, int length );
 	return CRC32_BlockChecksum( data, length );
 }
 
@@ -295,7 +295,7 @@ void LZWJobInternal( lzwParm_t * parm, unsigned int dmaTag ) {
 
 	dmaTag = dmaTag;
 
-	ALIGN16( idLZWCompressor lzwCompressor( parm->ioData->lzwData ) );
+	idLZWCompressor ALIGNTYPE16 lzwCompressor( parm->ioData->lzwData );
 
 	if ( parm->fragmented ) {
 		// This packet was partially written out, we need to continue writing, using previous lzw dictionary values

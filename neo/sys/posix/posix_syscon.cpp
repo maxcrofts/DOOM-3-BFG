@@ -26,45 +26,32 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#ifndef __D_MAIN__
-#define __D_MAIN__
+#pragma hdrstop
+#include "../../idlib/precompiled.h"
 
-#include "d_event.h"
+#include "../sdl/sdl_local.h"
 
-#ifdef __GNUG__
-#pragma interface
-#endif
+/*
+====================
+Sys_CreateConsole
+====================
+*/
+void Sys_CreateConsole() {
+}
 
-extern const char*		extraWad;
+/*
+====================
+Sys_DestroyConsole
+====================
+*/
+void Sys_DestroyConsole() {
+}
 
-#define MAXWADFILES             20
-extern const char*		wadfiles[MAXWADFILES];
-
-void D_AddExtraWadFile( const char *file );
-void D_AddFile ( const char *file);
-
-
-
-//
-// D_DoomMain()
-// Not a globally visible function, just included for source reference,
-// calls all startup code, parses command line options.
-// If not overrided by user input, calls N_AdvanceDemo.
-//
-void D_DoomMain (void);
-
-// Called by IO functions when input is detected.
-void D_PostEvent (event_t* ev);
-
-	
-
-//
-// BASE LEVEL
-//
-void D_PageTicker (void);
-void D_PageDrawer (void);
-void D_AdvanceDemo (void);
-void D_StartTitle (void);
-
-
-#endif
+/*
+====================
+Sys_ConsoleInput
+====================
+*/
+char *Sys_ConsoleInput() {
+	return NULL;
+}

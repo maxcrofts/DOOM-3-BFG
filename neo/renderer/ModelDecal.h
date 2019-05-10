@@ -74,7 +74,7 @@ struct decalProjectionParms_t {
 	bool					force;
 };
 
-ALIGNTYPE16 struct decal_t {
+struct ALIGNTYPE16 decal_t {
 	ALIGNTYPE16 idDrawVert	verts[MAX_DECAL_VERTS];
 	ALIGNTYPE16 triIndex_t	indexes[MAX_DECAL_INDEXES];
 	float					vertDepthFade[MAX_DECAL_VERTS];

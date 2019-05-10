@@ -279,7 +279,7 @@ ID_INLINE _type_ * idBlockAlloc<_type_,_blockSize_,memTag>::Alloc() {
 
 	_type_ * t = (_type_ *) element->buffer;
 	if ( clearAllocs ) {
-		memset( t, 0, sizeof( _type_ ) );
+		memset( (void *) t, 0, sizeof( _type_ ) );
 	}
 	new ( t ) _type_;
 	return t;

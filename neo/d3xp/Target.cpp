@@ -1084,7 +1084,7 @@ void idTarget_SetInfluence::Event_Activate( idEntity *activator ) {
 	}
 
 	parm = spawnArgs.GetString( "snd_influence" );
-	if ( parm != NULL && *parm != NULL ) {
+	if ( parm != NULL && *parm != '\0' ) {
 		PostEventSec( &EV_StartSoundShader, flashIn, parm, SND_CHANNEL_ANY );
 	}
 
@@ -1181,7 +1181,7 @@ void idTarget_SetInfluence::Event_Activate( idEntity *activator ) {
 	}
 
 	parm = spawnArgs.GetString( "mtrWorld" );
-	if ( parm != NULL && *parm != NULL ) {
+	if ( parm != NULL && *parm != '\0' ) {
 		gameLocal.SetGlobalMaterial( declManager->FindMaterial( parm ) );
 	}
 
@@ -1572,7 +1572,7 @@ void idTarget_EnableLevelWeapons::Event_Activate( idEntity *activator ) {
 		for( i = 0; i < gameLocal.numClients; i++ ) {
 			if ( gameLocal.entities[ i ] ) {
 				gameLocal.entities[ i ]->ProcessEvent( &EV_Player_EnableWeapon );
-				if ( weap != NULL && weap[ 0 ] != NULL ) {
+				if ( weap != NULL && weap[ 0 ] != '\0' ) {
 					gameLocal.entities[ i ]->PostEventSec( &EV_Player_SelectWeapon, 0.5f, weap );
 				}
 			}

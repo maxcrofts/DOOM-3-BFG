@@ -92,11 +92,11 @@ struct netVersion_s {
 NetGetVersionChecksum
 ========================
 */
-unsigned long NetGetVersionChecksum() {
+unsigned int NetGetVersionChecksum() {
 #if 0
 	return idStr( com_version.GetString() ).Hash();
 #else
-	unsigned long ret = 0;
+	unsigned int ret = 0;
 
 	CRC32_InitChecksum( ret );
 	CRC32_UpdateChecksum( ret, netVersion.string, idStr::Length( netVersion.string ) );
@@ -2232,8 +2232,6 @@ idPlayerProfile * idSessionLocal::GetProfileFromMasterLocalUser() {
 
 /*
 ========================
-/*
-========================
 idSessionLocal::MoveToPressStart
 ========================
 */
@@ -3972,7 +3970,7 @@ void idSessionLocal::ListServersCommon() {
 	idBitMsg msg( buffer, sizeof( buffer ) );
 				
 	// Add the current version info to the query
-	const unsigned long localChecksum = NetGetVersionChecksum();
+	const unsigned int localChecksum = NetGetVersionChecksum();
 
 	NET_VERBOSE_PRINT( "ListServers: Hash checksum: %i, broadcasting to: %s\n", localChecksum, address.ToString() );
 
@@ -3993,8 +3991,8 @@ void idSessionLocal::HandleDedicatedServerQueryRequest( lobbyAddress_t & remoteA
 	
 	bool canJoin = true;
 	
-	const unsigned long localChecksum = NetGetVersionChecksum();
-	const unsigned long remoteChecksum = msg.ReadLong();
+	const unsigned int localChecksum = NetGetVersionChecksum();
+	const unsigned int remoteChecksum = msg.ReadLong();
 
 	if ( remoteChecksum != localChecksum ) {
 		NET_VERBOSE_PRINT( "HandleServerQueryRequest: Invalid version from %s\n", remoteAddr.ToString() );

@@ -68,7 +68,9 @@ static const int OCCLUSION_QUERY_TOO_OLD				= -1;
 
 
 
+#ifdef ID_MAC
 #define USE_CORE_PROFILE
+#endif
 
 struct wrapperContext_t {
 };

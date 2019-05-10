@@ -31,6 +31,9 @@ If you have questions concerning this license or the applicable additional terms
 
 //#include "doomlib.h"
 
+#undef snprintf
+#undef vsnprintf
+
 #include <vector>
 #include <string>
 

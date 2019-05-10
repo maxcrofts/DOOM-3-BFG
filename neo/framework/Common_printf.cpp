@@ -154,10 +154,12 @@ void idCommonLocal::VPrintf( const char *fmt, va_list args ) {
 		}
 	}
 #endif
+#ifdef ID_WIN
 	if ( !idLib::IsMainThread() ) {
 		OutputDebugString( msg );
 		return;
 	}
+#endif
 
 	// echo to console buffer
 	console->Print( msg );
@@ -394,7 +396,7 @@ void idCommonLocal::DumpWarnings() {
 
 		fileSystem->CloseFile( warningFile );
 
-#ifndef ID_DEBUG
+#if !defined( ID_DEBUG ) && defined( ID_WIN )
 		idStr	osPath;
 		osPath = fileSystem->RelativePathToOSPath( "warnings.txt", "fs_savepath" );
 		WinExec( va( "Notepad.exe %s", osPath.c_str() ), SW_SHOW );

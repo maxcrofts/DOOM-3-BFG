@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
-#include "../../idLib/precompiled.h"
+#include "../../idlib/precompiled.h"
 #include "../Game_local.h"
 
 static const int TIP_DISPLAY_TIME = 5000;
@@ -159,7 +159,7 @@ idMenuHandler_HUD::ShowTip
 ========================
 */
 void idMenuHandler_HUD::ShowTip( const char * title, const char * tip, bool autoHide ) {	
-	autoHideTip = autoHideTip;
+	autoHideTip = autoHide;
 	tipStartTime = gameLocal.time;
 	hiding = false;
 	idMenuScreen_HUD * screen = GetHud();

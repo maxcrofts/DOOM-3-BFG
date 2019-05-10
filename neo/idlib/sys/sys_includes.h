@@ -52,6 +52,7 @@ If you have questions concerning this license or the applicable additional terms
 #if defined( ID_WIN )
 
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// prevent auto literal to string conversion
+#define _CRT_NO_POSIX_ERROR_CODES
 
 #ifndef GAME_DLL
 
@@ -70,6 +71,22 @@ If you have questions concerning this license or the applicable additional terms
 #include <malloc.h>							// no malloc.h on mac or unix
 #include <windows.h>						// for qgl.h
 #undef FindText								// fix namespace pollution
+
+#endif
+
+/*
+================================================================================================
+
+	POSIX
+
+================================================================================================
+*/
+
+#if !defined( ID_WIN )
+
+#include <netinet/in.h>
+#include <signal.h>
+#include <unistd.h>
 
 #endif
 

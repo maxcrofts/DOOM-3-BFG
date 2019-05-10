@@ -269,13 +269,13 @@ void VPCALL idSIMD_SSE::BlendJoints( idJointQuat *joints, const idJointQuat *ble
 		float omega;
 		float scale0;
 		float scale1;
-		unsigned long signBit;
+		unsigned int signBit;
 
 		cosom = jointQuat.x * blendQuat.x + jointQuat.y * blendQuat.y + jointQuat.z * blendQuat.z + jointQuat.w * blendQuat.w;
 
-		signBit = (*(unsigned long *)&cosom) & ( 1 << 31 );
+		signBit = (*(unsigned int *)&cosom) & ( 1 << 31 );
 
-		(*(unsigned long *)&cosom) ^= signBit;
+		(*(unsigned int *)&cosom) ^= signBit;
 
 		scale0 = 1.0f - cosom * cosom;
 		scale0 = ( scale0 <= 0.0f ) ? 1e-10f : scale0;
@@ -284,7 +284,7 @@ void VPCALL idSIMD_SSE::BlendJoints( idJointQuat *joints, const idJointQuat *ble
 		scale0 = idMath::Sin16( ( 1.0f - lerp ) * omega ) * sinom;
 		scale1 = idMath::Sin16( lerp * omega ) * sinom;
 
-		(*(unsigned long *)&scale1) ^= signBit;
+		(*(unsigned int *)&scale1) ^= signBit;
 
 		jointQuat.x = scale0 * jointQuat.x + scale1 * blendQuat.x;
 		jointQuat.y = scale0 * jointQuat.y + scale1 * blendQuat.y;

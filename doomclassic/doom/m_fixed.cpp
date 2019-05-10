@@ -64,7 +64,7 @@ FixedDiv
   fixed_t	b )
 {
     if ( (abs(a)>>14) >= abs(b))
-	return (a^b)<0 ? MININT : MAXINT;
+	return (a^b)<0 ? MIN_TYPE(int) : MAX_TYPE(int);
     return FixedDiv2 (a,b);
 }
 

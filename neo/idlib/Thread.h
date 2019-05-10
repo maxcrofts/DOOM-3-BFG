@@ -76,19 +76,22 @@ class idSysSignal {
 public:
 	static const int	WAIT_INFINITE = -1;
 
-			idSysSignal( bool manualReset = false )	{ Sys_SignalCreate( handle, manualReset ); }
-			~idSysSignal()	{ Sys_SignalDestroy( handle ); }
+			idSysSignal( bool manualReset = false );
+			~idSysSignal();
 
-	void	Raise() { Sys_SignalRaise( handle ); }
-	void	Clear() { Sys_SignalClear( handle ); }
+	void	Raise();
+	void	Clear();
 
 	// Wait returns true if the object is in a signalled state and
 	// returns false if the wait timed out. Wait also clears the signalled
 	// state when the signalled state is reached within the time out period.
-	bool	Wait( int timeout = WAIT_INFINITE ) { return Sys_SignalWait( handle, timeout ); }
+	bool	Wait( int timeout = WAIT_INFINITE );
 
 private:
-	signalHandle_t		handle;
+	bool				manualReset;
+	bool				signaled;
+	mutexHandle_t		mutex;
+	condHandle_t		condition;
 
 						idSysSignal( const idSysSignal & s ) {}
 	void				operator=( const idSysSignal & s ) {}

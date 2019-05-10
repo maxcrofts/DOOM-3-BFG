@@ -26,20 +26,21 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
-#include "../../idlib/precompiled.h"
+#include "../idlib/precompiled.h"
 
 /*
 ================================================================================================
-Contains the NetworkSystem implementation specific to Win32.
+Contains the NetworkSystem implementation.
 ================================================================================================
 */
+
+#ifdef ID_WIN
 
 #include <iptypes.h>
 #include <iphlpapi.h>
 
 static WSADATA	winsockdata;
 static bool	winsockInitialized = false;
-static bool usingSocks = false;
 
 //lint -e569	ioctl macros trigger this
 
@@ -47,6 +48,40 @@ static bool usingSocks = false;
 #pragma comment(lib, "iphlpapi.lib" )
 #pragma comment(lib, "wsock32.lib" )
 
+#define EWOULDBLOCK WSAEWOULDBLOCK
+#define EADDRNOTAVAIL WSAEADDRNOTAVAIL
+#define EAFNOSUPPORT WSAEAFNOSUPPORT
+#define ECONNRESET WSAECONNRESET
+
+#undef errno
+#define errno WSAGetLastError()
+
+typedef int socklen_t;
+
+#else
+
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <errno.h>
+#include <net/if.h>
+#include <ifaddrs.h>
+
+#define closesocket close
+#define ioctlsocket ioctl
+
+#define INVALID_SOCKET -1
+#define SOCKET_ERROR -1
+
+typedef int SOCKET;
+
+#endif
+
+static bool usingSocks = false;
 
 /*
 ================================================================================================
@@ -70,8 +105,8 @@ static SOCKET	socks_socket;
 static char		socksBuf[4096];
 
 typedef struct {
-	unsigned long ip;
-	unsigned long mask;
+	unsigned int ip;
+	unsigned int mask;
 	char addr[16];
 } net_interface;
 
@@ -93,6 +128,7 @@ NET_ErrorString
 ========================
 */
 char *NET_ErrorString() {
+#ifdef ID_WIN
 	int		code;
 
 	code = WSAGetLastError();
@@ -143,6 +179,9 @@ char *NET_ErrorString() {
 	case WSANO_DATA: return "WSANO_DATA";
 	default: return "NO ERROR";
 	}
+#else
+	return strerror( errno );
+#endif
 }
 
 /*
@@ -222,7 +261,7 @@ static bool Net_StringToSockaddr( const char *s, sockaddr_in *sadr, bool doDNSRe
 	sadr->sin_port = 0;
 
 	if( s[0] >= '0' && s[0] <= '9' ) {
-		unsigned long ret = inet_addr(s);
+		unsigned int ret = inet_addr(s);
 		if ( ret != INADDR_NONE ) {
 			*(int *)&sadr->sin_addr = ret;
 		} else {
@@ -274,8 +313,8 @@ int NET_IPSocket( const char *net_interface, int port, netadr_t *bound_to ) {
 	}
 
 	if( ( newsocket = socket( AF_INET, SOCK_DGRAM, IPPROTO_UDP ) ) == INVALID_SOCKET ) {
-		err = WSAGetLastError();
-		if( err != WSAEAFNOSUPPORT ) {
+		err = errno;
+		if( err != EAFNOSUPPORT ) {
 			idLib::Printf( "WARNING: UDP_OpenSocket: socket: %s\n", NET_ErrorString() );
 		}
 		return 0;
@@ -320,7 +359,7 @@ int NET_IPSocket( const char *net_interface, int port, netadr_t *bound_to ) {
 	// if the port was PORT_ANY, we need to query again to know the real port we got bound to
 	// ( this used to be in idUDP::InitForPort )
 	if ( bound_to ) {
-		int len = sizeof( address );
+		socklen_t len = sizeof( address );
 		getsockname( newsocket, (sockaddr *)&address, &len );
 		Net_SockadrToNetadr( &address, bound_to );
 	}
@@ -541,7 +580,7 @@ Net_GetUDPPacket
 bool Net_GetUDPPacket( int netSocket, netadr_t &net_from, char *data, int &size, int maxSize ) {
 	int 			ret;
 	sockaddr_in		from;
-	int				fromlen;
+	socklen_t		fromlen;
 	int				err;
 
 	if ( !netSocket ) {
@@ -551,9 +590,9 @@ bool Net_GetUDPPacket( int netSocket, netadr_t &net_from, char *data, int &size,
 	fromlen = sizeof(from);
 	ret = recvfrom( netSocket, data, maxSize, 0, (sockaddr *)&from, &fromlen );
 	if ( ret == SOCKET_ERROR ) {
-		err = WSAGetLastError();
+		err = errno;
 
-		if ( err == WSAEWOULDBLOCK || err == WSAECONNRESET ) {
+		if ( err == EWOULDBLOCK || err == ECONNRESET ) {
 			return false;
 		}
 		char	buf[1024];
@@ -621,14 +660,14 @@ void Net_SendUDPPacket( int netSocket, int length, const void *data, const netad
 		ret = sendto( netSocket, (const char *)data, length, 0, (sockaddr *)&addr, sizeof(addr) );
 	}
 	if ( ret == SOCKET_ERROR ) {
-		int err = WSAGetLastError();
+		int err = errno;
 
 		// some PPP links do not allow broadcasts and return an error
-		if ( ( err == WSAEADDRNOTAVAIL ) && ( to.type == NA_BROADCAST ) ) {
+		if ( ( err == EADDRNOTAVAIL ) && ( to.type == NA_BROADCAST ) ) {
 			return;
 		}
 
-		// NOTE: WSAEWOULDBLOCK used to be silently ignored,
+		// NOTE: EWOULDBLOCK used to be silently ignored,
 		// but that means the packet will be dropped so I don't feel it's a good thing to ignore
 		idLib::Printf( "UDP sendto error - packet dropped: %s\n", NET_ErrorString() );
 	}
@@ -640,12 +679,13 @@ Sys_InitNetworking
 ========================
 */
 void Sys_InitNetworking() {
-	int		r;
+	bool foundloopback = false;
 
+#ifdef ID_WIN
 	if ( winsockInitialized ) {
 		return;
 	}
-	r = WSAStartup( MAKEWORD( 1, 1 ), &winsockdata );
+	int r = WSAStartup( MAKEWORD( 1, 1 ), &winsockdata );
 	if( r ) {
 		idLib::Printf( "WARNING: Winsock initialization failed, returned %d\n", r );
 		return;
@@ -659,10 +699,8 @@ void Sys_InitNetworking() {
 	DWORD dwRetVal = 0;
 	PIP_ADDR_STRING pIPAddrString;
 	ULONG ulOutBufLen;
-	bool foundloopback;
 
 	num_interfaces = 0;
-	foundloopback = false;
 
 	pAdapterInfo = (IP_ADAPTER_INFO *)malloc( sizeof( IP_ADAPTER_INFO ) );
 	if( !pAdapterInfo ) {
@@ -689,13 +727,13 @@ void Sys_InitNetworking() {
 			idLib::Printf( "Found interface: %s %s - ", pAdapter->AdapterName, pAdapter->Description );
 			pIPAddrString = &pAdapter->IpAddressList;
 			while( pIPAddrString ) {
-				unsigned long ip_a, ip_m;
+				unsigned int ip_a, ip_m;
 				if( !idStr::Icmp( "127.0.0.1", pIPAddrString->IpAddress.String ) ) {
 					foundloopback = true;
 				}
 				ip_a = ntohl( inet_addr( pIPAddrString->IpAddress.String ) );
 				ip_m = ntohl( inet_addr( pIPAddrString->IpMask.String ) );
-				//skip null netmasks
+				// skip null netmasks
 				if( !ip_m ) {
 					idLib::Printf( "%s NULL netmask - skipped\n", pIPAddrString->IpAddress.String );
 					pIPAddrString = pIPAddrString->Next;
@@ -716,6 +754,50 @@ void Sys_InitNetworking() {
 			pAdapter = pAdapter->Next;
 		}
 	}
+
+	free( pAdapterInfo );
+#else
+	struct ifaddrs *ifap;
+	struct ifaddrs *ifa;
+	unsigned int ip;
+	unsigned int mask;
+	idStr ipAddrString;
+	idStr ipMaskString;
+	
+	num_interfaces = 0;
+	
+	if( getifaddrs( &ifap ) != 0 ) {
+		idLib::FatalError( "Sys_InitNetworking: getifaddrs failed (%d)\n", errno );
+		return;
+	}
+	
+	for( ifa = ifap; ifa; ifa = ifa->ifa_next ) {
+		if( ifa->ifa_addr->sa_family != AF_INET || !( ifa->ifa_flags & IFF_UP ) || !ifa->ifa_addr ) {
+			continue;
+		}
+		ipAddrString = inet_ntoa( ( (struct sockaddr_in *)ifa->ifa_addr )->sin_addr );
+		idLib::Printf( "Found interface: %s - ", ifa->ifa_name );
+		// skip null netmasks
+		if( !ifa->ifa_netmask ) {
+			idLib::Printf( "%s NULL netmask - skipped\n", ipAddrString.c_str() );
+			continue;
+		}
+		ip = ntohl( *(unsigned int *)&ifa->ifa_addr->sa_data[2] );
+		mask = ntohl( *(unsigned int *)&ifa->ifa_netmask->sa_data[2] );
+		if( ip == INADDR_LOOPBACK ) {
+			foundloopback = true;
+		}
+		ipMaskString = inet_ntoa( ( (struct sockaddr_in *)ifa->ifa_netmask )->sin_addr );
+		idLib::Printf( "%s/%s\n", ipAddrString.c_str(), ipMaskString.c_str() );
+		netint[num_interfaces].ip = ip;
+		netint[num_interfaces].mask = mask;
+		idStr::Copynz( netint[num_interfaces].addr, ipAddrString, sizeof( netint[num_interfaces].addr ) );
+		num_interfaces++;
+	}
+	
+	freeifaddrs( ifap );
+#endif
+
 	// for some retarded reason, win32 doesn't count loopback as an adapter...
 	if( !foundloopback && num_interfaces < MAX_INTERFACES ) {
 		idLib::Printf( "Sys_InitNetworking: adding loopback interface\n" );
@@ -723,7 +805,6 @@ void Sys_InitNetworking() {
 		netint[num_interfaces].mask = ntohl( inet_addr( "255.0.0.0" ) );
 		num_interfaces++;
 	}
-	free( pAdapterInfo );
 }
 
 /*
@@ -732,11 +813,13 @@ Sys_ShutdownNetworking
 ========================
 */
 void Sys_ShutdownNetworking() {
+#ifdef ID_WIN
 	if ( !winsockInitialized ) {
 		return;
 	}
 	WSACleanup();
 	winsockInitialized = false;
+#endif
 }
 
 /*
@@ -796,9 +879,9 @@ bool Sys_IsLANAddress( const netadr_t adr ) {
 
 	if ( num_interfaces ) {
 		int i;
-		unsigned long *p_ip;
-		unsigned long ip;
-		p_ip = (unsigned long *)&adr.ip[0];
+		unsigned int *p_ip;
+		unsigned int ip;
+		p_ip = (unsigned int *)&adr.ip[0];
 		ip = ntohl( *p_ip );
 
 		for( i = 0; i < num_interfaces; i++ ) {

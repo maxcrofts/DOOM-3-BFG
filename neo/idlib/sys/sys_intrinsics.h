@@ -145,18 +145,12 @@ ID_INLINE_EXTERN int CACHE_LINE_CLEAR_OVERFLOW_COUNT( int size ) {
 ================================================================================================
 */
 
-/*
-================================================
-	PC Windows
-================================================
-*/
-
 #if !defined( R_SHUFFLE_D )
 #define R_SHUFFLE_D( x, y, z, w )	(( (w) & 3 ) << 6 | ( (z) & 3 ) << 4 | ( (y) & 3 ) << 2 | ( (x) & 3 ))
 #endif
 
 // make the intrinsics "type unsafe"
-typedef union __declspec(intrin_type) _CRT_ALIGN(16) __m128c {
+typedef union ALIGNTYPE16 __m128c {
 				__m128c() {}
 				__m128c( __m128 f ) { m128 = f; }
 				__m128c( __m128i i ) { m128i = i; }

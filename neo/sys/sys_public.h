@@ -390,7 +390,7 @@ struct sysMemoryStats_t {
 	int availExtendedVirtual;
 };
 
-typedef unsigned long address_t;
+typedef unsigned int address_t;
 
 void			Sys_Init();
 void			Sys_Shutdown();
@@ -481,7 +481,7 @@ const char *	Sys_GetCallStackCurAddressStr( int depth );
 void			Sys_ShutdownSymbols();
 
 // DLL loading, the path should be a fully qualified OS path to the DLL file to be loaded
-int				Sys_DLL_Load( const char *dllName );
+void *			Sys_DLL_Load( const char *dllName );
 void *			Sys_DLL_GetProcAddress( int dllHandle, const char *procName );
 void			Sys_DLL_Unload( int dllHandle );
 
@@ -681,7 +681,7 @@ public:
 	virtual bool			LockMemory( void *ptr, int bytes ) = 0;
 	virtual bool			UnlockMemory( void *ptr, int bytes ) = 0;
 
-	virtual int				DLL_Load( const char *dllName ) = 0;
+	virtual void *			DLL_Load( const char *dllName ) = 0;
 	virtual void *			DLL_GetProcAddress( int dllHandle, const char *procName ) = 0;
 	virtual void			DLL_Unload( int dllHandle ) = 0;
 	virtual void			DLL_GetFileName( const char *baseName, char *dllName, int maxLength ) = 0;

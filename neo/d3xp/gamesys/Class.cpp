@@ -38,8 +38,6 @@ instancing of objects.
 
 #include "../Game_local.h"
 
-#include "TypeInfo.h"
-
 
 /***********************************************************************
 
@@ -286,7 +284,7 @@ idClass::FindUninitializedMemory
 */
 void idClass::FindUninitializedMemory() {
 #ifdef ID_DEBUG_UNINITIALIZED_MEMORY
-	unsigned long *ptr = ( ( unsigned long * )this ) - 1;
+	unsigned int *ptr = ( ( unsigned int * )this ) - 1;
 	int size = *ptr;
 	assert( ( size & 3 ) == 0 );
 	size >>= 2;

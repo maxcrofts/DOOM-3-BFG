@@ -123,14 +123,14 @@ void idSIMD::Shutdown() {
 
 idSIMDProcessor *p_simd;
 idSIMDProcessor *p_generic;
-long baseClocks = 0;
+int baseClocks = 0;
 
 
 #define TIME_TYPE int
 
 #pragma warning(disable : 4731)     // frame pointer register 'ebx' modified by inline assembly code
 
-long saved_ebx = 0;
+int saved_ebx = 0;
 
 #define StartRecordTime( start )			\
 	start = __rdtsc();
@@ -1202,7 +1202,7 @@ idSIMD::Test_f
 */
 void idSIMD::Test_f( const idCmdArgs &args ) {
 
-	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL );
+	SDL_SetThreadPriority( SDL_THREAD_PRIORITY_HIGH );
 
 	p_simd = processor;
 	p_generic = generic;
@@ -1255,5 +1255,5 @@ void idSIMD::Test_f( const idCmdArgs &args ) {
 	p_simd = NULL;
 	p_generic = NULL;
 
-	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_NORMAL );
+	SDL_SetThreadPriority( SDL_THREAD_PRIORITY_NORMAL );
 }
