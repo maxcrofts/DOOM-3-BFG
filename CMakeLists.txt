@@ -53,6 +53,9 @@ if(MSVC)
     add_compile_options(/vmg)
 
     if(NOT CLANG) # not clang-cl
+        # allow nameless structs
+        add_compile_options(/wd4201)
+        
         # treat warnings as errors for 32-bit builds
         if(CMAKE_SIZEOF_VOID_P EQUAL 4)
             add_compile_options(/WX)
