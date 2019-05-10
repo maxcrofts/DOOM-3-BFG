@@ -71,7 +71,8 @@ endif()
 # GCC compile options
 if(CLANG OR NOT MSVC)
     if(NOT MSVC) # not clang-cl
-        add_compile_options(-std=c++11 -Wall -Wextra)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+        add_compile_options(-Wall -Wextra)
     endif()
     
     # disable some warnings
@@ -97,6 +98,7 @@ if(CLANG OR NOT MSVC)
         -Wno-switch
         -Wno-trigraphs
         -Wno-unknown-pragmas
+        -Wno-unknown-warning-option
         -Wno-unused-function
         -Wno-unused-local-typedef
         -Wno-unused-parameter
