@@ -7,7 +7,7 @@ project(doom3)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(CLANG 1)
 endif()
 
@@ -32,6 +32,7 @@ macro(add_precompiled_header FILES USE_PCH PRECOMPILED_HEADER PRECOMPILED_SOURCE
     endif()
 endmacro()
 
+# MSVC compile options
 if(MSVC)
     # force static runtime libraries
     foreach(flag
@@ -41,6 +42,66 @@ if(MSVC)
         string(REPLACE "/MD"  "/MT" "${flag}" "${${flag}}")
         set("${flag}" "${${flag}} /EHsc")
     endforeach()
+    
+    # enable multi-processor compilation
+    add_compile_options(/MP)
+
+    # use warning level 4
+    add_compile_options(/W4)
+
+    # use most-general representation for member pointers
+    add_compile_options(/vmg)
+
+    if(NOT CLANG) # not clang-cl
+        # treat warnings as errors for 32-bit builds
+        if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+            add_compile_options(/WX)
+        endif()
+
+        # disable warnings introduced after Visual Studio 2013
+        if(MSVC_VERSION GREATER 1800)
+            add_compile_options(/wd4091 /wd4121 /wd4244 /wd4456 /wd4457 /wd4458 /wd4459 /wd4467 /wd4595)
+        endif()
+    endif()
+endif()
+
+# GCC compile options
+if(CLANG OR NOT MSVC)
+    if(NOT MSVC) # not clang-cl
+        add_compile_options(-std=c++11 -Wall -Wextra)
+    endif()
+    
+    # disable some warnings
+    add_compile_options(
+        -Wno-bitwise-op-parentheses
+        -Wno-dangling-else
+        -Wno-deprecated-declarations
+        -Wno-ignored-attributes
+        -Wno-ignored-qualifiers
+        -Wno-implicit-exception-spec-mismatch
+        -Wno-inline-new-delete
+        -Wno-invalid-noreturn
+        -Wno-logical-op-parentheses
+        -Wno-missing-braces
+        -Wno-missing-field-initializers
+        -Wno-overloaded-virtual
+        -Wno-parentheses-equality
+        -Wno-pragma-pack
+        -Wno-reorder
+        -Wno-reserved-user-defined-literal
+        -Wno-shift-negative-value
+        -Wno-sign-compare
+        -Wno-switch
+        -Wno-trigraphs
+        -Wno-unknown-pragmas
+        -Wno-unused-function
+        -Wno-unused-local-typedef
+        -Wno-unused-parameter
+        -Wno-unused-private-field
+        -Wno-unused-value
+        -Wno-unused-variable
+        -Wno-writable-strings
+    )
 endif()
 
 # OpenGL
@@ -63,69 +124,6 @@ endif()
 
 # doomclassic
 add_subdirectory("doomclassic")
-
-# compiler flags
-if(MSVC)
-    # enable multi-processor compilation
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-
-    # force W4
-    if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
-        string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    else()
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-    endif()
-
-    # treat warnings as errors for 32-bit builds
-    if(CMAKE_SIZEOF_VOID_P EQUAL 4 AND NOT CLANG)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
-    endif()
-
-    # disable warnings introduced after Visual Studio 2013
-    if(MSVC_VERSION GREATER 1800)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4091 /wd4121 /wd4244 /wd4456 /wd4457 /wd4458 /wd4459 /wd4467 /wd4595")
-    endif()
-
-    # use most-general representation for member pointers
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /vmg")
-
-    # disable some clang specific warnings
-    if(CLANG)
-        set(CLANG_FLAGS
-            "-Wno-bitwise-op-parentheses"
-            "-Wno-dangling-else"
-            "-Wno-deprecated-declarations"
-            "-Wno-ignored-attributes"
-            "-Wno-ignored-qualifiers"
-            "-Wno-implicit-exception-spec-mismatch"
-            "-Wno-inline-new-delete"
-            "-Wno-invalid-noreturn"
-            "-Wno-logical-op-parentheses"
-            "-Wno-missing-braces"
-            "-Wno-missing-field-initializers"
-            "-Wno-overloaded-virtual"
-            "-Wno-parentheses-equality"
-            "-Wno-pragma-pack"
-            "-Wno-reorder"
-            "-Wno-reserved-user-defined-literal"
-            "-Wno-shift-negative-value"
-            "-Wno-sign-compare"
-            "-Wno-switch"
-            "-Wno-unknown-pragmas"
-            "-Wno-unused-function"
-            "-Wno-unused-local-typedef"
-            "-Wno-unused-parameter"
-            "-Wno-unused-private-field"
-            "-Wno-unused-value"
-            "-Wno-unused-variable"
-            "-Wno-writable-strings"
-        )
-        string(REPLACE ";" " " CLANG_FLAGS "${CLANG_FLAGS}")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CLANG_FLAGS}")
-    endif()
-else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-endif()
 
 # neo
 add_subdirectory("neo")
