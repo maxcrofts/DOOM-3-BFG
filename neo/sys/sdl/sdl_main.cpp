@@ -174,8 +174,7 @@ Sys_DLL_Load
 =====================
 */
 void *Sys_DLL_Load( const char *dllName ) {
-	void *libHandle = SDL_LoadObject( dllName );
-	return libHandle;
+	return SDL_LoadObject( dllName );
 }
 
 /*
@@ -183,8 +182,8 @@ void *Sys_DLL_Load( const char *dllName ) {
 Sys_DLL_GetProcAddress
 =====================
 */
-void *Sys_DLL_GetProcAddress( int dllHandle, const char *procName ) {
-	return SDL_LoadFunction( (void *)dllHandle, procName ); 
+void *Sys_DLL_GetProcAddress( void *dllHandle, const char *procName ) {
+	return SDL_LoadFunction( dllHandle, procName ); 
 }
 
 /*
@@ -192,11 +191,11 @@ void *Sys_DLL_GetProcAddress( int dllHandle, const char *procName ) {
 Sys_DLL_Unload
 =====================
 */
-void Sys_DLL_Unload( int dllHandle ) {
+void Sys_DLL_Unload( void *dllHandle ) {
 	if ( !dllHandle ) {
 		return;
 	}
-	SDL_UnloadObject( (void *)dllHandle );
+	SDL_UnloadObject( dllHandle );
 }
 
 /*

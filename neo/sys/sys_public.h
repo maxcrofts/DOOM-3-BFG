@@ -482,8 +482,8 @@ void			Sys_ShutdownSymbols();
 
 // DLL loading, the path should be a fully qualified OS path to the DLL file to be loaded
 void *			Sys_DLL_Load( const char *dllName );
-void *			Sys_DLL_GetProcAddress( int dllHandle, const char *procName );
-void			Sys_DLL_Unload( int dllHandle );
+void *			Sys_DLL_GetProcAddress( void *dllHandle, const char *procName );
+void			Sys_DLL_Unload( void *dllHandle );
 
 // event generation
 void			Sys_GenerateEvents();
@@ -682,8 +682,8 @@ public:
 	virtual bool			UnlockMemory( void *ptr, int bytes ) = 0;
 
 	virtual void *			DLL_Load( const char *dllName ) = 0;
-	virtual void *			DLL_GetProcAddress( int dllHandle, const char *procName ) = 0;
-	virtual void			DLL_Unload( int dllHandle ) = 0;
+	virtual void *			DLL_GetProcAddress( void *dllHandle, const char *procName ) = 0;
+	virtual void			DLL_Unload( void *dllHandle ) = 0;
 	virtual void			DLL_GetFileName( const char *baseName, char *dllName, int maxLength ) = 0;
 
 	virtual sysEvent_t		GenerateMouseButtonEvent( int button, bool down ) = 0;
