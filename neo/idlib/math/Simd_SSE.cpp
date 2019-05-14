@@ -483,7 +483,7 @@ idSIMD_SSE::ConvertJointQuatsToJointMats
 void VPCALL idSIMD_SSE::ConvertJointQuatsToJointMats( idJointMat *jointMats, const idJointQuat *jointQuats, const int numJoints ) {
 	assert( sizeof( idJointQuat ) == JOINTQUAT_SIZE );
 	assert( sizeof( idJointMat ) == JOINTMAT_SIZE );
-	assert( (int)(&((idJointQuat *)0)->t) == (int)(&((idJointQuat *)0)->q) + (int)sizeof( ((idJointQuat *)0)->q ) );
+	assert( (intptr_t)(&((idJointQuat *)0)->t) == (intptr_t)(&((idJointQuat *)0)->q) + (intptr_t)sizeof( ((idJointQuat *)0)->q ) );
 
 	const float * jointQuatPtr = (float *)jointQuats;
 	float * jointMatPtr = (float *)jointMats;
@@ -616,7 +616,7 @@ void VPCALL idSIMD_SSE::ConvertJointMatsToJointQuats( idJointQuat *jointQuats, c
 
 	assert( sizeof( idJointQuat ) == JOINTQUAT_SIZE );
 	assert( sizeof( idJointMat ) == JOINTMAT_SIZE );
-	assert( (int)(&((idJointQuat *)0)->t) == (int)(&((idJointQuat *)0)->q) + (int)sizeof( ((idJointQuat *)0)->q ) );
+	assert( (intptr_t)(&((idJointQuat *)0)->t) == (intptr_t)(&((idJointQuat *)0)->q) + (intptr_t)sizeof( ((idJointQuat *)0)->q ) );
 
 	const __m128 vector_float_zero		= _mm_setzero_ps();
 	const __m128 vector_float_one		= { 1.0f, 1.0f, 1.0f, 1.0f };
