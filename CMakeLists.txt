@@ -53,8 +53,12 @@ if(MSVC)
     add_compile_options(/vmg)
 
     if(NOT CLANG) # not clang-cl
+        # ignore sensitive to packing warnings
+        add_compile_options(/wd4121)
         # allow nameless structs
         add_compile_options(/wd4201)
+        # ignore unreferenced local functions
+        add_compile_options(/wd4505)
         
         # treat warnings as errors for 32-bit builds
         if(CMAKE_SIZEOF_VOID_P EQUAL 4)
@@ -125,6 +129,16 @@ if(WIN32)
     list(GET SDL2_LIBRARY 0 SDL2_LIBRARY_HEAD)
     get_filename_component(SDL2_LIBRARY_DIR "${SDL2_LIBRARY_HEAD}" DIRECTORY)
     set(SDL2_DLL "${SDL2_LIBRARY_DIR}/SDL2.dll")
+endif()
+
+# add defines if certain C++11 features are supported
+# emulates write_compiler_detection_header() but doesn't create a file
+if(MSVC)
+    add_compile_options($<$<COMPILE_FEATURES:cxx_constexpr>:/DID_COMPILER_CXX_CONSTEXPR>)
+    add_compile_options($<$<COMPILE_FEATURES:cxx_nullptr>:/DID_COMPILER_CXX_NULLPTR>)
+else()
+    add_compile_options($<$<COMPILE_FEATURES:cxx_constexpr>:-DID_COMPILER_CXX_CONSTEXPR>)
+    add_compile_options($<$<COMPILE_FEATURES:cxx_nullptr>:-DID_COMPILER_CXX_NULLPTR>)
 endif()
 
 # doomclassic

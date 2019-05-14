@@ -33,6 +33,9 @@ If you have questions concerning this license or the applicable additional terms
 #include <io.h>
 #include <Shlobj.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include "../sys_local.h"
 #include "../sdl/sdl_local.h"
 #include "../../renderer/tr_local.h"

@@ -512,7 +512,8 @@ if(WIN32)
 endif()
 
 if(MSVC)
-    set_source_files_properties("sound/mojoal.c" PROPERTIES COMPILE_FLAGS "/W0")
+    set_source_files_properties("framework/miniz.c" PROPERTIES COMPILE_FLAGS /W0)
+    set_source_files_properties("sound/mojoal.c" PROPERTIES COMPILE_FLAGS /W0)
 endif()
 
 # copy shaders to target directory

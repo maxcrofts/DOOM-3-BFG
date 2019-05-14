@@ -48,6 +48,10 @@ static bool	winsockInitialized = false;
 #pragma comment(lib, "iphlpapi.lib" )
 #pragma comment(lib, "wsock32.lib" )
 
+#undef EWOULDBLOCK
+#undef EADDRNOTAVAIL
+#undef EAFNOSUPPORT
+#undef ECONNRESET
 #define EWOULDBLOCK WSAEWOULDBLOCK
 #define EADDRNOTAVAIL WSAEADDRNOTAVAIL
 #define EAFNOSUPPORT WSAEAFNOSUPPORT

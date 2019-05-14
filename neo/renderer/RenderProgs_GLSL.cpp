@@ -612,7 +612,7 @@ void ParseInOutStruct( idLexer & src, int attribType, idList< inOutVariable_t > 
 		}
 
 		// check if it was defined previously
-		var.declareInOut = var.nameGLSL.IcmpPrefix("gl_");
+		var.declareInOut = ( var.nameGLSL.IcmpPrefix("gl_") != 0 );
 		for ( int i = 0; i < inOutVars.Num(); i++ ) {
 			if ( var.nameGLSL == inOutVars[i].nameGLSL ) {
 				var.declareInOut = false;
