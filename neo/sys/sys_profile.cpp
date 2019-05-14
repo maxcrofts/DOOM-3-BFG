@@ -161,7 +161,7 @@ void idProfileMgr::SaveSettingsAsync() {
 
 
 			profileSaveProcessor->AddCompletedCallback( MakeCallback( this, &idProfileMgr::OnSaveSettingsCompleted, &profileSaveProcessor->GetParmsNonConst() ) );
-			handle = session->GetSaveGameManager().ExecuteProcessor( profileSaveProcessor.get() );
+			handle = session->GetSaveGameManager().ExecuteProcessor( profileSaveProcessor.Get() );
 			profile->SetState( idPlayerProfile::SAVING );
 
 		}
@@ -182,7 +182,7 @@ void idProfileMgr::LoadSettingsAsync() {
 			profileLoadProcessor->SetSkipSystemErrorDialogMask( SAVEGAME_E_FOLDER_NOT_FOUND | SAVEGAME_E_FILE_NOT_FOUND );
 
 			profileLoadProcessor->AddCompletedCallback( MakeCallback( this, &idProfileMgr::OnLoadSettingsCompleted, &profileLoadProcessor->GetParmsNonConst() ) );
-			handle = session->GetSaveGameManager().ExecuteProcessor( profileLoadProcessor.get() );
+			handle = session->GetSaveGameManager().ExecuteProcessor( profileLoadProcessor.Get() );
 			profile->SetState( idPlayerProfile::LOADING );
 
 

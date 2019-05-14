@@ -61,8 +61,8 @@ private:
 	void				OnSaveSettingsCompleted( idSaveLoadParms * parms );
 
 private:
-	std::auto_ptr< idSaveGameProcessorSaveProfile >	profileSaveProcessor;
-	std::auto_ptr< idSaveGameProcessorLoadProfile >	profileLoadProcessor;
+	idAutoPtr< idSaveGameProcessorSaveProfile >	profileSaveProcessor;
+	idAutoPtr< idSaveGameProcessorLoadProfile >	profileLoadProcessor;
 
 	idLocalUser *						user;					// reference passed in
 	idPlayerProfile *					profile;				

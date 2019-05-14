@@ -83,8 +83,20 @@ bool IsSignedType( const _type_ t ) {
 template<class T> T	Max( T x, T y ) { return ( x > y ) ? x : y; }
 template<class T> T	Min( T x, T y ) { return ( x < y ) ? x : y; }
 
-
 class idFile;
+
+template< typename _type_ >
+class idAutoPtr {
+public:
+	idAutoPtr( _type_ *p ) : ptr( p ) { }
+	~idAutoPtr() { delete ptr; }
+	_type_ & operator*() const { return *ptr; }
+	_type_ * operator->() const { return ptr; }
+	_type_ * Get() const { return ptr; }
+
+private:
+	_type_ *ptr;
+};
 
 struct idNullPtr {
 	// one pointer member initialized to zero so you can pass NULL as a vararg
