@@ -5,12 +5,6 @@ endif()
 cmake_minimum_required(VERSION 3.6)
 project(doom3)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
-
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(CLANG 1)
-endif()
-
 macro(add_precompiled_header FILES USE_PCH PRECOMPILED_HEADER PRECOMPILED_SOURCE)
     if(MSVC)
         if(CLANG)
@@ -31,6 +25,14 @@ macro(add_precompiled_header FILES USE_PCH PRECOMPILED_HEADER PRECOMPILED_SOURCE
         list(APPEND ${FILES} ${PRECOMPILED_SOURCE})
     endif()
 endmacro()
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED NO)
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set(CLANG 1)
+endif()
 
 # MSVC compile options
 if(MSVC)
@@ -75,7 +77,6 @@ endif()
 # GCC compile options
 if(CLANG OR NOT MSVC)
     if(NOT MSVC) # not clang-cl
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
         add_compile_options(-Wall -Wextra)
     endif()
     
@@ -113,6 +114,13 @@ if(CLANG OR NOT MSVC)
     )
 endif()
 
+# add defines if certain C++11 features are supported
+# emulates write_compiler_detection_header() but doesn't create a file
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
+    $<$<COMPILE_FEATURES:cxx_constexpr>:ID_COMPILER_CXX_CONSTEXPR>
+    $<$<COMPILE_FEATURES:cxx_nullptr>:ID_COMPILER_CXX_NULLPTR>
+)
+
 # OpenGL
 find_package(OpenGL REQUIRED)
 
@@ -129,16 +137,6 @@ if(WIN32)
     list(GET SDL2_LIBRARY 0 SDL2_LIBRARY_HEAD)
     get_filename_component(SDL2_LIBRARY_DIR "${SDL2_LIBRARY_HEAD}" DIRECTORY)
     set(SDL2_DLL "${SDL2_LIBRARY_DIR}/SDL2.dll")
-endif()
-
-# add defines if certain C++11 features are supported
-# emulates write_compiler_detection_header() but doesn't create a file
-if(MSVC)
-    add_compile_options($<$<COMPILE_FEATURES:cxx_constexpr>:/DID_COMPILER_CXX_CONSTEXPR>)
-    add_compile_options($<$<COMPILE_FEATURES:cxx_nullptr>:/DID_COMPILER_CXX_NULLPTR>)
-else()
-    add_compile_options($<$<COMPILE_FEATURES:cxx_constexpr>:-DID_COMPILER_CXX_CONSTEXPR>)
-    add_compile_options($<$<COMPILE_FEATURES:cxx_nullptr>:-DID_COMPILER_CXX_NULLPTR>)
 endif()
 
 # doomclassic
