@@ -125,18 +125,30 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
 find_package(OpenGL REQUIRED)
 
 # SDL2
-if(WIN32)
-    file(GLOB SDL2DIRS "external/SDL2-*")
-    list(GET SDL2DIRS 0 SDL2DIR)
-    set(ENV{SDL2DIR} "${SDL2DIR}")
-endif()
+if(MSVC)
+    # try to find SDL2
+    file(GLOB SDL2DIRS "${CMAKE_BINARY_DIR}/SDL2-*")
+    list(LENGTH SDL2DIRS SDL2DIRS_LENGTH)
+    if(SDL2DIRS_LENGTH GREATER 0)
+        list(GET SDL2DIRS 0 SDL2DIR)
+        set(ENV{SDL2DIR} "${SDL2DIR}")
+    endif()
+    find_package(SDL2)
 
-find_package(SDL2 REQUIRED)
-
-if(WIN32)
+    if(NOT SDL2_FOUND) # if we can't find it...
+        # download it
+        set(SDL2_VERSION "2.0.9")
+        file(DOWNLOAD "https://www.libsdl.org/release/SDL2-devel-${SDL2_VERSION}-VC.zip" "${CMAKE_BINARY_DIR}/SDL2-devel-${SDL2_VERSION}-VC.zip")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf "${CMAKE_BINARY_DIR}/SDL2-devel-${SDL2_VERSION}-VC.zip")
+        set(ENV{SDL2DIR} "${CMAKE_BINARY_DIR}/SDL2-${SDL2_VERSION}")
+        find_package(SDL2 REQUIRED)
+    endif()
+    
     list(GET SDL2_LIBRARY 0 SDL2_LIBRARY_HEAD)
     get_filename_component(SDL2_LIBRARY_DIR "${SDL2_LIBRARY_HEAD}" DIRECTORY)
     set(SDL2_DLL "${SDL2_LIBRARY_DIR}/SDL2.dll")
+else()
+    find_package(SDL2 REQUIRED)
 endif()
 
 # doomclassic
