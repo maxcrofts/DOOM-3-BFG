@@ -64,14 +64,14 @@ If you have questions concerning this license or the applicable additional terms
 
 // decls
 #include "../framework/TokenParser.h"
-#include "../framework/DeclManager.h"
-#include "../framework/DeclTable.h"
-#include "../framework/DeclSkin.h"
-#include "../framework/DeclEntityDef.h"
-#include "../framework/DeclFX.h"
-#include "../framework/DeclParticle.h"
-#include "../framework/DeclAF.h"
-#include "../framework/DeclPDA.h"
+#include "../framework/decls/DeclManager.h"
+#include "../framework/decls/DeclTable.h"
+#include "../framework/decls/DeclSkin.h"
+#include "../framework/decls/DeclEntityDef.h"
+#include "../framework/decls/DeclFX.h"
+#include "../framework/decls/DeclParticle.h"
+#include "../framework/decls/DeclAF.h"
+#include "../framework/decls/DeclPDA.h"
 
 // We have expression parsing and evaluation code in multiple places:
 // materials, sound shaders, and guis. We should unify them.

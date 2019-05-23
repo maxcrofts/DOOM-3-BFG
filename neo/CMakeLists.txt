@@ -1,11 +1,13 @@
-# idLib
-add_subdirectory("idlib")
-
-# Game-d3xp
-add_subdirectory("d3xp")
-
 # Doom3BFG
-set(DOOM3BFG_AAS_FILES
+add_executable(Doom3BFG WIN32 $<TARGET_OBJECTS:Game-d3xp>)
+target_include_directories(Doom3BFG PUBLIC ${SDL2_INCLUDE_DIR})
+target_link_libraries(Doom3BFG Game-d3xp idLib doomclassic timidity)
+target_link_libraries(Doom3BFG ${SDL2_LIBRARY} ${SDL2MAIN_LIBRARY} ${OPENGL_LIBRARIES})
+if(WIN32)
+    target_link_libraries(Doom3BFG Dbghelp.lib winmm.lib)
+endif()
+
+target_sources(Doom3BFG PRIVATE
     "aas/AASFile.cpp"
     "aas/AASFile.h"
     "aas/AASFile_local.h"
@@ -13,11 +15,6 @@ set(DOOM3BFG_AAS_FILES
     "aas/AASFile_sample.cpp"
     "aas/AASFileManager.cpp"
     "aas/AASFileManager.h"
-)
-source_group("AAS" FILES ${DOOM3BFG_AAS_FILES})
-set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_AAS_FILES})
-
-set(DOOM3BFG_CM_FILES
     "cm/CollisionModel.h"
     "cm/CollisionModel_contacts.cpp"
     "cm/CollisionModel_contents.cpp"
@@ -28,11 +25,22 @@ set(DOOM3BFG_CM_FILES
     "cm/CollisionModel_rotate.cpp"
     "cm/CollisionModel_trace.cpp"
     "cm/CollisionModel_translate.cpp"
-)
-source_group("CM" FILES ${DOOM3BFG_CM_FILES})
-set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_CM_FILES})
-
-set(DOOM3BFG_FRAMEWORK_FILES
+    "framework/decls/DeclAF.cpp"
+    "framework/decls/DeclAF.h"
+    "framework/decls/DeclEntityDef.cpp"
+    "framework/decls/DeclEntityDef.h"
+    "framework/decls/DeclFX.cpp"
+    "framework/decls/DeclFX.h"
+    "framework/decls/DeclManager.cpp"
+    "framework/decls/DeclManager.h"
+    "framework/decls/DeclParticle.cpp"
+    "framework/decls/DeclParticle.h"
+    "framework/decls/DeclPDA.cpp"
+    "framework/decls/DeclPDA.h"
+    "framework/decls/DeclSkin.cpp"
+    "framework/decls/DeclSkin.h"
+    "framework/decls/DeclTable.cpp"
+    "framework/decls/DeclTable.h"
     "framework/BuildVersion.h"
     "framework/CmdSystem.cpp"
     "framework/CmdSystem.h"
@@ -78,8 +86,6 @@ set(DOOM3BFG_FRAMEWORK_FILES
     "framework/KeyInput.cpp"
     "framework/KeyInput.h"
     "framework/Licensee.h"
-    "framework/miniz.c"
-    "framework/miniz.h"
     "framework/PlayerProfile.cpp"
     "framework/PlayerProfile.h"
     "framework/Serializer.h"
@@ -91,32 +97,13 @@ set(DOOM3BFG_FRAMEWORK_FILES
     "framework/UsercmdGen.h"
     "framework/Zip.cpp"
     "framework/Zip.h"
-)
-source_group("Framework" FILES ${DOOM3BFG_FRAMEWORK_FILES})
-set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_FRAMEWORK_FILES})
-
-set(DOOM3BFG_FRAMEWORK_DECLS_FILES
-    "framework/DeclAF.cpp"
-    "framework/DeclAF.h"
-    "framework/DeclEntityDef.cpp"
-    "framework/DeclEntityDef.h"
-    "framework/DeclFX.cpp"
-    "framework/DeclFX.h"
-    "framework/DeclManager.cpp"
-    "framework/DeclManager.h"
-    "framework/DeclParticle.cpp"
-    "framework/DeclParticle.h"
-    "framework/DeclPDA.cpp"
-    "framework/DeclPDA.h"
-    "framework/DeclSkin.cpp"
-    "framework/DeclSkin.h"
-    "framework/DeclTable.cpp"
-    "framework/DeclTable.h"
-)
-source_group("Framework\\Decls" FILES ${DOOM3BFG_FRAMEWORK_DECLS_FILES})
-set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_FRAMEWORK_DECLS_FILES})
-
-set(DOOM3BFG_RENDERER_FILES
+    "renderer/Color/ColorSpace.cpp"
+    "renderer/Color/ColorSpace.h"
+    "renderer/DXT/DXTCodec.h"
+    "renderer/DXT/DXTCodec_local.h"
+    "renderer/DXT/DXTDecoder.cpp"
+    "renderer/DXT/DXTEncoder.cpp"
+    "renderer/DXT/DXTEncoder_SSE2.cpp"
     "renderer/AutoRender.cpp"
     "renderer/AutoRender.h"
     "renderer/AutoRenderBink.cpp"
@@ -207,59 +194,6 @@ set(DOOM3BFG_RENDERER_FILES
     "renderer/tr_trisurf.cpp"
     "renderer/VertexCache.cpp"
     "renderer/VertexCache.h"
-)
-source_group("Renderer" FILES ${DOOM3BFG_RENDERER_FILES})
-set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_RENDERER_FILES})
-
-set(DOOM3BFG_RENDERER_COLOR_FILES
-    "renderer/Color/ColorSpace.cpp"
-    "renderer/Color/ColorSpace.h"
-)
-source_group("Renderer\\Color" FILES ${DOOM3BFG_RENDERER_COLOR_FILES})
-set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_RENDERER_COLOR_FILES})
-
-set(DOOM3BFG_RENDERER_DXT_FILES
-    "renderer/DXT/DXTCodec.h"
-    "renderer/DXT/DXTCodec_local.h"
-    "renderer/DXT/DXTDecoder.cpp"
-    "renderer/DXT/DXTEncoder.cpp"
-    "renderer/DXT/DXTEncoder_SSE2.cpp"
-)
-source_group("Renderer\\DXT" FILES ${DOOM3BFG_RENDERER_DXT_FILES})
-set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_RENDERER_DXT_FILES})
-
-set(DOOM3BFG_RENDERER_JOBS_FILES
-    "renderer/jobs/ShadowShared.cpp"
-    "renderer/jobs/ShadowShared.h"
-)
-source_group("Renderer\\Jobs" FILES ${DOOM3BFG_RENDERER_JOBS_FILES})
-set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_RENDERER_JOBS_FILES})
-
-set(DOOM3BFG_RENDERER_JOBS_DYNAMICSHADOWVOLUME_FILES
-    "renderer/jobs/dynamicshadowvolume/DynamicShadowVolume.cpp"
-    "renderer/jobs/dynamicshadowvolume/DynamicShadowVolume.h"
-    "renderer/jobs/dynamicshadowvolume/DynamicShadowVolume_local.h"
-)
-source_group("Renderer\\Jobs\\DynamicShadowVolume" FILES ${DOOM3BFG_RENDERER_JOBS_DYNAMICSHADOWVOLUME_FILES})
-set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_RENDERER_JOBS_DYNAMICSHADOWVOLUME_FILES})
-
-set(DOOM3BFG_RENDERER_JOBS_PRELIGHTSHADOWVOLUME_FILES
-    "renderer/jobs/prelightshadowvolume/PreLightShadowVolume.cpp"
-    "renderer/jobs/prelightshadowvolume/PreLightShadowVolume.h"
-    "renderer/jobs/prelightshadowvolume/PreLightShadowVolume_local.h"
-)
-source_group("Renderer\\Jobs\\PreLightShadowVolume" FILES ${DOOM3BFG_RENDERER_JOBS_PRELIGHTSHADOWVOLUME_FILES})
-set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_RENDERER_JOBS_PRELIGHTSHADOWVOLUME_FILES})
-
-set(DOOM3BFG_RENDERER_JOBS_STATICSHADOWVOLUME_FILES
-    "renderer/jobs/staticshadowvolume/StaticShadowVolume.cpp"
-    "renderer/jobs/staticshadowvolume/StaticShadowVolume.h"
-    "renderer/jobs/staticshadowvolume/StaticShadowVolume_local.h"
-)
-source_group("Renderer\\Jobs\\StaticShadowVolume" FILES ${DOOM3BFG_RENDERER_JOBS_STATICSHADOWVOLUME_FILES})
-set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_RENDERER_JOBS_STATICSHADOWVOLUME_FILES})
-
-set(DOOM3BFG_RENDERER_OPENGL_FILES
     "renderer/OpenGL/gl_backend.cpp"
     "renderer/OpenGL/gl_GraphicsAPIWrapper.cpp"
     "renderer/OpenGL/gl_image.cpp"
@@ -267,12 +201,14 @@ set(DOOM3BFG_RENDERER_OPENGL_FILES
     "renderer/OpenGL/qgl.h"
     "renderer/OpenGL/qgl_linked.h"
     "renderer/OpenGL/wglext.h"
-)
-source_group("Renderer\\OpenGL" FILES ${DOOM3BFG_RENDERER_OPENGL_FILES})
-set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_RENDERER_OPENGL_FILES})
-
-set(DOOM3BFG_SOUND_FILES
-    "sound/mojoal.c"
+    "sound/AL/al.h"
+    "sound/AL/alc.h"
+    "sound/OpenAL/AL_SoundHardware.cpp"
+    "sound/OpenAL/AL_SoundHardware.h"
+    "sound/OpenAL/AL_SoundSample.cpp"
+    "sound/OpenAL/AL_SoundSample.h"
+    "sound/OpenAL/AL_SoundVoice.cpp"
+    "sound/OpenAL/AL_SoundVoice.h"
     "sound/snd_emitter.cpp"
     "sound/snd_local.h"
     "sound/snd_shader.cpp"
@@ -283,29 +219,6 @@ set(DOOM3BFG_SOUND_FILES
     "sound/SoundVoice.h"
     "sound/WaveFile.cpp"
     "sound/WaveFile.h"
-)
-source_group("Sound" FILES ${DOOM3BFG_SOUND_FILES})
-set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_SOUND_FILES})
-
-set(DOOM3BFG_SOUND_AL_FILES
-    "sound/AL/al.h"
-    "sound/AL/alc.h"
-)
-source_group("Sound\\AL" FILES ${DOOM3BFG_SOUND_AL_FILES})
-set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_SOUND_AL_FILES})
-
-set(DOOM3BFG_SOUND_OPENAL_FILES
-    "sound/OpenAL/AL_SoundHardware.cpp"
-    "sound/OpenAL/AL_SoundHardware.h"
-    "sound/OpenAL/AL_SoundSample.cpp"
-    "sound/OpenAL/AL_SoundSample.h"
-    "sound/OpenAL/AL_SoundVoice.cpp"
-    "sound/OpenAL/AL_SoundVoice.h"
-)
-source_group("Sound\\OpenAL" FILES ${DOOM3BFG_SOUND_OPENAL_FILES})
-set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_SOUND_OPENAL_FILES})
-
-set(DOOM3BFG_SWF_FILES
     "swf/SWF.h"
     "swf/SWF_Bitstream.cpp"
     "swf/SWF_Bitstream.h"
@@ -339,11 +252,6 @@ set(DOOM3BFG_SWF_FILES
     "swf/SWF_TextInstance.h"
     "swf/SWF_Types.h"
     "swf/SWF_Zlib.cpp"
-)
-source_group("SWF" FILES ${DOOM3BFG_SWF_FILES})
-set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_SWF_FILES})
-
-set(DOOM3BFG_UI_FILES
     "ui/BindWindow.cpp"
     "ui/BindWindow.h"
     "ui/ChoiceWindow.cpp"
@@ -383,11 +291,19 @@ set(DOOM3BFG_UI_FILES
     "ui/Window.h"
     "ui/Winvar.cpp"
     "ui/Winvar.h"
-)
-source_group("Ui" FILES ${DOOM3BFG_UI_FILES})
-set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_UI_FILES})
-
-set(DOOM3BFG_SYS_FILES
+    "sys/sdl/sdl_glimp.cpp"
+    "sys/sdl/sdl_input.cpp"
+    "sys/sdl/sdl_local.h"
+    "sys/sdl/sdl_localuser.cpp"
+    "sys/sdl/sdl_localuser.h"
+    "sys/sdl/sdl_main.cpp"
+    "sys/sdl/sdl_savegame.cpp"
+    "sys/sdl/sdl_shared.cpp"
+    "sys/sdl/sdl_signin.cpp"
+    "sys/sdl/sdl_signin.h"
+    "sys/stub/stub_achievements.cpp"
+    "sys/stub/stub_achievements.h"
+    "sys/stub/stub_session_local.cpp"
     "sys/LightweightCompression.cpp"
     "sys/LightweightCompression.h"
     "sys/PacketProcessor.cpp"
@@ -434,82 +350,43 @@ set(DOOM3BFG_SYS_FILES
     "sys/sys_voicechat.cpp"
     "sys/sys_voicechat.h"
 )
-source_group("Sys" FILES ${DOOM3BFG_SYS_FILES})
-set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_SYS_FILES})
-
-set(DOOM3BFG_SYS_SDL_FILES
-    "sys/sdl/sdl_glimp.cpp"
-    "sys/sdl/sdl_input.cpp"
-    "sys/sdl/sdl_local.h"
-    "sys/sdl/sdl_localuser.cpp"
-    "sys/sdl/sdl_localuser.h"
-    "sys/sdl/sdl_main.cpp"
-    "sys/sdl/sdl_savegame.cpp"
-    "sys/sdl/sdl_shared.cpp"
-    "sys/sdl/sdl_signin.cpp"
-    "sys/sdl/sdl_signin.h"
-)
-source_group("Sys\\SDL" FILES ${DOOM3BFG_SYS_SDL_FILES})
-set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_SYS_SDL_FILES})
-
-set(DOOM3BFG_SYS_STUB_FILES
-    "sys/stub/stub_achievements.cpp"
-    "sys/stub/stub_achievements.h"
-    "sys/stub/stub_session_local.cpp"
-)
-source_group("Sys\\Stub" FILES ${DOOM3BFG_SYS_STUB_FILES})
-set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_SYS_STUB_FILES})
 
 if(WIN32)
-    set(DOOM3BFG_SYS_RC_FILES
+    target_sources(Doom3BFG PRIVATE
+        "sys/win32/rc/res/doom.ico"
         "sys/win32/rc/doom.rc"
         "sys/win32/rc/doom_resource.h"
-    )
-    source_group("Sys\\RC" FILES ${DOOM3BFG_SYS_RC_FILES})
-    set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_SYS_RC_FILES})
-
-    set(DOOM3BFG_SYS_RC_RES_FILES
-        "sys/win32/rc/res/doom.ico"
-    )
-    source_group("Sys\\RC\\res" FILES ${DOOM3BFG_SYS_RC_RES_FILES})
-    set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_SYS_RC_RES_FILES})
-
-    set(DOOM3BFG_SYS_WIN32_FILES
         "sys/win32/win_main.cpp"
         "sys/win32/win_syscon.cpp"
     )
-    source_group("Sys\\Win32" FILES ${DOOM3BFG_SYS_WIN32_FILES})
-    set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_SYS_WIN32_FILES})
 else()
-    set(DOOM3BFG_SYS_POSIX_FILES
+    target_sources(Doom3BFG PRIVATE
         "sys/posix/posix_main.cpp"
         "sys/posix/posix_syscon.cpp"
     )
-    source_group("Sys\\Posix" FILES ${DOOM3BFG_SYS_POSIX_FILES})
-    set(DOOM3BFG_FILES ${DOOM3BFG_FILES} ${DOOM3BFG_SYS_POSIX_FILES})
 endif()
 
-# precompiled headers
-set(DOOM3BFG_USE_PRECOMPILED_HEADER ${DOOM3BFG_FILES})
-list(REMOVE_ITEM DOOM3BFG_USE_PRECOMPILED_HEADER
+target_pch(Doom3BFG "../idlib/precompiled.h" "framework/precompiled.cpp")
+
+target_sources(Doom3BFG PRIVATE
     "framework/miniz.c"
-    "renderer/jobs/ShadowShared.cpp"
+    "framework/miniz.h"
     "renderer/jobs/dynamicshadowvolume/DynamicShadowVolume.cpp"
+    "renderer/jobs/dynamicshadowvolume/DynamicShadowVolume.h"
+    "renderer/jobs/dynamicshadowvolume/DynamicShadowVolume_local.h"
     "renderer/jobs/prelightshadowvolume/PreLightShadowVolume.cpp"
+    "renderer/jobs/prelightshadowvolume/PreLightShadowVolume.h"
+    "renderer/jobs/prelightshadowvolume/PreLightShadowVolume_local.h"
     "renderer/jobs/staticshadowvolume/StaticShadowVolume.cpp"
+    "renderer/jobs/staticshadowvolume/StaticShadowVolume.h"
+    "renderer/jobs/staticshadowvolume/StaticShadowVolume_local.h"
+    "renderer/jobs/ShadowShared.cpp"
+    "renderer/jobs/ShadowShared.h"
     "sound/mojoal.c"
 )
 
-add_precompiled_header(DOOM3BFG_FILES DOOM3BFG_USE_PRECOMPILED_HEADER "../idlib/precompiled.h" "framework/precompiled.cpp")
-source_group("Framework" FILES "framework/precompiled.cpp")
-
-add_executable(Doom3BFG WIN32 ${DOOM3BFG_FILES} $<TARGET_OBJECTS:Game-d3xp>)
-target_include_directories(Doom3BFG PUBLIC ${SDL2_INCLUDE_DIR})
-target_link_libraries(Doom3BFG idLib doomclassic timidity)
-target_link_libraries(Doom3BFG ${SDL2_LIBRARY} ${SDL2MAIN_LIBRARY} ${OPENGL_LIBRARIES})
-if(WIN32)
-    target_link_libraries(Doom3BFG Dbghelp.lib winmm.lib)
-endif()
+get_target_property(DOOM3BFG_SOURCES Doom3BFG SOURCES)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${DOOM3BFG_SOURCES})
 
 if(MSVC)
     set_source_files_properties("framework/miniz.c" PROPERTIES COMPILE_FLAGS /W0)
@@ -533,3 +410,9 @@ if(SDL2_DLL)
         ARGS -E copy ${SDL2_DLL} $<TARGET_FILE_DIR:Doom3BFG>
     )
 endif()
+
+# idLib
+add_subdirectory("idlib")
+
+# Game-d3xp
+add_subdirectory("d3xp")

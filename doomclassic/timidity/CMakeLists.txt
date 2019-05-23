@@ -1,5 +1,11 @@
 # timidity
-set(TIMIDITY_FILES
+add_library(timidity ${TIMIDITY_FILES})
+target_include_directories(timidity PUBLIC ${SDL2_INCLUDE_DIR})
+if(MSVC)
+    target_compile_options(timidity PRIVATE /WX-)
+endif()
+
+target_sources(timidity PRIVATE
     "common.cpp"
     "common.h"
     "config.h"
@@ -27,11 +33,6 @@ set(TIMIDITY_FILES
     "timidity.cpp"
     "timidity.h"
 )
-source_group("" FILES ${TIMIDITY_FILES})
 
-add_library(timidity ${TIMIDITY_FILES})
-target_include_directories(timidity PUBLIC ${SDL2_INCLUDE_DIR})
-
-if(MSVC)
-    target_compile_options(timidity PRIVATE /WX-)
-endif()
+get_target_property(TIMIDITY_SOURCES timidity SOURCES)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${TIMIDITY_SOURCES})

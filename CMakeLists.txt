@@ -2,10 +2,10 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
     message(FATAL_ERROR "Prevented in-source build. Please make a build subdirectory and run CMake from there.")
 endif()
 
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.8)
 project(doom3)
 
-macro(add_precompiled_header FILES USE_PCH PRECOMPILED_HEADER PRECOMPILED_SOURCE)
+macro(target_pch TARGET PRECOMPILED_HEADER PRECOMPILED_SOURCE)
     if(MSVC)
         if(CLANG)
             get_filename_component(PRECOMPILED_SOURCE_ABS "${PRECOMPILED_SOURCE}" ABSOLUTE BASE_DIR "${CMAKE_CURRENT_LIST_DIR}")
@@ -15,14 +15,14 @@ macro(add_precompiled_header FILES USE_PCH PRECOMPILED_HEADER PRECOMPILED_SOURCE
             set(PCH "${PRECOMPILED_HEADER}")
         endif()
 
-        set(SOURCES ${${USE_PCH}})
+        get_target_property(SOURCES ${TARGET} SOURCES)
         list(FILTER SOURCES INCLUDE REGEX ".+\\.(c|cpp|h)$")
 
         set_source_files_properties(${PRECOMPILED_SOURCE} PROPERTIES COMPILE_FLAGS "/Yc\"${PCH}\"")
         set_source_files_properties(${SOURCES} PROPERTIES COMPILE_FLAGS "/Yu\"${PCH}\" /FI\"${PCH}\"")
 
-        # add precompiled header to FILES
-        list(APPEND ${FILES} ${PRECOMPILED_SOURCE})
+        # add precompiled header to sources
+        target_sources(${TARGET} PRIVATE ${PRECOMPILED_SOURCE})
     endif()
 endmacro()
 

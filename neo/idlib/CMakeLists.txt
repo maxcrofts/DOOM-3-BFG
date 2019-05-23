@@ -1,45 +1,14 @@
-set(IDLIB_FILES
-    "BitMsg.cpp"
-    "BitMsg.h"
-    "Callback.h"
-    "CommandLink.cpp"
-    "DataQueue.h"
-    "Dict.cpp"
-    "Dict.h"
-    "Heap.cpp"
-    "Heap.h"
-    "LangDict.cpp"
-    "LangDict.h"
-    "Lib.cpp"
-    "Lib.h"
-    "MapFile.cpp"
-    "MapFile.h"
-    "ParallelJobList.cpp"
-    "ParallelJobList.h"
-    "ParallelJobList_JobHeaders.h"
-    #"precompiled.cpp"
-    "precompiled.h"
-    "RectAllocator.cpp"
-    "SoftwareCache.cpp"
-    "SoftwareCache.h"
-    "Swap.h"
-    "Thread.cpp"
-    "Thread.h"
-    "Timer.cpp"
-    "Timer.h"
-)
+# idLib
+add_library(idLib ${IDLIB_FILES})
+target_include_directories(idLib PUBLIC ${SDL2_INCLUDE_DIR})
 
-set(IDLIB_BV_FILES
+target_sources(idLib PRIVATE
     "bv/Bounds.cpp"
     "bv/Bounds.h"
     "bv/Box.cpp"
     "bv/Box.h"
     "bv/Sphere.cpp"
     "bv/Sphere.h"
-)
-set(IDLIB_FILES ${IDLIB_FILES} ${IDLIB_BV_FILES})
-
-set(IDLIB_CONTAINERS_FILES
     "containers/Array.h"
     "containers/BinSearch.h"
     "containers/BTree.h"
@@ -57,17 +26,11 @@ set(IDLIB_CONTAINERS_FILES
     "containers/StrList.h"
     "containers/StrPool.h"
     "containers/VectorSet.h"
-)
-set(IDLIB_FILES ${IDLIB_FILES} ${IDLIB_CONTAINERS_FILES})
-
-set(IDLIB_GEOMETRY_FILES
     "geometry/DrawVert.cpp"
     "geometry/DrawVert.h"
     "geometry/DrawVert_intrinsics.h"
     "geometry/JointTransform.cpp"
     "geometry/JointTransform.h"
-    "geometry/RenderMatrix.cpp"
-    "geometry/RenderMatrix.h"
     "geometry/Surface.cpp"
     "geometry/Surface.h"
     "geometry/Surface_Patch.cpp"
@@ -82,20 +45,12 @@ set(IDLIB_GEOMETRY_FILES
     "geometry/Winding.h"
     "geometry/Winding2D.cpp"
     "geometry/Winding2D.h"
-)
-set(IDLIB_FILES ${IDLIB_FILES} ${IDLIB_GEOMETRY_FILES})
-
-set(IDLIB_HASHING_FILES
     "hashing/CRC32.cpp"
     "hashing/CRC32.h"
     "hashing/MD4.cpp"
     "hashing/MD4.h"
     "hashing/MD5.cpp"
     "hashing/MD5.h"
-)
-set(IDLIB_FILES ${IDLIB_FILES} ${IDLIB_HASHING_FILES})
-
-set(IDLIB_MATH_FILES
     "math/Angles.cpp"
     "math/Angles.h"
     "math/Complex.cpp"
@@ -134,10 +89,7 @@ set(IDLIB_MATH_FILES
     "math/Vector.h"
     "math/VecX.cpp"
     "math/VecX.h"
-)
-set(IDLIB_FILES ${IDLIB_FILES} ${IDLIB_MATH_FILES})
-
-set(IDLIB_SYS_FILES
+    "sys/sdl/sdl_thread.cpp"
     "sys/sys_alloc_tags.h"
     "sys/sys_assert.cpp"
     "sys/sys_assert.h"
@@ -149,48 +101,54 @@ set(IDLIB_SYS_FILES
     "sys/sys_intrinsics.h"
     "sys/sys_threading.h"
     "sys/sys_types.h"
+    "text/Base64.cpp"
+    "text/Base64.h"
+    "text/CmdArgs.cpp"
+    "text/CmdArgs.h"
+    "text/Lexer.cpp"
+    "text/Lexer.h"
+    "text/Parser.cpp"
+    "text/Parser.h"
+    "text/Str.cpp"
+    "text/Str.h"
+    "text/StrStatic.h"
+    "text/Token.cpp"
+    "text/Token.h"
+    "BitMsg.cpp"
+    "BitMsg.h"
+    "Callback.h"
+    "CommandLink.cpp"
+    "DataQueue.h"
+    "Dict.cpp"
+    "Dict.h"
+    "Heap.cpp"
+    "Heap.h"
+    "LangDict.cpp"
+    "LangDict.h"
+    "Lib.cpp"
+    "Lib.h"
+    "MapFile.cpp"
+    "MapFile.h"
+    "ParallelJobList.cpp"
+    "ParallelJobList.h"
+    "ParallelJobList_JobHeaders.h"
+    "precompiled.h"
+    "RectAllocator.cpp"
+    "Swap.h"
+    "Thread.cpp"
+    "Thread.h"
+    "Timer.cpp"
+    "Timer.h"
 )
-set(IDLIB_FILES ${IDLIB_FILES} ${IDLIB_SYS_FILES})
 
-set(IDLIB_SYS_SDL_FILES
-    "sys/sdl/sdl_thread.cpp"
-)
-set(IDLIB_FILES ${IDLIB_FILES} ${IDLIB_SYS_SDL_FILES})
+target_pch(idLib "precompiled.h" "precompiled.cpp")
 
-set(IDLIB_TEXT_FILES
-    "Base64.cpp"
-    "Base64.h"
-    "CmdArgs.cpp"
-    "CmdArgs.h"
-    "Lexer.cpp"
-    "Lexer.h"
-    "Parser.cpp"
-    "Parser.h"
-    "Str.cpp"
-    "Str.h"
-    "StrStatic.h"
-    "Token.cpp"
-    "Token.h"
-)
-set(IDLIB_FILES ${IDLIB_FILES} ${IDLIB_TEXT_FILES})
-
-set(IDLIB_USE_PRECOMPILED_HEADER ${IDLIB_FILES})
-list(REMOVE_ITEM IDLIB_USE_PRECOMPILED_HEADER
-    "idlib/SoftwareCache.cpp"
-    "idlib/geometry/RenderMatrix.cpp"
+target_sources(idLib PRIVATE
+    "geometry/RenderMatrix.cpp"
+    "geometry/RenderMatrix.h"
+    "SoftwareCache.cpp"
+    "SoftwareCache.h"
 )
 
-add_precompiled_header(IDLIB_FILES IDLIB_USE_PRECOMPILED_HEADER "precompiled.h" "precompiled.cpp")
-
-source_group("" FILES ${IDLIB_FILES})
-source_group("BV" FILES ${IDLIB_BV_FILES})
-source_group("Containers" FILES ${IDLIB_CONTAINERS_FILES})
-source_group("Geometry" FILES ${IDLIB_GEOMETRY_FILES})
-source_group("Hashing" FILES ${IDLIB_HASHING_FILES})
-source_group("Math" FILES ${IDLIB_MATH_FILES})
-source_group("Text" FILES ${IDLIB_TEXT_FILES})
-source_group("Sys" FILES ${IDLIB_SYS_FILES})
-source_group("Sys\\SDL" FILES ${IDLIB_SYS_SDL_FILES})
-
-add_library(idLib ${IDLIB_FILES})
-target_include_directories(idLib PUBLIC ${SDL2_INCLUDE_DIR})
+get_target_property(IDLIB_SOURCES idLib SOURCES)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${IDLIB_SOURCES})

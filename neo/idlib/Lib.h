@@ -276,13 +276,13 @@ public:
 #include "geometry/TraceModel.h"
 
 // text manipulation
-#include "Str.h"
-#include "StrStatic.h"
-#include "Token.h"
-#include "Lexer.h"
-#include "Parser.h"
-#include "Base64.h"
-#include "CmdArgs.h"
+#include "text/Str.h"
+#include "text/StrStatic.h"
+#include "text/Token.h"
+#include "text/Lexer.h"
+#include "text/Parser.h"
+#include "text/Base64.h"
+#include "text/CmdArgs.h"
 
 // containers
 #include "containers/Array.h"

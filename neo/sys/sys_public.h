@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SYS_PUBLIC__
 #define __SYS_PUBLIC__
 
-#include "../idlib/CmdArgs.h"
+#include "../idlib/text/CmdArgs.h"
 
 /*
 ===============================================================================

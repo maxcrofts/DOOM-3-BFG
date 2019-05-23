@@ -1,5 +1,11 @@
 # doomclassic
-set(DOOMCLASSIC_FILES
+add_library(doomclassic ${DOOMCLASSIC_FILES})
+target_include_directories(doomclassic PUBLIC "../neo" ${SDL2_INCLUDE_DIR} ${OPENAL_INCLUDE_DIR})
+if(MSVC)
+    target_compile_options(doomclassic PRIVATE /WX-)
+endif()
+
+target_sources(doomclassic PRIVATE
     "doom/am_map.cpp"
     "doom/am_map.h"
     "doom/constructs.h"
@@ -135,16 +141,11 @@ set(DOOMCLASSIC_FILES
     "doom/z_zone.cpp"
     "doom/z_zone.h"
 )
-source_group("Doom" FILES ${DOOMCLASSIC_FILES})
 
-add_precompiled_header(DOOMCLASSIC_FILES DOOMCLASSIC_FILES "Precompiled.h" "doom/Precompiled.cpp")
-source_group("Doom" FILES "doom/Precompiled.cpp")
+target_pch(doomclassic "Precompiled.h" "doom/Precompiled.cpp")
 
-add_library(doomclassic ${DOOMCLASSIC_FILES})
-target_include_directories(doomclassic PUBLIC "../neo" ${SDL2_INCLUDE_DIR} ${OPENAL_INCLUDE_DIR})
+get_target_property(DOOMCLASSIC_SOURCES doomclassic SOURCES)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/doom FILES ${DOOMCLASSIC_SOURCES})
 
-if(MSVC)
-    target_compile_options(doomclassic PRIVATE /WX-)
-endif()
-
+# timidity
 add_subdirectory("timidity")
