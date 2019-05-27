@@ -26,7 +26,6 @@ macro(target_pch TARGET PRECOMPILED_HEADER PRECOMPILED_SOURCE)
     endif()
 endmacro()
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED NO)
 
@@ -127,26 +126,27 @@ find_package(OpenGL REQUIRED)
 # SDL2
 if(MSVC)
     # try to find SDL2
-    file(GLOB SDL2DIRS "${CMAKE_BINARY_DIR}/SDL2-*")
-    list(LENGTH SDL2DIRS SDL2DIRS_LENGTH)
-    if(SDL2DIRS_LENGTH GREATER 0)
-        list(GET SDL2DIRS 0 SDL2DIR)
-        set(ENV{SDL2DIR} "${SDL2DIR}")
-    endif()
-    find_package(SDL2)
-
-    if(NOT SDL2_FOUND) # if we can't find it...
+    file(GLOB SDL2_DIRS "${CMAKE_BINARY_DIR}/SDL2-*")
+    list(LENGTH SDL2_DIRS SDL2_DIRS_LENGTH)
+    if(SDL2_DIRS_LENGTH GREATER 0)
+        list(GET SDL2_DIRS 0 SDL2_DIR)
+    else() # if we can't find it...
         # download it
         set(SDL2_VERSION "2.0.9")
         file(DOWNLOAD "https://www.libsdl.org/release/SDL2-devel-${SDL2_VERSION}-VC.zip" "${CMAKE_BINARY_DIR}/SDL2-devel-${SDL2_VERSION}-VC.zip")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf "${CMAKE_BINARY_DIR}/SDL2-devel-${SDL2_VERSION}-VC.zip")
-        set(ENV{SDL2DIR} "${CMAKE_BINARY_DIR}/SDL2-${SDL2_VERSION}")
-        find_package(SDL2 REQUIRED)
+        set(SDL2_DIR "${CMAKE_BINARY_DIR}/SDL2-${SDL2_VERSION}")
     endif()
-    
-    list(GET SDL2_LIBRARY 0 SDL2_LIBRARY_HEAD)
-    get_filename_component(SDL2_LIBRARY_DIR "${SDL2_LIBRARY_HEAD}" DIRECTORY)
-    set(SDL2_DLL "${SDL2_LIBRARY_DIR}/SDL2.dll")
+
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(SDL2_LIBDIR "${SDL2_DIR}/lib/x64")
+    else()
+        set(SDL2_LIBDIR "${SDL2_DIR}/lib/x86")
+    endif()
+
+    set(SDL2_LIBRARIES "${SDL2_LIBDIR}/SDL2.lib;${SDL2_LIBDIR}/SDL2main.lib")
+    set(SDL2_INCLUDE_DIRS "${SDL2_DIR}/include")
+    set(SDL2_DLL "${SDL2_LIBDIR}/SDL2.dll")
 else()
     find_package(SDL2 REQUIRED)
 endif()

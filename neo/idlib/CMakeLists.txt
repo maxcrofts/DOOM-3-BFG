@@ -1,6 +1,6 @@
 # idLib
 add_library(idLib ${IDLIB_FILES})
-target_include_directories(idLib PUBLIC ${SDL2_INCLUDE_DIR})
+target_include_directories(idLib PUBLIC ${SDL2_INCLUDE_DIRS})
 
 target_sources(idLib PRIVATE
     "bv/Bounds.cpp"

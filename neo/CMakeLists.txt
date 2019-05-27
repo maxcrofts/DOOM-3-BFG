@@ -1,8 +1,8 @@
 # Doom3BFG
 add_executable(Doom3BFG WIN32 $<TARGET_OBJECTS:Game-d3xp>)
-target_include_directories(Doom3BFG PUBLIC ${SDL2_INCLUDE_DIR})
+target_include_directories(Doom3BFG PUBLIC ${SDL2_INCLUDE_DIRS})
 target_link_libraries(Doom3BFG Game-d3xp idLib doomclassic timidity)
-target_link_libraries(Doom3BFG ${SDL2_LIBRARY} ${SDL2MAIN_LIBRARY} ${OPENGL_LIBRARIES})
+target_link_libraries(Doom3BFG ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES})
 if(WIN32)
     target_link_libraries(Doom3BFG Dbghelp.lib winmm.lib)
 endif()

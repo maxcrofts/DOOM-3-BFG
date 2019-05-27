@@ -1,6 +1,6 @@
 # timidity
 add_library(timidity ${TIMIDITY_FILES})
-target_include_directories(timidity PUBLIC ${SDL2_INCLUDE_DIR})
+target_include_directories(timidity PUBLIC ${SDL2_INCLUDE_DIRS})
 if(MSVC)
     target_compile_options(timidity PRIVATE /WX-)
 endif()
