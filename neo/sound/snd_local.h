@@ -82,8 +82,8 @@ typedef enum {
 
 #define AL_LIBTYPE_STATIC
 
-#include "AL/al.h"
-#include "AL/alc.h"
+#include "../mojoal/AL/al.h"
+#include "../mojoal/AL/alc.h"
 #include "OpenAL/AL_SoundSample.h"
 #include "OpenAL/AL_SoundVoice.h"
 #include "OpenAL/AL_SoundHardware.h"

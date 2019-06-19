@@ -201,8 +201,6 @@ target_sources(Doom3BFG PRIVATE
     "renderer/OpenGL/qgl.h"
     "renderer/OpenGL/qgl_linked.h"
     "renderer/OpenGL/wglext.h"
-    "sound/AL/al.h"
-    "sound/AL/alc.h"
     "sound/OpenAL/AL_SoundHardware.cpp"
     "sound/OpenAL/AL_SoundHardware.h"
     "sound/OpenAL/AL_SoundSample.cpp"
@@ -371,6 +369,9 @@ target_pch(Doom3BFG "../idlib/precompiled.h" "framework/precompiled.cpp")
 target_sources(Doom3BFG PRIVATE
     "framework/miniz.c"
     "framework/miniz.h"
+    "mojoal/AL/al.h"
+    "mojoal/AL/alc.h"
+    "mojoal/mojoal.c"
     "renderer/jobs/dynamicshadowvolume/DynamicShadowVolume.cpp"
     "renderer/jobs/dynamicshadowvolume/DynamicShadowVolume.h"
     "renderer/jobs/dynamicshadowvolume/DynamicShadowVolume_local.h"
@@ -382,7 +383,6 @@ target_sources(Doom3BFG PRIVATE
     "renderer/jobs/staticshadowvolume/StaticShadowVolume_local.h"
     "renderer/jobs/ShadowShared.cpp"
     "renderer/jobs/ShadowShared.h"
-    "sound/mojoal.c"
 )
 
 get_target_property(DOOM3BFG_SOURCES Doom3BFG SOURCES)
@@ -390,7 +390,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${DOOM3BFG_SOURCES})
 
 if(MSVC)
     set_source_files_properties("framework/miniz.c" PROPERTIES COMPILE_FLAGS /W0)
-    set_source_files_properties("sound/mojoal.c" PROPERTIES COMPILE_FLAGS /W0)
+    set_source_files_properties("mojoal/mojoal.c" PROPERTIES COMPILE_FLAGS /W0)
 endif()
 
 # copy shaders to target directory
