@@ -124,22 +124,42 @@ void CopyBuffer( byte * dst, const byte * src, int numBytes ) {
 /*
 ================================================================================================
 
-	idVertexBuffer
+	idBufferObject
 
 ================================================================================================
 */
 
 /*
 ========================
-idVertexBuffer::idVertexBuffer
+idBufferObject::idBufferObject
 ========================
 */
-idVertexBuffer::idVertexBuffer() {
+idBufferObject::idBufferObject() {
 	size = 0;
 	offsetInOtherBuffer = OWNS_BUFFER_FLAG;
 	apiObject = 0;
 	SetUnmapped();
 }
+
+/*
+========================
+idBufferObject::ClearWithoutFreeing
+========================
+*/
+void idBufferObject::ClearWithoutFreeing() {
+	size = 0;
+	offsetInOtherBuffer = OWNS_BUFFER_FLAG;
+	apiObject = 0;
+}
+
+
+/*
+================================================================================================
+
+	idVertexBuffer
+
+================================================================================================
+*/
 
 /*
 ========================
@@ -353,35 +373,12 @@ void idVertexBuffer::UnmapBuffer() const {
 }
 
 /*
-========================
-idVertexBuffer::ClearWithoutFreeing
-========================
-*/
-void idVertexBuffer::ClearWithoutFreeing() {
-	size = 0;
-	offsetInOtherBuffer = OWNS_BUFFER_FLAG;
-	apiObject = 0;
-}
-
-/*
 ================================================================================================
 
 	idIndexBuffer
 
 ================================================================================================
 */
-
-/*
-========================
-idIndexBuffer::idIndexBuffer
-========================
-*/
-idIndexBuffer::idIndexBuffer() {
-	size = 0;
-	offsetInOtherBuffer = OWNS_BUFFER_FLAG;
-	apiObject = 0;
-	SetUnmapped();
-}
 
 /*
 ========================
@@ -598,59 +595,36 @@ void idIndexBuffer::UnmapBuffer() const {
 }
 
 /*
-========================
-idIndexBuffer::ClearWithoutFreeing
-========================
-*/
-void idIndexBuffer::ClearWithoutFreeing() {
-	size = 0;
-	offsetInOtherBuffer = OWNS_BUFFER_FLAG;
-	apiObject = 0;
-}
-
-/*
 ================================================================================================
 
-	idJointBuffer
+	idUniformBuffer
 
 ================================================================================================
 */
 
 /*
 ========================
-idJointBuffer::idJointBuffer
+idUniformBuffer::idUniformBufferer
 ========================
 */
-idJointBuffer::idJointBuffer() {
-	numJoints = 0;
-	offsetInOtherBuffer = OWNS_BUFFER_FLAG;
-	apiObject = 0;
-	SetUnmapped();
-}
-
-/*
-========================
-idJointBuffer::~idJointBuffer
-========================
-*/
-idJointBuffer::~idJointBuffer() {
+idUniformBuffer::~idUniformBuffer() {
 	FreeBufferObject();
 }
 
 /*
 ========================
-idJointBuffer::AllocBufferObject
+idUniformBuffer::AllocBufferObject
 ========================
 */
-bool idJointBuffer::AllocBufferObject( const float * joints, int numAllocJoints ) {
+bool idUniformBuffer::AllocBufferObject( const void * data, int allocSize ) {
 	assert( apiObject == NULL );
-	assert_16_byte_aligned( joints );
+	assert_16_byte_aligned( data );
 
-	if ( numAllocJoints <= 0 ) {
-		idLib::Error( "idJointBuffer::AllocBufferObject: joints = %i", numAllocJoints );
+	if ( allocSize <= 0 ) {
+		idLib::Error( "idUniformBuffer::AllocBufferObject: allocSize = %i", allocSize );
 	}
 
-	numJoints = numAllocJoints;
+	size = allocSize;
 
 	bool allocationFailed = false;
 
@@ -664,12 +638,12 @@ bool idJointBuffer::AllocBufferObject( const float * joints, int numAllocJoints 
 	apiObject = buffer;
 
 	if ( r_showBuffers.GetBool() ) {
-		idLib::Printf( "joint buffer alloc %p, api %p (%i joints)\n", this, GetAPIObject(), GetNumJoints() );
+		idLib::Printf( "uniform buffer alloc %p, api %p (%i bytes)\n", this, GetAPIObject(), GetSize() );
 	}
 
 	// copy the data
-	if ( joints != NULL ) {
-		Update( joints, numAllocJoints );
+	if ( data != NULL ) {
+		Update( data, allocSize );
 	}
 
 	return !allocationFailed;
@@ -677,10 +651,10 @@ bool idJointBuffer::AllocBufferObject( const float * joints, int numAllocJoints 
 
 /*
 ========================
-idJointBuffer::FreeBufferObject
+idUniformBuffer::FreeBufferObject
 ========================
 */
-void idJointBuffer::FreeBufferObject() {
+void idUniformBuffer::FreeBufferObject() {
 	if ( IsMapped() ) {
 		UnmapBuffer();
 	}
@@ -696,7 +670,7 @@ void idJointBuffer::FreeBufferObject() {
 	}
 
 	if ( r_showBuffers.GetBool() ) {
-		idLib::Printf( "joint buffer free %p, api %p (%i joints)\n", this, GetAPIObject(), GetNumJoints() );
+		idLib::Printf( "uniform buffer free %p, api %p (%i bytes)\n", this, GetAPIObject(), GetSize() );
 	}
 
 	GLuint buffer = apiObject;
@@ -708,17 +682,17 @@ void idJointBuffer::FreeBufferObject() {
 
 /*
 ========================
-idJointBuffer::Reference
+idUniformBuffer::Reference
 ========================
 */
-void idJointBuffer::Reference( const idJointBuffer & other ) {
+void idUniformBuffer::Reference( const idUniformBuffer & other ) {
 	assert( IsMapped() == false );
 	assert( other.IsMapped() == false );
 	assert( other.GetAPIObject() != NULL );
-	assert( other.GetNumJoints() > 0 );
+	assert(other.GetSize() > 0 );
 
 	FreeBufferObject();
-	numJoints = other.GetNumJoints();			// this strips the MAPPED_FLAG
+	size = other.GetSize();			// this strips the MAPPED_FLAG
 	offsetInOtherBuffer = other.GetOffset();	// this strips the OWNS_BUFFER_FLAG
 	apiObject = other.apiObject;
 	assert( OwnsBuffer() == false );
@@ -726,52 +700,52 @@ void idJointBuffer::Reference( const idJointBuffer & other ) {
 
 /*
 ========================
-idJointBuffer::Reference
+idUniformBuffer::Reference
 ========================
 */
-void idJointBuffer::Reference( const idJointBuffer & other, int jointRefOffset, int numRefJoints ) {
+void idUniformBuffer::Reference( const idUniformBuffer & other, int refOffset, int refSize ) {
 	assert( IsMapped() == false );
 	assert( other.IsMapped() == false );
 	assert( other.GetAPIObject() != NULL );
-	assert( jointRefOffset >= 0 );
-	assert( numRefJoints >= 0 );
-	assert( jointRefOffset + numRefJoints * sizeof( idJointMat ) <= other.GetNumJoints() * sizeof( idJointMat ) );
-	assert_16_byte_aligned( numRefJoints * 3 * 4 * sizeof( float ) );
+	assert( refOffset >= 0 );
+	assert( refSize >= 0 );
+	assert( refOffset + refSize <= other.GetSize() );
 
 	FreeBufferObject();
-	numJoints = numRefJoints;
-	offsetInOtherBuffer = other.GetOffset() + jointRefOffset;
+	size = refSize;
+	offsetInOtherBuffer = other.GetOffset() + refOffset;
 	apiObject = other.apiObject;
 	assert( OwnsBuffer() == false );
 }
 
 /*
 ========================
-idJointBuffer::Update
+idUniformBuffer::Update
 ========================
 */
-void idJointBuffer::Update( const float * joints, int numUpdateJoints ) const {
+void idUniformBuffer::Update( const void * data, int updateSize ) const {
 	assert( apiObject != NULL );
 	assert( IsMapped() == false );
-	assert_16_byte_aligned( joints );
+	assert_16_byte_aligned( data );
 	assert( ( GetOffset() & 15 ) == 0 );
 
-	if ( numUpdateJoints > numJoints ) {
-		idLib::FatalError( "idJointBuffer::Update: size overrun, %i > %i\n", numUpdateJoints, numJoints );
+	if ( updateSize > size ) {
+		idLib::FatalError( "idUniformBuffer::Update: size overrun, %i > %i\n", updateSize, GetSize() );
 	}
 
-	const int numBytes = numUpdateJoints * 3 * 4 * sizeof( float );
+	int numBytes = ( updateSize + 15 ) & ~15;
 
-	qglBindBufferARB( GL_UNIFORM_BUFFER, apiObject );
-	qglBufferSubDataARB( GL_UNIFORM_BUFFER, GetOffset(), (GLsizeiptrARB)numBytes, joints );
+	GLuint bufferObject = apiObject;
+	qglBindBufferARB( GL_UNIFORM_BUFFER, bufferObject );
+	qglBufferSubDataARB( GL_UNIFORM_BUFFER, GetOffset(), (GLsizeiptrARB)numBytes, data );
 }
 
 /*
 ========================
-idJointBuffer::MapBuffer
+idUniformBuffer::MapBuffer
 ========================
 */
-float * idJointBuffer::MapBuffer( bufferMapType_t mapType ) const {
+void * idUniformBuffer::MapBuffer( bufferMapType_t mapType ) const {
 	assert( IsMapped() == false );
 	assert( mapType == BM_WRITE );
 	assert( apiObject != NULL );
@@ -792,49 +766,24 @@ float * idJointBuffer::MapBuffer( bufferMapType_t mapType ) const {
 	SetMapped();
 
 	if ( buffer == NULL ) {
-		idLib::FatalError( "idJointBuffer::MapBuffer: failed" );
+		idLib::FatalError( "idUniformBuffer::MapBuffer: failed" );
 	}
 	return (float *) buffer;
 }
 
 /*
 ========================
-idJointBuffer::UnmapBuffer
+idUniformBuffer::UnmapBuffer
 ========================
 */
-void idJointBuffer::UnmapBuffer() const {
+void idUniformBuffer::UnmapBuffer() const {
 	assert( apiObject != NULL );
 	assert( IsMapped() );
 
 	qglBindBufferARB( GL_UNIFORM_BUFFER, apiObject );
 	if ( !qglUnmapBufferARB( GL_UNIFORM_BUFFER ) ) {
-		idLib::Printf( "idJointBuffer::UnmapBuffer failed\n" );
+		idLib::Printf( "idUniformBuffer::UnmapBuffer failed\n" );
 	}
 
 	SetUnmapped();
-}
-
-/*
-========================
-idJointBuffer::ClearWithoutFreeing
-========================
-*/
-void idJointBuffer::ClearWithoutFreeing() {
-	numJoints = 0;
-	offsetInOtherBuffer = OWNS_BUFFER_FLAG;
-	apiObject = 0;
-}
-
-/*
-========================
-idJointBuffer::Swap
-========================
-*/
-void idJointBuffer::Swap( idJointBuffer & other ) {
-	// Make sure the ownership of the buffer is not transferred to an unintended place.
-	assert( other.OwnsBuffer() == OwnsBuffer() );
-
-	SwapValues( other.numJoints, numJoints );
-	SwapValues( other.offsetInOtherBuffer, offsetInOtherBuffer );
-	SwapValues( other.apiObject, apiObject );
 }

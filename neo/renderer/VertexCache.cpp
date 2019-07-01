@@ -95,7 +95,7 @@ static void AllocGeoBufferSet( geoBufferSet_t &gbs, const int vertexBytes, const
 	gbs.vertexBuffer.AllocBufferObject( NULL, vertexBytes );
 	gbs.indexBuffer.AllocBufferObject( NULL, indexBytes );
 	if ( jointBytes != 0 ) {
-		gbs.jointBuffer.AllocBufferObject( NULL, jointBytes / sizeof( idJointMat ) );
+		gbs.jointBuffer.AllocBufferObject( NULL, jointBytes );
 	}
 	ClearGeoBufferSet( gbs );
 }
@@ -262,20 +262,19 @@ bool idVertexCache::GetIndexBuffer( vertCacheHandle_t handle, idIndexBuffer * ib
 idVertexCache::GetJointBuffer
 ==============
 */
-bool idVertexCache::GetJointBuffer( vertCacheHandle_t handle, idJointBuffer * jb ) {
+bool idVertexCache::GetJointBuffer( vertCacheHandle_t handle, idUniformBuffer * jb ) {
 	const int isStatic = handle & VERTCACHE_STATIC;
 	const uint64 numBytes = (int)( handle >> VERTCACHE_SIZE_SHIFT ) & VERTCACHE_SIZE_MASK;
 	const uint64 jointOffset = (int)( handle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
 	const uint64 frameNum = (int)( handle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
-	const uint64 numJoints = numBytes / sizeof( idJointMat );
 	if ( isStatic ) {
-		jb->Reference( staticData.jointBuffer, jointOffset, numJoints );
+		jb->Reference( staticData.jointBuffer, jointOffset, numBytes );
 		return true;
 	}
 	if ( frameNum != ( ( currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) ) {
 		return false;
 	}
-	jb->Reference( frameData[drawListNum].jointBuffer, jointOffset, numJoints );
+	jb->Reference( frameData[drawListNum].jointBuffer, jointOffset, numBytes );
 	return true;
 }
 

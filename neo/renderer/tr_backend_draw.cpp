@@ -169,7 +169,7 @@ void RB_DrawElementsWithCounters( const drawSurf_t *surf ) {
 
 
 	if ( surf->jointCache ) {
-		idJointBuffer jointBuffer;
+		idUniformBuffer jointBuffer;
 		if ( !vertexCache.GetJointBuffer( surf->jointCache, &jointBuffer ) ) {
 			idLib::Warning( "RB_DrawElementsWithCounters, jointBuffer == NULL" );
 			return;
@@ -177,7 +177,7 @@ void RB_DrawElementsWithCounters( const drawSurf_t *surf ) {
 		assert( ( jointBuffer.GetOffset() & ( glConfig.uniformBufferOffsetAlignment - 1 ) ) == 0 );
 
 		const GLuint ubo = jointBuffer.GetAPIObject();
-		qglBindBufferRange( GL_UNIFORM_BUFFER, 0, ubo, jointBuffer.GetOffset(), jointBuffer.GetNumJoints() * sizeof( idJointMat ) );
+		qglBindBufferRange( GL_UNIFORM_BUFFER, 0, ubo, jointBuffer.GetOffset(), jointBuffer.GetSize() );
 	}
 
 	renderProgManager.CommitUniforms();
@@ -1500,7 +1500,7 @@ static void RB_StencilShadowPass( const drawSurf_t *drawSurfs, const viewLight_t
 		if ( drawSurf->jointCache ) {
 			assert( renderProgManager.ShaderUsesJoints() );
 
-			idJointBuffer jointBuffer;
+			idUniformBuffer jointBuffer;
 			if ( !vertexCache.GetJointBuffer( drawSurf->jointCache, &jointBuffer ) ) {
 				idLib::Warning( "RB_DrawElementsWithCounters, jointBuffer == NULL" );
 				continue;
@@ -1508,7 +1508,7 @@ static void RB_StencilShadowPass( const drawSurf_t *drawSurfs, const viewLight_t
 			assert( ( jointBuffer.GetOffset() & ( glConfig.uniformBufferOffsetAlignment - 1 ) ) == 0 );
 
 			const GLuint ubo = jointBuffer.GetAPIObject();
-			qglBindBufferRange( GL_UNIFORM_BUFFER, 0, ubo, jointBuffer.GetOffset(), jointBuffer.GetNumJoints() * sizeof( idJointMat ) );
+			qglBindBufferRange( GL_UNIFORM_BUFFER, 0, ubo, jointBuffer.GetOffset(), jointBuffer.GetSize() );
 
 			if ( ( backEnd.glState.vertexLayout != LAYOUT_DRAW_SHADOW_VERT_SKINNED) || ( backEnd.glState.currentVertexBuffer != vertexBuffer->GetAPIObject() ) || !r_useStateCaching.GetBool() ) {
 				qglBindBufferARB( GL_ARRAY_BUFFER, vertexBuffer->GetAPIObject() );
