@@ -34,14 +34,10 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #ifdef ID_MAC
-
 #include <OpenGL/gl3.h>
-#include <OpenGL/gl3ext.h>
-
 #else
-
 #include <gl/gl.h>
-
+#endif
 
 #ifndef APIENTRY
 #define APIENTRY
@@ -53,11 +49,7 @@ If you have questions concerning this license or the applicable additional terms
 // only use local glext.h if we are not using the system one already
 // http://oss.sgi.com/projects/ogl-sample/ABI/
 #ifndef GL_GLEXT_VERSION
-
 #include "glext.h"
-
-#endif
-
 #endif
 
 typedef void (*GLExtension_t)(void);
