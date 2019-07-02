@@ -150,7 +150,7 @@ public:
 
 	// Make this buffer a reference to another buffer.
 	void				Reference( const idUniformBuffer & other );
-	void				Reference( const idUniformBuffer & other, int jointRefOffset, int numRefJoints );
+	void				Reference( const idUniformBuffer & other, int refOffset, int refSize );
 
 	// Copies data to the buffer. 'size' may be less than the originally allocated size.
 	void				Update( const void * data, int updateSize ) const;
