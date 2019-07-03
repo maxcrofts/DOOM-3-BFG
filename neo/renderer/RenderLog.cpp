@@ -60,7 +60,6 @@ const char * renderLogMainBlockLabels[] = {
 	ASSERT_ENUM_STRING( MRB_MAX,							15 )
 };
 
-extern uint64 Sys_Microseconds();
 /*
 ================================================================================================
 
@@ -69,65 +68,16 @@ PIX events on all platforms
 ================================================================================================
 */
 
-
-/*
-================================================
-pixEvent_t 
-================================================
-*/
-struct pixEvent_t {
-	char		name[256];
-	uint64		cpuTime;
-	uint64		gpuTime;
-};
-
-idCVar r_pix( "r_pix", "0", CVAR_INTEGER, "print GPU/CPU event timing" );
-
-static const int	MAX_PIX_EVENTS = 256;
-// defer allocation of this until needed, so we don't waste lots of memory
-pixEvent_t *		pixEvents;	// [MAX_PIX_EVENTS]
-int					numPixEvents;
-int					numPixLevels;
-static GLuint		timeQueryIds[MAX_PIX_EVENTS];
+static int numPixLevels = 0;
 
 /*
 ========================
 PC_BeginNamedEvent
-
-FIXME: this is not thread safe on the PC
 ========================
 */
 void PC_BeginNamedEvent( const char *szName, ... ) {
-#if 0
-	if ( !r_pix.GetBool() ) {
-		return;
-	}
-	if ( !pixEvents ) {
-		// lazy allocation to not waste memory
-		pixEvents = (pixEvent_t *)Mem_ClearedAlloc( sizeof( *pixEvents ) * MAX_PIX_EVENTS, TAG_CRAP );
-	}
-	if ( numPixEvents >= MAX_PIX_EVENTS ) {
-		idLib::FatalError( "PC_BeginNamedEvent: event overflow" );
-	}
-	if ( ++numPixLevels > 1 ) {
-		return;	// only get top level timing information
-	}
-	if ( !qglGetQueryObjectui64vEXT ) {
-		return;
-	}
-
-	GL_CheckErrors();
-	if ( timeQueryIds[0] == 0 ) {
-		qglGenQueriesARB( MAX_PIX_EVENTS, timeQueryIds );
-	}
-	qglFinish();
-	qglBeginQueryARB( GL_TIME_ELAPSED_EXT, timeQueryIds[numPixEvents] );
-	GL_CheckErrors();
-
-	pixEvent_t *ev = &pixEvents[numPixEvents++];
-	strncpy( ev->name, szName, sizeof( ev->name ) - 1 );
-	ev->cpuTime = Sys_Microseconds();
-#endif
+	qglPushDebugGroup( GL_DEBUG_SOURCE_APPLICATION, 0, -1, szName );
+	numPixLevels++;
 }
 
 /*
@@ -136,62 +86,10 @@ PC_EndNamedEvent
 ========================
 */
 void PC_EndNamedEvent() {
-#if 0
-	if ( !r_pix.GetBool() ) {
-		return;
+	if ( numPixLevels > 0 ) {
+		qglPopDebugGroup();
+		numPixLevels--;
 	}
-	if ( numPixLevels <= 0 ) {
-		idLib::FatalError( "PC_EndNamedEvent: level underflow" );
-	}
-	if ( --numPixLevels > 0 ) {
-		// only do timing on top level events
-		return;
-	}
-	if ( !qglGetQueryObjectui64vEXT ) {
-		return;
-	}
-
-	pixEvent_t *ev = &pixEvents[numPixEvents-1];
-	ev->cpuTime = Sys_Microseconds() - ev->cpuTime;
-
-	GL_CheckErrors();
-	qglEndQueryARB( GL_TIME_ELAPSED_EXT );
-	GL_CheckErrors();
-#endif
-}
-
-/*
-========================
-PC_EndFrame
-========================
-*/
-void PC_EndFrame() {
-#if 0
-	if ( !r_pix.GetBool() ) {
-		return;
-	}
-
-	int64 totalGPU = 0;
-	int64 totalCPU = 0;
-
-	idLib::Printf( "----- GPU Events -----\n" );
-	for ( int i = 0 ; i < numPixEvents ; i++ ) {
-		pixEvent_t *ev = &pixEvents[i];
-
-		int64 gpuTime = 0;
-		qglGetQueryObjectui64vEXT( timeQueryIds[i], GL_QUERY_RESULT, (GLuint64EXT *)&gpuTime );
-		ev->gpuTime = gpuTime;
-
-		idLib::Printf( "%2d: %1.2f (GPU) %1.3f (CPU) = %s\n", i, ev->gpuTime / 1000000.0f, ev->cpuTime / 1000.0f, ev->name );
-		totalGPU += ev->gpuTime;
-		totalCPU += ev->cpuTime;
-	}
-	idLib::Printf( "%2d: %1.2f (GPU) %1.3f (CPU) = total\n", numPixEvents, totalGPU / 1000000.0f, totalCPU / 1000.0f );
-	memset( pixEvents, 0, numPixLevels * sizeof( pixEvents[0] ) );
-	
-	numPixEvents = 0;
-	numPixLevels = 0;
-#endif
 }
 
 
@@ -291,8 +189,6 @@ idRenderLog::EndFrame
 ========================
 */
 void idRenderLog::EndFrame() {
-	PC_EndFrame();
-
 	if ( logFile != NULL ) {
 		if ( r_logFile.GetInteger() == 1 ) {
 			Close();

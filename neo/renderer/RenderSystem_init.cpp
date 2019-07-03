@@ -282,11 +282,17 @@ PFNGLGETQUERYOBJECTUIVPROC				qglGetQueryObjectuivARB;
 // GL_ARB_timer_query / GL_EXT_timer_query
 PFNGLGETQUERYOBJECTUI64VPROC			qglGetQueryObjectui64vEXT;
 
-// GL_ARB_debug_output
-PFNGLDEBUGMESSAGECONTROLARBPROC			qglDebugMessageControlARB;
-PFNGLDEBUGMESSAGEINSERTARBPROC			qglDebugMessageInsertARB;
-PFNGLDEBUGMESSAGECALLBACKARBPROC		qglDebugMessageCallbackARB;
-PFNGLGETDEBUGMESSAGELOGARBPROC			qglGetDebugMessageLogARB;
+// KHR_debug
+PFNGLDEBUGMESSAGECONTROLPROC			qglDebugMessageControl;
+PFNGLDEBUGMESSAGEINSERTPROC				qglDebugMessageInsert;
+PFNGLDEBUGMESSAGECALLBACKPROC			qglDebugMessageCallback;
+PFNGLGETDEBUGMESSAGELOGPROC				qglGetDebugMessageLog;
+PFNGLPUSHDEBUGGROUPPROC					qglPushDebugGroup;
+PFNGLPOPDEBUGGROUPPROC					qglPopDebugGroup;
+PFNGLOBJECTLABELPROC					qglObjectLabel;
+PFNGLGETOBJECTLABELPROC					qglGetObjectLabel;
+PFNGLOBJECTPTRLABELPROC					qglObjectPtrLabel;
+PFNGLGETOBJECTPTRLABELPROC				qglGetObjectPtrLabel;
 
 PFNGLGETSTRINGIPROC						qglGetStringi;
 
@@ -514,26 +520,32 @@ static void R_CheckPortableExtensions() {
 		}
 	}
 
-	// GL_ARB_debug_output
-	glConfig.debugOutputAvailable = R_CheckExtension( "GL_ARB_debug_output" );
-	if ( glConfig.debugOutputAvailable ) {
-		qglDebugMessageControlARB   = (PFNGLDEBUGMESSAGECONTROLARBPROC)GLimp_ExtensionPointer( "glDebugMessageControlARB" );
-		qglDebugMessageInsertARB    = (PFNGLDEBUGMESSAGEINSERTARBPROC)GLimp_ExtensionPointer( "glDebugMessageInsertARB" );
-		qglDebugMessageCallbackARB  = (PFNGLDEBUGMESSAGECALLBACKARBPROC)GLimp_ExtensionPointer( "glDebugMessageCallbackARB" );
-		qglGetDebugMessageLogARB    = (PFNGLGETDEBUGMESSAGELOGARBPROC)GLimp_ExtensionPointer( "glGetDebugMessageLogARB" );
+	// KHR_debug
+	glConfig.debugAvailable = ( glConfig.glVersion >= 4.3f || R_CheckExtension( "KHR_debug" ) );
+	if ( glConfig.debugAvailable ) {
+		qglDebugMessageControl = (PFNGLDEBUGMESSAGECONTROLPROC)GLimp_ExtensionPointer( "glDebugMessageControl" );
+		qglDebugMessageInsert = (PFNGLDEBUGMESSAGEINSERTPROC)GLimp_ExtensionPointer( "glDebugMessageInsert" );
+		qglDebugMessageCallback = (PFNGLDEBUGMESSAGECALLBACKPROC)GLimp_ExtensionPointer( "glDebugMessageCallback" );
+		qglGetDebugMessageLog = (PFNGLGETDEBUGMESSAGELOGPROC)GLimp_ExtensionPointer( "glGetDebugMessageLog" );
+		qglPushDebugGroup = (PFNGLPUSHDEBUGGROUPPROC)GLimp_ExtensionPointer( "glPushDebugGroup" );
+		qglPopDebugGroup = (PFNGLPOPDEBUGGROUPPROC)GLimp_ExtensionPointer( "glPopDebugGroup" );
+		qglObjectLabel = (PFNGLOBJECTLABELPROC)GLimp_ExtensionPointer( "glObjectLabel" );
+		qglGetObjectLabel = (PFNGLGETOBJECTLABELPROC)GLimp_ExtensionPointer( "glGetObjectLabel" );
+		qglObjectPtrLabel = (PFNGLOBJECTPTRLABELPROC)GLimp_ExtensionPointer( "glObjectPtrLabel" );
+		qglGetObjectPtrLabel = (PFNGLGETOBJECTPTRLABELPROC)GLimp_ExtensionPointer( "glGetObjectPtrLabel" );
 
 		if ( r_debugContext.GetInteger() >= 1 ) {
-			qglDebugMessageCallbackARB( DebugCallback, NULL );
+			qglDebugMessageCallback( DebugCallback, NULL );
 		}
 		if ( r_debugContext.GetInteger() >= 2 ) {
 			// force everything to happen in the main thread instead of in a separate driver thread
-			glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB );
+			glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS );
 		}
 		if ( r_debugContext.GetInteger() >= 3 ) {
 			// enable all the low priority messages
-			qglDebugMessageControlARB( GL_DONT_CARE,
+			qglDebugMessageControl( GL_DONT_CARE,
 									GL_DONT_CARE,
-									GL_DEBUG_SEVERITY_LOW_ARB,
+									GL_DEBUG_SEVERITY_LOW,
 									0, NULL, true );
 		}
 	}

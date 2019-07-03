@@ -120,7 +120,7 @@ struct glconfig_t {
 	bool				syncAvailable;
 	bool				timerQueryAvailable;
 	bool				occlusionQueryAvailable;
-	bool				debugOutputAvailable;
+	bool				debugAvailable;
 	bool				swapControlTearAvailable;
 
 	stereo3DMode_t		stereo3Dmode;
