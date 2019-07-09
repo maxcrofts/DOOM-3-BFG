@@ -42,57 +42,6 @@ If you have questions concerning this license or the applicable additional terms
 	typedef SDL_cond *				condHandle_t;
 	typedef int						interlockedInt_t;
 
-
-
-
-
-/*
-================================================================================================
-
-	Platform specific thread local storage.
-	Can be used to store either a pointer or an integer.
-
-================================================================================================
-*/
-
-
-	class idSysThreadLocalStorage {
-	public:
-		idSysThreadLocalStorage() {
-			if (!tlsIndex) {
-				SDL_AtomicLock(&tlsLock);
-				if (!tlsIndex) {
-					tlsIndex = SDL_TLSCreate();
-				}
-				SDL_AtomicUnlock(&tlsLock);
-			}
-		}
-		idSysThreadLocalStorage( const ptrdiff_t &val ) {
-			if (!tlsIndex) {
-				SDL_AtomicLock(&tlsLock);
-				if (!tlsIndex) {
-					tlsIndex = SDL_TLSCreate();
-				}
-				SDL_AtomicUnlock(&tlsLock);
-			}
-			SDL_TLSSet( tlsIndex, (void *)val, 0 );
-		}
-		~idSysThreadLocalStorage() {}
-		operator ptrdiff_t() {
-			return (ptrdiff_t)SDL_TLSGet( tlsIndex );
-		}
-		const ptrdiff_t & operator = ( const ptrdiff_t &val ) {
-			SDL_TLSSet( tlsIndex, (void *)val, 0 );
-			return val;
-		}
-	private:
-		SDL_SpinLock tlsLock;
-		SDL_TLSID tlsIndex;
-	};
-
-#define ID_TLS idSysThreadLocalStorage
-
-
 #endif // __TYPEINFOGEN__
 
 /*
