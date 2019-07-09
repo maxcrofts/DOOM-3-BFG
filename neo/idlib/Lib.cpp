@@ -49,7 +49,7 @@ idCVarSystem *	idLib::cvarSystem	= NULL;
 idFileSystem *	idLib::fileSystem	= NULL;
 int				idLib::frameNumber	= 0;
 bool			idLib::mainThreadInitialized = 0;
-ID_TLS			idLib::isMainThread = 0;
+uintptr_t		idLib::mainThreadID = 0;
 
 char idException::error[2048];
 
@@ -62,7 +62,7 @@ void idLib::Init() {
 
 	assert( sizeof( bool ) == 1 );
 
-	isMainThread = 1;
+	mainThreadID = Sys_GetCurrentThreadID();
 	mainThreadInitialized = 1;	// note that the thread-local isMainThread is now valid
 
 	// initialize little/big endian conversion

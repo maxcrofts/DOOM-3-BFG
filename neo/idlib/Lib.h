@@ -48,7 +48,7 @@ If you have questions concerning this license or the applicable additional terms
 class idLib {
 private:
 	static bool					mainThreadInitialized;
-	static ID_TLS				isMainThread;
+	static uintptr_t			mainThreadID;
 
 public:
 	static class idSys *		sys;
@@ -70,7 +70,7 @@ public:
 
 	// the extra check for mainThreadInitialized is necessary for this to be accurate
 	// when called by startup code that happens before idLib::Init
-	static bool					IsMainThread() { return ( 0 == mainThreadInitialized ) || ( 1 == isMainThread ); }
+	static bool					IsMainThread() { return ( 0 == mainThreadInitialized ) || ( Sys_GetCurrentThreadID() == mainThreadID ); }
 };
 
 
