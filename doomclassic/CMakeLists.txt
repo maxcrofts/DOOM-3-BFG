@@ -1,6 +1,6 @@
 # doomclassic
 add_library(doomclassic ${DOOMCLASSIC_FILES})
-target_include_directories(doomclassic PUBLIC "../neo" ${SDL2_INCLUDE_DIRS} ${OPENAL_INCLUDE_DIR})
+target_include_directories(doomclassic PUBLIC "../neo")
 if(MSVC)
     target_compile_options(doomclassic PRIVATE /WX-)
 endif()

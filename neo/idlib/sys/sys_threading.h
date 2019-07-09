@@ -38,8 +38,8 @@ If you have questions concerning this license or the applicable additional terms
 ================================================================================================
 */
 
-	typedef SDL_mutex *				mutexHandle_t;
-	typedef SDL_cond *				condHandle_t;
+	typedef void *					mutexHandle_t;
+	typedef void *					condHandle_t;
 	typedef int						interlockedInt_t;
 
 #endif // __TYPEINFOGEN__
@@ -89,7 +89,8 @@ void				Sys_CondCreate( condHandle_t & handle );
 void				Sys_CondDestroy( condHandle_t & handle );
 void				Sys_CondBroadcast( condHandle_t & handle );
 void				Sys_CondSignal( condHandle_t & handle );
-int					Sys_CondWait( condHandle_t & condHandle, mutexHandle_t & mutexHandle, int timeout = SDL_MUTEX_MAXWAIT );
+int					Sys_CondWait( condHandle_t & condHandle, mutexHandle_t & mutexHandle );
+int					Sys_CondWait( condHandle_t & condHandle, mutexHandle_t & mutexHandle, int timeout );
 
 void				Sys_MutexCreate( mutexHandle_t & handle );
 void				Sys_MutexDestroy( mutexHandle_t & handle );

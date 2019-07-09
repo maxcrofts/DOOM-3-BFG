@@ -1,6 +1,5 @@
 # Game-d3xp
 add_library(Game-d3xp OBJECT ${GAME_D3XP_FILES})
-target_include_directories(Game-d3xp PUBLIC ${SDL2_INCLUDE_DIRS})
 
 target_sources(Game-d3xp PRIVATE
     "ai/AAS.cpp"

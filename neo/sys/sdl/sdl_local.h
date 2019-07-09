@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SDL_LOCAL_H__
 #define __SDL_LOCAL_H__
 
+#include "SDL.h"
+
 void	Sys_QueEvent( sysEventType_t type, int value, int value2, int ptrLength, void *ptr, int inputDeviceNum );
 
 void	Sys_CreateConsole();

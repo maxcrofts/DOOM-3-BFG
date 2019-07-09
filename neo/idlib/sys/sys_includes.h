@@ -33,17 +33,6 @@ If you have questions concerning this license or the applicable additional terms
 /*
 ================================================================================================
 
-	SDL
-
-================================================================================================
-*/
-
-#include "SDL.h"
-#undef M_PI
-
-/*
-================================================================================================
-
 	Windows
 
 ================================================================================================
@@ -60,6 +49,8 @@ If you have questions concerning this license or the applicable additional terms
 #include <mmreg.h>
 
 #endif /* !GAME_DLL */
+
+#include <intrin.h>			// needed for intrinsics like _mm_setzero_si28
 
 #pragma warning(disable : 4100)				// unreferenced formal parameter
 #pragma warning(disable : 4127)				// conditional expression is constant
@@ -86,6 +77,8 @@ If you have questions concerning this license or the applicable additional terms
 #include <netinet/in.h>
 #include <signal.h>
 #include <unistd.h>
+
+#include <x86intrin.h>
 
 #endif
 
@@ -114,7 +107,6 @@ If you have questions concerning this license or the applicable additional terms
 #include <math.h>
 #include <limits.h>
 #include <memory>
-#include <immintrin.h>		// needed for intrinsics like _mm_setzero_si28
 
 //-----------------------------------------------------
 

@@ -28,6 +28,9 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "../../precompiled.h"
 
+#include "SDL_thread.h"
+#include "SDL_mutex.h"
+
 /*
 ================================================================================================
 
@@ -46,12 +49,12 @@ uintptr_t Sys_CreateThread( xthread_t function, void *parms, xthreadPriority pri
 	SDL_Thread *thread = SDL_CreateThread( (SDL_ThreadFunction)function, name, parms );
 	if ( thread == NULL ) {
 		idLib::common->FatalError( "CreateThread error: %i", SDL_GetError() );
-		return (uintptr_t)0;
+		return 0;
 	}
 
 	// we don't set the thread affinity and let the OS deal with scheduling
 
-	return (uintptr_t)thread;
+	return reinterpret_cast<uintptr_t>( thread );
 }
 
 
@@ -70,7 +73,7 @@ Sys_WaitForThread
 ========================
 */
 void Sys_WaitForThread( uintptr_t threadHandle ) {
-	SDL_WaitThread( (SDL_Thread *)threadHandle, NULL );
+	SDL_WaitThread( reinterpret_cast<SDL_Thread *>( threadHandle ), NULL );
 }
 
 /*
@@ -82,7 +85,7 @@ void Sys_DestroyThread( uintptr_t threadHandle ) {
 	if ( threadHandle == 0 ) {
 		return;
 	}
-	SDL_DetachThread( (SDL_Thread *)threadHandle );
+	SDL_DetachThread( reinterpret_cast<SDL_Thread *>( threadHandle ) );
 }
 
 /*
@@ -116,7 +119,7 @@ Sys_CondDestroy
 ========================
 */
 void Sys_CondDestroy( condHandle_t & handle ) {
-	SDL_DestroyCond( handle );
+	SDL_DestroyCond( static_cast<SDL_cond *>( handle ) );
 }
 
 /*
@@ -125,7 +128,7 @@ Sys_CondBroadcast
 ========================
 */
 void Sys_CondBroadcast( condHandle_t & handle ) {
-	SDL_CondBroadcast( handle );
+	SDL_CondBroadcast( static_cast<SDL_cond *>( handle ) );
 }
 
 /*
@@ -134,7 +137,16 @@ Sys_CondSignal
 ========================
 */
 void Sys_CondSignal( condHandle_t & handle ) {
-	SDL_CondSignal( handle );
+	SDL_CondSignal( static_cast<SDL_cond *>( handle ) );
+}
+
+/*
+========================
+Sys_CondWait
+========================
+*/
+int Sys_CondWait( condHandle_t & condHandle, mutexHandle_t & mutexHandle ) {
+	return Sys_CondWait( condHandle, mutexHandle, SDL_MUTEX_MAXWAIT );
 }
 
 /*
@@ -143,7 +155,7 @@ Sys_CondWait
 ========================
 */
 int Sys_CondWait( condHandle_t & condHandle, mutexHandle_t & mutexHandle, int timeout ) {
-	return SDL_CondWaitTimeout( condHandle, mutexHandle, timeout );
+	return SDL_CondWaitTimeout( static_cast<SDL_cond *>( condHandle ), static_cast<SDL_mutex *>( mutexHandle ), timeout );
 }
 
 /*
@@ -169,7 +181,7 @@ Sys_MutexDestroy
 ========================
 */
 void Sys_MutexDestroy( mutexHandle_t & handle ) {
-	SDL_DestroyMutex( handle );
+	SDL_DestroyMutex( static_cast<SDL_mutex *>( handle ) );
 }
 
 /*
@@ -179,11 +191,11 @@ Sys_MutexLock
 */
 bool Sys_MutexLock( mutexHandle_t & handle, bool blocking ) {
 	if ( !blocking ) {
-		if ( SDL_TryLockMutex( handle ) == 0 ) {
+		if ( SDL_TryLockMutex( static_cast<SDL_mutex *>( handle ) ) == 0 ) {
 			return false;
 		}
 	} else {
-		SDL_LockMutex( handle );
+		SDL_LockMutex( static_cast<SDL_mutex *>( handle ) );
 	}
 	return true;
 }
@@ -194,5 +206,5 @@ Sys_MutexUnlock
 ========================
 */
 void Sys_MutexUnlock( mutexHandle_t & handle ) {
-	SDL_UnlockMutex( handle );
+	SDL_UnlockMutex( static_cast<SDL_mutex *>( handle ) );
 }
