@@ -93,7 +93,6 @@ target_sources(idLib PRIVATE
     "sys/sys_alloc_tags.h"
     "sys/sys_assert.cpp"
     "sys/sys_assert.h"
-    "sys/sys_atomic.cpp"
     "sys/sys_builddefines.h"
     "sys/sys_defines.h"
     "sys/sys_filesystem.h"
