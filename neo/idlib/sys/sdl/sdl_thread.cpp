@@ -44,7 +44,7 @@ If you have questions concerning this license or the applicable additional terms
 Sys_CreateThread
 ========================
 */
-uintptr_t Sys_CreateThread( xthread_t function, void *parms, xthreadPriority priority, const char *name, core_t core, int stackSize, bool suspended ) {
+uintptr_t Sys_CreateThread( xthread_t function, void *parms, const char *name, core_t core, int stackSize, bool suspended ) {
 
 	SDL_Thread *thread = SDL_CreateThread( (SDL_ThreadFunction)function, name, parms );
 	if ( thread == NULL ) {
@@ -57,7 +57,6 @@ uintptr_t Sys_CreateThread( xthread_t function, void *parms, xthreadPriority pri
 	return reinterpret_cast<uintptr_t>( thread );
 }
 
-
 /*
 ========================
 Sys_GetCurrentThreadID
@@ -65,6 +64,15 @@ Sys_GetCurrentThreadID
 */
 uintptr_t Sys_GetCurrentThreadID() {
 	return SDL_ThreadID();
+}
+
+/*
+========================
+Sys_SetCurrentThreadPriority
+========================
+*/
+void Sys_SetCurrentThreadPriority( xthreadPriority priority ) {
+	SDL_SetThreadPriority( static_cast<SDL_ThreadPriority>( priority ) );
 }
 
 /*

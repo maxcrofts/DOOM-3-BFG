@@ -29,8 +29,6 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "../precompiled.h"
 
-#include "SDL_thread.h"
-
 #include "Simd_Generic.h"
 #include "Simd_SSE.h"
 
@@ -1204,7 +1202,7 @@ idSIMD::Test_f
 */
 void idSIMD::Test_f( const idCmdArgs &args ) {
 
-	SDL_SetThreadPriority( SDL_THREAD_PRIORITY_HIGH );
+	Sys_SetCurrentThreadPriority( THREAD_TIME_CRITICAL );
 
 	p_simd = processor;
 	p_generic = generic;
@@ -1257,5 +1255,5 @@ void idSIMD::Test_f( const idCmdArgs &args ) {
 	p_simd = NULL;
 	p_generic = NULL;
 
-	SDL_SetThreadPriority( SDL_THREAD_PRIORITY_NORMAL );
+	Sys_SetCurrentThreadPriority( THREAD_NORMAL );
 }

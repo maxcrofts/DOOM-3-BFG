@@ -65,22 +65,21 @@ enum core_t {
 typedef unsigned int (*xthread_t)( void * );
 
 enum xthreadPriority {
-	THREAD_LOWEST,
-	THREAD_BELOW_NORMAL,
+	THREAD_LOW,
 	THREAD_NORMAL,
-	THREAD_ABOVE_NORMAL,
-	THREAD_HIGHEST
+	THREAD_HIGH,
+	THREAD_TIME_CRITICAL
 };
 
 #define DEFAULT_THREAD_STACK_SIZE		( 256 * 1024 )
 
-// on win32, the threadID is NOT the same as the threadHandle
-uintptr_t			Sys_GetCurrentThreadID();
-
 // returns a threadHandle
-uintptr_t			Sys_CreateThread( xthread_t function, void *parms, xthreadPriority priority, 
-									  const char *name, core_t core, int stackSize = DEFAULT_THREAD_STACK_SIZE, 
+uintptr_t			Sys_CreateThread( xthread_t function, void *parms, const char *name, 
+									  core_t core, int stackSize = DEFAULT_THREAD_STACK_SIZE, 
 									  bool suspended = false );
+
+uintptr_t			Sys_GetCurrentThreadID();
+void				Sys_SetCurrentThreadPriority( xthreadPriority priority );
 
 void				Sys_WaitForThread( uintptr_t threadHandle );
 void				Sys_DestroyThread( uintptr_t threadHandle );

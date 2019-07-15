@@ -1093,7 +1093,7 @@ void idCommonLocal::Init( int argc, const char * const * argv, const char *cmdli
 		// spawn the game thread, even if we are going to run without SMP
 		// one meg stack, because it can parse decls from gui surfaces (unfortunately)
 		// use a lower priority so job threads can run on the same core
-		gameThread.StartWorkerThread( "Game/Draw", CORE_1B, THREAD_BELOW_NORMAL, 0x100000 );
+		gameThread.StartWorkerThread( "Game/Draw", CORE_1B, THREAD_LOW, 0x100000 );
 		// boost this thread's priority, so it will prevent job threads from running while
 		// the render back end still has work to do
 

@@ -165,12 +165,13 @@ idSysThread::~idSysThread() {
 idSysThread::StartThread
 ========================
 */
-bool idSysThread::StartThread( const char * name_, core_t core, xthreadPriority priority, int stackSize ) {
+bool idSysThread::StartThread( const char * name_, core_t core, xthreadPriority priority_, int stackSize ) {
 	if ( isRunning ) {
 		return false;
 	}
 
 	name = name_;
+	priority = priority_;
 
 	isTerminating = false;
 
@@ -178,7 +179,7 @@ bool idSysThread::StartThread( const char * name_, core_t core, xthreadPriority 
 		Sys_DestroyThread( threadHandle );
 	}
 
-	threadHandle = Sys_CreateThread( (xthread_t)ThreadProc, this, priority, name, core, stackSize, false );
+	threadHandle = Sys_CreateThread( (xthread_t)ThreadProc, this, name, core, stackSize, false );
 
 	isRunning = true;
 	return true;
@@ -278,6 +279,8 @@ idSysThread::ThreadProc
 */
 int idSysThread::ThreadProc( idSysThread * thread ) {
 	int retVal = 0;
+
+	Sys_SetCurrentThreadPriority( thread->priority );
 
 	try {
 		if ( thread->isWorker ) {

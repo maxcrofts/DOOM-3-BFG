@@ -231,6 +231,7 @@ protected:
 
 private:
 	idStr			name;
+	xthreadPriority	priority;
 	uintptr_t		threadHandle;
 	bool			isWorker;
 	bool			isRunning;
