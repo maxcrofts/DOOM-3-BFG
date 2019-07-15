@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "../../precompiled.h"
 
+#include "SDL_hints.h"
 #include "SDL_thread.h"
 #include "SDL_mutex.h"
 
@@ -45,6 +46,7 @@ Sys_CreateThread
 ========================
 */
 uintptr_t Sys_CreateThread( xthread_t function, void *parms, const char *name, core_t core, int stackSize, bool suspended ) {
+	SDL_SetHint( SDL_HINT_THREAD_STACK_SIZE, va( "%d", stackSize ) );
 
 	SDL_Thread *thread = SDL_CreateThread( (SDL_ThreadFunction)function, name, parms );
 	if ( thread == NULL ) {
