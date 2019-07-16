@@ -1048,9 +1048,11 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char * name, id
 		}
 	}
 
-	idStr shaderName;
-	outFileGLSL.ExtractFileName( shaderName );
-	qglObjectLabel( GL_SHADER, shader, -1, shaderName.c_str() );
+	if ( glConfig.debugAvailable ) {
+		idStr shaderName;
+		outFileGLSL.ExtractFileName( shaderName );
+		qglObjectLabel( GL_SHADER, shader, -1, shaderName.c_str());
+	}
 
 	return shader;
 }
@@ -1270,7 +1272,9 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 	prog.fragmentShaderIndex = fragmentShaderIndex;
 	prog.vertexShaderIndex = vertexShaderIndex;
 
-	qglObjectLabel( GL_PROGRAM, program, -1, programName );
+	if ( glConfig.debugAvailable ) {
+		qglObjectLabel( GL_PROGRAM, program, -1, programName );
+	}
 }
 
 /*

@@ -76,8 +76,10 @@ PC_BeginNamedEvent
 ========================
 */
 void PC_BeginNamedEvent( const char *szName, ... ) {
-	qglPushDebugGroup( GL_DEBUG_SOURCE_APPLICATION, 0, -1, szName );
-	numPixLevels++;
+	if ( glConfig.debugAvailable ) {
+		qglPushDebugGroup( GL_DEBUG_SOURCE_APPLICATION, 0, -1, szName );
+		numPixLevels++;
+	}
 }
 
 /*
@@ -86,7 +88,7 @@ PC_EndNamedEvent
 ========================
 */
 void PC_EndNamedEvent() {
-	if ( numPixLevels > 0 ) {
+	if ( glConfig.debugAvailable && numPixLevels > 0 ) {
 		qglPopDebugGroup();
 		numPixLevels--;
 	}
