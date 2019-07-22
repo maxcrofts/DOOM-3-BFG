@@ -113,27 +113,27 @@ attribInfo_t attribsPC[] = {
 	{ "float",		"facing",		"FACE",			"gl_FrontFacing",		0,	AT_PS_IN,		0 },
 
 	// fragment program output
-	{ "float4",		"color",		"COLOR",		"FragColor",		0,	AT_PS_OUT,		0 },
-	{ "half4",		"hcolor",		"COLOR",		"FragColor",		0,	AT_PS_OUT,		0 },
-	{ "float4",		"color0",		"COLOR0",		"FragColor",		0,	AT_PS_OUT,		0 },
-	{ "float4",		"color1",		"COLOR1",		"FragColor",		1,	AT_PS_OUT,		0 },
-	{ "float4",		"color2",		"COLOR2",		"FragColor",		2,	AT_PS_OUT,		0 },
-	{ "float4",		"color3",		"COLOR3",		"FragColor",		3,	AT_PS_OUT,		0 },
+	{ "float4",		"color",		"COLOR",		"out_FragColor",	0,	AT_PS_OUT,		0 },
+	{ "half4",		"hcolor",		"COLOR",		"out_FragColor",	0,	AT_PS_OUT,		0 },
+	{ "float4",		"color0",		"COLOR0",		"out_FragColor",	0,	AT_PS_OUT,		0 },
+	{ "float4",		"color1",		"COLOR1",		"out_FragColor",	1,	AT_PS_OUT,		0 },
+	{ "float4",		"color2",		"COLOR2",		"out_FragColor",	2,	AT_PS_OUT,		0 },
+	{ "float4",		"color3",		"COLOR3",		"out_FragColor",	3,	AT_PS_OUT,		0 },
 	{ "float",		"depth",		"DEPTH",		"gl_FragDepth",		4,	AT_PS_OUT,		0 },
 
 	// vertex to fragment program pass through
-	{ "float4",		"color",		"COLOR",		"Color",			0,	AT_VS_OUT,	0 },
-	{ "float4",		"color0",		"COLOR0",		"Color",			0,	AT_VS_OUT,	0 },
-	{ "float4",		"color1",		"COLOR1",		"SecondaryColor",	0,	AT_VS_OUT,	0 },
+	{ "float4",		"color",		"COLOR",		"vofi_Color",			0,	AT_VS_OUT,	0 },
+	{ "float4",		"color0",		"COLOR0",		"vofi_Color",			0,	AT_VS_OUT,	0 },
+	{ "float4",		"color1",		"COLOR1",		"vofi_SecondaryColor",	0,	AT_VS_OUT,	0 },
 
 
-	{ "float4",		"color",		"COLOR",		"Color",				0,	AT_PS_IN,	0 },
-	{ "float4",		"color0",		"COLOR0",		"Color",				0,	AT_PS_IN,	0 },
-	{ "float4",		"color1",		"COLOR1",		"SecondaryColor",		0,	AT_PS_IN,	0 },
+	{ "float4",		"color",		"COLOR",		"vofi_Color",			0,	AT_PS_IN,	0 },
+	{ "float4",		"color0",		"COLOR0",		"vofi_Color",			0,	AT_PS_IN,	0 },
+	{ "float4",		"color1",		"COLOR1",		"vofi_SecondaryColor",	0,	AT_PS_IN,	0 },
 
-	{ "half4",		"hcolor",		"COLOR",		"Color",				0,	AT_PS_IN,		0 },
-	{ "half4",		"hcolor0",		"COLOR0",		"Color",				0,	AT_PS_IN,		0 },
-	{ "half4",		"hcolor1",		"COLOR1",		"SecondaryColor",		0,	AT_PS_IN,		0 },
+	{ "half4",		"hcolor",		"COLOR",		"vofi_Color",			0,	AT_PS_IN,		0 },
+	{ "half4",		"hcolor0",		"COLOR0",		"vofi_Color",			0,	AT_PS_IN,		0 },
+	{ "half4",		"hcolor1",		"COLOR1",		"vofi_SecondaryColor",	0,	AT_PS_IN,		0 },
 
 	{ "float4",		"texcoord0",	"TEXCOORD0_centroid",	"vofi_TexCoord0",	0,	AT_PS_IN,	0 },
 	{ "float4",		"texcoord1",	"TEXCOORD1_centroid",	"vofi_TexCoord1",	0,	AT_PS_IN,	0 },
@@ -167,8 +167,8 @@ attribInfo_t attribsPC[] = {
 	{ "half4",		"htexcoord7",	"TEXCOORD7",	"vofi_TexCoord7",		0,	AT_PS_IN,		0 },
 	{ "half4",		"htexcoord8",	"TEXCOORD8",	"vofi_TexCoord8",		0,	AT_PS_IN,		0 },
 	{ "half4",		"htexcoord9",	"TEXCOORD9",	"vofi_TexCoord9",		0,	AT_PS_IN,		0 },
-	{ "float",		"fog",			"FOG",			"FogFragCoord",			0,	AT_VS_OUT,		0 },
-	{ "float4",		"fog",			"FOG",			"FogFragCoord",			0,	AT_PS_IN,		0 },
+	{ "float",		"fog",			"FOG",			"vofi_FogFragCoord",	0,	AT_VS_OUT,		0 },
+	{ "float4",		"fog",			"FOG",			"vofi_FogFragCoord",	0,	AT_PS_IN,		0 },
 	{ NULL,			NULL,			NULL,			NULL,					0,	0,				0 }
 };
 
