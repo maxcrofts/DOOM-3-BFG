@@ -498,19 +498,16 @@ struct typeConversion_t {
 
 const char * vertexInsert = {
 	"#version 150\n"
-	"#define PC\n"
 	"\n"
 	"float saturate( float v ) { return clamp( v, 0.0, 1.0 ); }\n"
 	"vec2 saturate( vec2 v ) { return clamp( v, 0.0, 1.0 ); }\n"
 	"vec3 saturate( vec3 v ) { return clamp( v, 0.0, 1.0 ); }\n"
 	"vec4 saturate( vec4 v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"vec4 tex2Dlod( sampler2D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xy, texcoord.w ); }\n"
 	"\n"
 };
 
 const char * fragmentInsert = {
 	"#version 150\n"
-	"#define PC\n"
 	"\n"
 	"void clip( float v ) { if ( v < 0.0 ) { discard; } }\n"
 	"void clip( vec2 v ) { if ( any( lessThan( v, vec2( 0.0 ) ) ) ) { discard; } }\n"
@@ -521,29 +518,6 @@ const char * fragmentInsert = {
 	"vec2 saturate( vec2 v ) { return clamp( v, 0.0, 1.0 ); }\n"
 	"vec3 saturate( vec3 v ) { return clamp( v, 0.0, 1.0 ); }\n"
 	"vec4 saturate( vec4 v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"\n"
-	"vec4 tex2D( sampler2D sampler, vec2 texcoord ) { return texture( sampler, texcoord.xy ); }\n"
-	"vec4 tex2D( sampler2DShadow sampler, vec3 texcoord ) { return vec4( texture( sampler, texcoord.xyz ) ); }\n"
-	"\n"
-	"vec4 tex2D( sampler2D sampler, vec2 texcoord, vec2 dx, vec2 dy ) { return textureGrad( sampler, texcoord.xy, dx, dy ); }\n"
-	"vec4 tex2D( sampler2DShadow sampler, vec3 texcoord, vec2 dx, vec2 dy ) { return vec4( textureGrad( sampler, texcoord.xyz, dx, dy ) ); }\n"
-	"\n"
-	"vec4 texCUBE( samplerCube sampler, vec3 texcoord ) { return texture( sampler, texcoord.xyz ); }\n"
-	"vec4 texCUBE( samplerCubeShadow sampler, vec4 texcoord ) { return vec4( texture( sampler, texcoord.xyzw ) ); }\n"
-	"\n"
-	"vec4 tex1Dproj( sampler1D sampler, vec2 texcoord ) { return textureProj( sampler, texcoord ); }\n"
-	"vec4 tex2Dproj( sampler2D sampler, vec3 texcoord ) { return textureProj( sampler, texcoord ); }\n"
-	"vec4 tex3Dproj( sampler3D sampler, vec4 texcoord ) { return textureProj( sampler, texcoord ); }\n"
-	"\n"
-	"vec4 tex1Dbias( sampler1D sampler, vec4 texcoord ) { return texture( sampler, texcoord.x, texcoord.w ); }\n"
-	"vec4 tex2Dbias( sampler2D sampler, vec4 texcoord ) { return texture( sampler, texcoord.xy, texcoord.w ); }\n"
-	"vec4 tex3Dbias( sampler3D sampler, vec4 texcoord ) { return texture( sampler, texcoord.xyz, texcoord.w ); }\n"
-	"vec4 texCUBEbias( samplerCube sampler, vec4 texcoord ) { return texture( sampler, texcoord.xyz, texcoord.w ); }\n"
-	"\n"
-	"vec4 tex1Dlod( sampler1D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.x, texcoord.w ); }\n"
-	"vec4 tex2Dlod( sampler2D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xy, texcoord.w ); }\n"
-	"vec4 tex3Dlod( sampler3D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xyz, texcoord.w ); }\n"
-	"vec4 texCUBElod( samplerCube sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xyz, texcoord.w ); }\n"
 	"\n"
 };
 
@@ -556,6 +530,9 @@ struct builtinConversion_t {
 	{ "rsqrt",		"inversesqrt" },
 	{ "ddx",		"dFdx" },
 	{ "ddy",		"dFdy" },
+	{ "tex2D",		"texture" },
+	{ "texCUBE",	"texture" },
+	{ "tex2Dproj",	"textureProj" },
 
 	{ NULL, NULL }
 };
