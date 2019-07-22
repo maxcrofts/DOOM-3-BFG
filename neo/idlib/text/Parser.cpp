@@ -2713,6 +2713,9 @@ const char* idParser::ParseBracedSection( idStr& out, int tabs, bool parseFirstB
 				out += "\t";
 			}
 		}
+		if ( token.WhiteSpaceBeforeToken() ) {
+			out += " ";
+		}
 		if ( token.type == TT_STRING ) {
 			out += "\"" + token + "\"";
 		} else if ( token.type == TT_LITERAL ) {
@@ -2731,7 +2734,6 @@ const char* idParser::ParseBracedSection( idStr& out, int tabs, bool parseFirstB
 			}
 			out += token;
 		}
-		out += " ";
 	} while( depth );
 
 	return out.c_str();
