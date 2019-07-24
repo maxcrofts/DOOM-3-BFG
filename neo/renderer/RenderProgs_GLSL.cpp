@@ -31,10 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "tr_local.h"
 
-idCVar r_skipStripDeadCode( "r_skipStripDeadCode", "0", CVAR_BOOL, "Skip stripping dead code" );
-idCVar r_useUniformArrays( "r_useUniformArrays", "1", CVAR_BOOL, "" );
-
-
 #define VERTEX_UNIFORM_ARRAY_NAME				"_va_"
 #define FRAGMENT_UNIFORM_ARRAY_NAME				"_fa_"
 
@@ -294,11 +290,6 @@ StripDeadCode
 ========================
 */
 idStr StripDeadCode( const idStr & in, const char * name ) {
-	if ( r_skipStripDeadCode.GetBool() ) {
-		return in;
-	}
-
-	//idLexer src( LEXFL_NOFATALERRORS );
 	idParser src( LEXFL_NOFATALERRORS );
 	src.LoadMemory( in.c_str(), in.Length(), name );
 	src.AddDefine("PC");
@@ -757,20 +748,18 @@ idStr ConvertCG2GLSL( const idStr & in, const char * name, bool isVertexProgram,
 			continue;
 		}
 
-		if ( r_useUniformArrays.GetBool() ) {
-			// check for uniforms that need to be converted to the array
-			bool isUniform = false;
-			for ( int i = 0; i < uniformList.Num(); i++ ) {
-				if ( token == uniformList[i] ) {
-					program += ( token.linesCrossed > 0 ) ? newline : ( token.WhiteSpaceBeforeToken() > 0 ? " " : "" );
-					program += va( "%s[%d /* %s */]", uniformArrayName, i, uniformList[i].c_str() );
-					isUniform = true;
-					break;
-				}
+		// check for uniforms that need to be converted to the array
+		bool isUniform = false;
+		for ( int i = 0; i < uniformList.Num(); i++ ) {
+			if ( token == uniformList[i] ) {
+				program += ( token.linesCrossed > 0 ) ? newline : ( token.WhiteSpaceBeforeToken() > 0 ? " " : "" );
+				program += va( "%s[%d /* %s */]", uniformArrayName, i, uniformList[i].c_str() );
+				isUniform = true;
+				break;
 			}
-			if ( isUniform ) {
-				continue;
-			}
+		}
+		if ( isUniform ) {
+			continue;
 		}
 
 		// check for input/output parameters
@@ -857,16 +846,7 @@ idStr ConvertCG2GLSL( const idStr & in, const char * name, bool isVertexProgram,
 	}
 
 	if ( uniformList.Num() > 0 ) {
-		if ( r_useUniformArrays.GetBool() ) {
-			out += va( "\nuniform vec4 %s[%d];\n", uniformArrayName, uniformList.Num() );
-		} else {
-			out += "\n";
-			for ( int i = 0; i < uniformList.Num(); i++ ) {
-				out += "uniform vec4 ";
-				out += uniformList[i];
-				out += ";\n";
-			}
-		}
+		out += va( "\nuniform vec4 %s[%d];\n", uniformArrayName, uniformList.Num() );
 	}
 
 	out += program;
@@ -923,9 +903,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char * name, id
 
 		fileSystem->WriteFile( outFileHLSL, programHLSL.c_str(), programHLSL.Length(), "fs_basepath" );
 		fileSystem->WriteFile( outFileGLSL, programGLSL.c_str(), programGLSL.Length(), "fs_basepath" );
-		if ( r_useUniformArrays.GetBool() ) {
-			fileSystem->WriteFile( outFileUniforms, programUniforms.c_str(), programUniforms.Length(), "fs_basepath" );
-		}
+		fileSystem->WriteFile( outFileUniforms, programUniforms.c_str(), programUniforms.Length(), "fs_basepath" );
 	} else {
 		// read in the glsl file
 		void * fileBufferGLSL = NULL;
@@ -936,43 +914,38 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char * name, id
 		programGLSL = ( const char * ) fileBufferGLSL;
 		Mem_Free( fileBufferGLSL );
 
-		if ( r_useUniformArrays.GetBool() ) {
-			// read in the uniform file
-			void * fileBufferUniforms = NULL;
-			int lengthUniforms = fileSystem->ReadFile( outFileUniforms.c_str(), &fileBufferUniforms );
-			if ( lengthUniforms <= 0 ) {
-				idLib::Error( "uniform file %s could not be loaded and may be corrupt", outFileUniforms.c_str() );
-			}
-			programUniforms = ( const char* ) fileBufferUniforms;
-			Mem_Free( fileBufferUniforms );
+		// read in the uniform file
+		void * fileBufferUniforms = NULL;
+		int lengthUniforms = fileSystem->ReadFile( outFileUniforms.c_str(), &fileBufferUniforms );
+		if ( lengthUniforms <= 0 ) {
+			idLib::Error( "uniform file %s could not be loaded and may be corrupt", outFileUniforms.c_str() );
 		}
+		programUniforms = ( const char* ) fileBufferUniforms;
+		Mem_Free( fileBufferUniforms );
 	}
 
 	// find the uniforms locations in either the vertex or fragment uniform array
-	if ( r_useUniformArrays.GetBool() ) {
-		uniforms.Clear();
-
-		idLexer src( programUniforms, programUniforms.Length(), "uniforms" );
-		idToken token;
-		while ( src.ReadToken( &token ) ) {
-			int index = -1;
-			for ( int i = 0; i < RENDERPARM_TOTAL && index == -1; i++ ) {
-				const char * parmName = GetGLSLParmName( i );
-				if ( token == parmName ) {
-					index = i;
-				}
+	uniforms.Clear();
+	idLexer src( programUniforms, programUniforms.Length(), "uniforms" );
+	idToken token;
+	while ( src.ReadToken( &token ) ) {
+		int index = -1;
+		for ( int i = 0; i < RENDERPARM_TOTAL && index == -1; i++ ) {
+			const char * parmName = GetGLSLParmName( i );
+			if ( token == parmName ) {
+				index = i;
 			}
-			for ( int i = 0; i < MAX_GLSL_USER_PARMS && index == -1; i++ ) {
-				const char * parmName = GetGLSLParmName( RENDERPARM_USER + i );
-				if ( token == parmName ) {
-					index = RENDERPARM_USER + i;
-				}
-			}
-			if ( index == -1 ) {
-				idLib::Error( "couldn't find uniform %s for %s", token.c_str(), outFileGLSL.c_str() );
-			}
-			uniforms.Append( index );
 		}
+		for ( int i = 0; i < MAX_GLSL_USER_PARMS && index == -1; i++ ) {
+			const char * parmName = GetGLSLParmName( RENDERPARM_USER + i );
+			if ( token == parmName ) {
+				index = RENDERPARM_USER + i;
+			}
+		}
+		if ( index == -1 ) {
+			idLib::Error( "couldn't find uniform %s for %s", token.c_str(), outFileGLSL.c_str() );
+		}
+		uniforms.Append( index );
 	}
 
 	// create and compile the shader
@@ -1087,41 +1060,28 @@ idRenderProgManager::CommitUnforms
 void idRenderProgManager::CommitUniforms() {
 	const int progID = GetGLSLCurrentProgram();
 	const glslProgram_t & prog = glslPrograms[progID];
+	ALIGNTYPE16 idVec4 localVectors[RENDERPARM_USER + MAX_GLSL_USER_PARMS];
 
-	if ( r_useUniformArrays.GetBool() ) {
-		ALIGNTYPE16 idVec4 localVectors[RENDERPARM_USER + MAX_GLSL_USER_PARMS];
-
-		if ( prog.vertexShaderIndex >= 0 ) {
-			const idList<int> & vertexUniforms = vertexShaders[prog.vertexShaderIndex].uniforms;
-			if ( prog.vertexUniformArray != -1 && vertexUniforms.Num() > 0 ) {
-				for ( int i = 0; i < vertexUniforms.Num(); i++ ) {
-					localVectors[i] = glslUniforms[vertexUniforms[i]];
-				}
-				qglUniform4fv( prog.vertexUniformArray, vertexUniforms.Num(), localVectors->ToFloatPtr() );
+	if ( prog.vertexShaderIndex >= 0 ) {
+		const idList<int> & vertexUniforms = vertexShaders[prog.vertexShaderIndex].uniforms;
+		if ( prog.vertexUniformArray != -1 && vertexUniforms.Num() > 0 ) {
+			for ( int i = 0; i < vertexUniforms.Num(); i++ ) {
+				localVectors[i] = glslUniforms[vertexUniforms[i]];
 			}
+			qglUniform4fv( prog.vertexUniformArray, vertexUniforms.Num(), localVectors->ToFloatPtr() );
 		}
+	}
 
-		if ( prog.fragmentShaderIndex >= 0 ) {
-			const idList<int> & fragmentUniforms = fragmentShaders[prog.fragmentShaderIndex].uniforms;
-			if ( prog.fragmentUniformArray != -1 && fragmentUniforms.Num() > 0 ) {
-				for ( int i = 0; i < fragmentUniforms.Num(); i++ ) {
-					localVectors[i] = glslUniforms[fragmentUniforms[i]];
-				}
-				qglUniform4fv( prog.fragmentUniformArray, fragmentUniforms.Num(), localVectors->ToFloatPtr() );
+	if ( prog.fragmentShaderIndex >= 0 ) {
+		const idList<int> & fragmentUniforms = fragmentShaders[prog.fragmentShaderIndex].uniforms;
+		if ( prog.fragmentUniformArray != -1 && fragmentUniforms.Num() > 0 ) {
+			for ( int i = 0; i < fragmentUniforms.Num(); i++ ) {
+				localVectors[i] = glslUniforms[fragmentUniforms[i]];
 			}
-		}
-	} else {
-		for ( int i = 0; i < prog.uniformLocations.Num(); i++ ) {
-			const glslUniformLocation_t & uniformLocation = prog.uniformLocations[i];
-			qglUniform4fv( uniformLocation.uniformIndex, 1, glslUniforms[uniformLocation.parmIndex].ToFloatPtr() );
+			qglUniform4fv( prog.fragmentUniformArray, fragmentUniforms.Num(), localVectors->ToFloatPtr() );
 		}
 	}
 }
-
-class idSort_QuickUniforms : public idSort_Quick< glslUniformLocation_t, idSort_QuickUniforms > {
-public:
-	int Compare( const glslUniformLocation_t & a, const glslUniformLocation_t & b ) const { return a.uniformIndex - b.uniformIndex; }
-};
 
 /*
 ================================================================================================
@@ -1191,41 +1151,11 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 		return;
 	}
 
-	if ( r_useUniformArrays.GetBool() ) {
-		prog.vertexUniformArray = qglGetUniformLocation( program, VERTEX_UNIFORM_ARRAY_NAME );
-		prog.fragmentUniformArray = qglGetUniformLocation( program, FRAGMENT_UNIFORM_ARRAY_NAME );
+	prog.vertexUniformArray = qglGetUniformLocation( program, VERTEX_UNIFORM_ARRAY_NAME );
+	prog.fragmentUniformArray = qglGetUniformLocation( program, FRAGMENT_UNIFORM_ARRAY_NAME );
 
-		assert( prog.vertexUniformArray != -1 || vertexShaderIndex < 0 || vertexShaders[vertexShaderIndex].uniforms.Num() == 0 );
-		assert( prog.fragmentUniformArray != -1 || fragmentShaderIndex < 0 || fragmentShaders[fragmentShaderIndex].uniforms.Num() == 0 );
-	} else {
-		// store the uniform locations after we have linked the GLSL program
-		prog.uniformLocations.Clear();
-		for ( int i = 0; i < RENDERPARM_TOTAL; i++ ) {
-			const char * parmName = GetGLSLParmName( i );
-			GLint loc = qglGetUniformLocation( program, parmName );
-			if ( loc != -1 ) {
-				glslUniformLocation_t uniformLocation;
-				uniformLocation.parmIndex = i;
-				uniformLocation.uniformIndex = loc;
-				prog.uniformLocations.Append( uniformLocation );
-			}
-		}
-
-		// store the USER uniform locations
-		for ( int i = 0; i < MAX_GLSL_USER_PARMS; i++ ) {
-			const char * parmName = GetGLSLParmName( RENDERPARM_USER + i );
-			GLint loc = qglGetUniformLocation( program, parmName );
-			if ( loc != -1 ) {
-				glslUniformLocation_t uniformLocation;
-				uniformLocation.parmIndex = RENDERPARM_USER + i;
-				uniformLocation.uniformIndex = loc;
-				prog.uniformLocations.Append( uniformLocation );
-			}
-		}
-
-		// sort the uniforms based on index
-		prog.uniformLocations.SortWithTemplate( idSort_QuickUniforms() );
-	}
+	assert( prog.vertexUniformArray != -1 || vertexShaderIndex < 0 || vertexShaders[vertexShaderIndex].uniforms.Num() == 0 );
+	assert( prog.fragmentUniformArray != -1 || fragmentShaderIndex < 0 || fragmentShaders[fragmentShaderIndex].uniforms.Num() == 0 );
 
 	// get the uniform buffer binding for skinning joint matrices
 	GLint blockIndex = qglGetUniformBlockIndex( program, "matrices_ubo" );
