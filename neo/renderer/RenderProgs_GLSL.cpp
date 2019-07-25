@@ -58,114 +58,87 @@ struct attribInfo_t {
 	const char *	glsl;
 	int				bind;
 	int				flags;
-	int				vertexMask;
-};
-
-/*
-================================================
-vertexMask_t
-
-NOTE: There is a PS3 dependency between the bit flag specified here and the vertex
-attribute index and attribute semantic specified in DeclRenderProg.cpp because the
-stored render prog vertexMask is initialized with cellCgbGetVertexConfiguration().
-The ATTRIB_INDEX_ defines are used to make sure the vertexMask_t and attrib assignment
-in DeclRenderProg.cpp are in sync.
-
-Even though VERTEX_MASK_XYZ_SHORT and VERTEX_MASK_ST_SHORT are not real attributes,
-they come before the VERTEX_MASK_MORPH to reduce the range of vertex program
-permutations defined by the vertexMask_t bits on the Xbox 360 (see MAX_VERTEX_DECLARATIONS).
-================================================
-*/
-enum vertexMask_t {
-	VERTEX_MASK_XYZ			= BIT( PC_ATTRIB_INDEX_VERTEX ),
-	VERTEX_MASK_ST			= BIT( PC_ATTRIB_INDEX_ST ),
-	VERTEX_MASK_NORMAL		= BIT( PC_ATTRIB_INDEX_NORMAL ),
-	VERTEX_MASK_COLOR		= BIT( PC_ATTRIB_INDEX_COLOR ),
-	VERTEX_MASK_TANGENT		= BIT( PC_ATTRIB_INDEX_TANGENT ),
-	VERTEX_MASK_COLOR2		= BIT( PC_ATTRIB_INDEX_COLOR2 ),
-};
-
-attribInfo_t attribsPC[] = {
+} attribsPC[] = {
 	// vertex attributes
-	{ "float4",		"position",		"POSITION",		"in_Position",			PC_ATTRIB_INDEX_VERTEX,			AT_VS_IN,		VERTEX_MASK_XYZ },
-	{ "float2",		"texcoord",		"TEXCOORD0",	"in_TexCoord",			PC_ATTRIB_INDEX_ST,				AT_VS_IN,		VERTEX_MASK_ST },
-	{ "float4",		"normal",		"NORMAL",		"in_Normal",			PC_ATTRIB_INDEX_NORMAL,			AT_VS_IN,		VERTEX_MASK_NORMAL },
-	{ "float4",		"tangent",		"TANGENT",		"in_Tangent",			PC_ATTRIB_INDEX_TANGENT,		AT_VS_IN,		VERTEX_MASK_TANGENT },
-	{ "float4",		"color",		"COLOR0",		"in_Color",				PC_ATTRIB_INDEX_COLOR,			AT_VS_IN,		VERTEX_MASK_COLOR },
-	{ "float4",		"color2",		"COLOR1",		"in_Color2",			PC_ATTRIB_INDEX_COLOR2,			AT_VS_IN,		VERTEX_MASK_COLOR2 },
+	{ "float4",		"position",		"POSITION",		"in_Position",			PC_ATTRIB_INDEX_VERTEX,			AT_VS_IN },
+	{ "float2",		"texcoord",		"TEXCOORD0",	"in_TexCoord",			PC_ATTRIB_INDEX_ST,				AT_VS_IN },
+	{ "float4",		"normal",		"NORMAL",		"in_Normal",			PC_ATTRIB_INDEX_NORMAL,			AT_VS_IN },
+	{ "float4",		"tangent",		"TANGENT",		"in_Tangent",			PC_ATTRIB_INDEX_TANGENT,		AT_VS_IN },
+	{ "float4",		"color",		"COLOR0",		"in_Color",				PC_ATTRIB_INDEX_COLOR,			AT_VS_IN },
+	{ "float4",		"color2",		"COLOR1",		"in_Color2",			PC_ATTRIB_INDEX_COLOR2,			AT_VS_IN },
 
 	// pre-defined vertex program output
-	{ "float4",		"position",		"POSITION",		"gl_Position",			0,	AT_VS_OUT,		0 },
-	{ "float",		"clip0",		"CLP0",			"gl_ClipDistance[0]",	0,	AT_VS_OUT,		0 },
-	{ "float",		"clip1",		"CLP1",			"gl_ClipDistance[1]",	0,	AT_VS_OUT,		0 },
-	{ "float",		"clip2",		"CLP2",			"gl_ClipDistance[2]",	0,	AT_VS_OUT,		0 },
-	{ "float",		"clip3",		"CLP3",			"gl_ClipDistance[3]",	0,	AT_VS_OUT,		0 },
-	{ "float",		"clip4",		"CLP4",			"gl_ClipDistance[4]",	0,	AT_VS_OUT,		0 },
-	{ "float",		"clip5",		"CLP5",			"gl_ClipDistance[5]",	0,	AT_VS_OUT,		0 },
+	{ "float4",		"position",		"POSITION",		"gl_Position",			0,	AT_VS_OUT },
+	{ "float",		"clip0",		"CLP0",			"gl_ClipDistance[0]",	0,	AT_VS_OUT },
+	{ "float",		"clip1",		"CLP1",			"gl_ClipDistance[1]",	0,	AT_VS_OUT },
+	{ "float",		"clip2",		"CLP2",			"gl_ClipDistance[2]",	0,	AT_VS_OUT },
+	{ "float",		"clip3",		"CLP3",			"gl_ClipDistance[3]",	0,	AT_VS_OUT },
+	{ "float",		"clip4",		"CLP4",			"gl_ClipDistance[4]",	0,	AT_VS_OUT },
+	{ "float",		"clip5",		"CLP5",			"gl_ClipDistance[5]",	0,	AT_VS_OUT },
 
 	// pre-defined fragment program input
-	{ "float4",		"position",		"VPOS",			"gl_FragCoord",			0,	AT_PS_IN,		0 },
-	{ "half4",		"hposition",	"VPOS",			"gl_FragCoord",			0,	AT_PS_IN,		0 },
-	{ "float",		"facing",		"FACE",			"gl_FrontFacing",		0,	AT_PS_IN,		0 },
+	{ "float4",		"position",		"VPOS",			"gl_FragCoord",			0,	AT_PS_IN },
+	{ "half4",		"hposition",	"VPOS",			"gl_FragCoord",			0,	AT_PS_IN },
+	{ "float",		"facing",		"FACE",			"gl_FrontFacing",		0,	AT_PS_IN },
 
 	// fragment program output
-	{ "float4",		"color",		"COLOR",		"out_FragColor",	0,	AT_PS_OUT,		0 },
-	{ "half4",		"hcolor",		"COLOR",		"out_FragColor",	0,	AT_PS_OUT,		0 },
-	{ "float4",		"color0",		"COLOR0",		"out_FragColor",	0,	AT_PS_OUT,		0 },
-	{ "float4",		"color1",		"COLOR1",		"out_FragColor",	1,	AT_PS_OUT,		0 },
-	{ "float4",		"color2",		"COLOR2",		"out_FragColor",	2,	AT_PS_OUT,		0 },
-	{ "float4",		"color3",		"COLOR3",		"out_FragColor",	3,	AT_PS_OUT,		0 },
-	{ "float",		"depth",		"DEPTH",		"gl_FragDepth",		4,	AT_PS_OUT,		0 },
+	{ "float4",		"color",		"COLOR",		"out_FragColor",	0,	AT_PS_OUT },
+	{ "half4",		"hcolor",		"COLOR",		"out_FragColor",	0,	AT_PS_OUT },
+	{ "float4",		"color0",		"COLOR0",		"out_FragColor",	0,	AT_PS_OUT },
+	{ "float4",		"color1",		"COLOR1",		"out_FragColor",	1,	AT_PS_OUT },
+	{ "float4",		"color2",		"COLOR2",		"out_FragColor",	2,	AT_PS_OUT },
+	{ "float4",		"color3",		"COLOR3",		"out_FragColor",	3,	AT_PS_OUT },
+	{ "float",		"depth",		"DEPTH",		"gl_FragDepth",		4,	AT_PS_OUT },
 
 	// vertex to fragment program pass through
-	{ "float4",		"color",		"COLOR",		"vofi_Color",			0,	AT_VS_OUT,	0 },
-	{ "float4",		"color0",		"COLOR0",		"vofi_Color",			0,	AT_VS_OUT,	0 },
-	{ "float4",		"color1",		"COLOR1",		"vofi_SecondaryColor",	0,	AT_VS_OUT,	0 },
+	{ "float4",		"color",		"COLOR",		"vofi_Color",			0,	AT_VS_OUT },
+	{ "float4",		"color0",		"COLOR0",		"vofi_Color",			0,	AT_VS_OUT },
+	{ "float4",		"color1",		"COLOR1",		"vofi_SecondaryColor",	0,	AT_VS_OUT },
 
 
-	{ "float4",		"color",		"COLOR",		"vofi_Color",			0,	AT_PS_IN,	0 },
-	{ "float4",		"color0",		"COLOR0",		"vofi_Color",			0,	AT_PS_IN,	0 },
-	{ "float4",		"color1",		"COLOR1",		"vofi_SecondaryColor",	0,	AT_PS_IN,	0 },
+	{ "float4",		"color",		"COLOR",		"vofi_Color",			0,	AT_PS_IN },
+	{ "float4",		"color0",		"COLOR0",		"vofi_Color",			0,	AT_PS_IN },
+	{ "float4",		"color1",		"COLOR1",		"vofi_SecondaryColor",	0,	AT_PS_IN },
 
-	{ "half4",		"hcolor",		"COLOR",		"vofi_Color",			0,	AT_PS_IN,		0 },
-	{ "half4",		"hcolor0",		"COLOR0",		"vofi_Color",			0,	AT_PS_IN,		0 },
-	{ "half4",		"hcolor1",		"COLOR1",		"vofi_SecondaryColor",	0,	AT_PS_IN,		0 },
+	{ "half4",		"hcolor",		"COLOR",		"vofi_Color",			0,	AT_PS_IN },
+	{ "half4",		"hcolor0",		"COLOR0",		"vofi_Color",			0,	AT_PS_IN },
+	{ "half4",		"hcolor1",		"COLOR1",		"vofi_SecondaryColor",	0,	AT_PS_IN },
 
-	{ "float4",		"texcoord0",	"TEXCOORD0_centroid",	"vofi_TexCoord0",	0,	AT_PS_IN,	0 },
-	{ "float4",		"texcoord1",	"TEXCOORD1_centroid",	"vofi_TexCoord1",	0,	AT_PS_IN,	0 },
-	{ "float4",		"texcoord2",	"TEXCOORD2_centroid",	"vofi_TexCoord2",	0,	AT_PS_IN,	0 },
-	{ "float4",		"texcoord3",	"TEXCOORD3_centroid",	"vofi_TexCoord3",	0,	AT_PS_IN,	0 },
-	{ "float4",		"texcoord4",	"TEXCOORD4_centroid",	"vofi_TexCoord4",	0,	AT_PS_IN,	0 },
-	{ "float4",		"texcoord5",	"TEXCOORD5_centroid",	"vofi_TexCoord5",	0,	AT_PS_IN,	0 },
-	{ "float4",		"texcoord6",	"TEXCOORD6_centroid",	"vofi_TexCoord6",	0,	AT_PS_IN,	0 },
-	{ "float4",		"texcoord7",	"TEXCOORD7_centroid",	"vofi_TexCoord7",	0,	AT_PS_IN,	0 },
-	{ "float4",		"texcoord8",	"TEXCOORD8_centroid",	"vofi_TexCoord8",	0,	AT_PS_IN,	0 },
-	{ "float4",		"texcoord9",	"TEXCOORD9_centroid",	"vofi_TexCoord9",	0,	AT_PS_IN,	0 },
+	{ "float4",		"texcoord0",	"TEXCOORD0_centroid",	"vofi_TexCoord0",	0,	AT_PS_IN },
+	{ "float4",		"texcoord1",	"TEXCOORD1_centroid",	"vofi_TexCoord1",	0,	AT_PS_IN },
+	{ "float4",		"texcoord2",	"TEXCOORD2_centroid",	"vofi_TexCoord2",	0,	AT_PS_IN },
+	{ "float4",		"texcoord3",	"TEXCOORD3_centroid",	"vofi_TexCoord3",	0,	AT_PS_IN },
+	{ "float4",		"texcoord4",	"TEXCOORD4_centroid",	"vofi_TexCoord4",	0,	AT_PS_IN },
+	{ "float4",		"texcoord5",	"TEXCOORD5_centroid",	"vofi_TexCoord5",	0,	AT_PS_IN },
+	{ "float4",		"texcoord6",	"TEXCOORD6_centroid",	"vofi_TexCoord6",	0,	AT_PS_IN },
+	{ "float4",		"texcoord7",	"TEXCOORD7_centroid",	"vofi_TexCoord7",	0,	AT_PS_IN },
+	{ "float4",		"texcoord8",	"TEXCOORD8_centroid",	"vofi_TexCoord8",	0,	AT_PS_IN },
+	{ "float4",		"texcoord9",	"TEXCOORD9_centroid",	"vofi_TexCoord9",	0,	AT_PS_IN },
 
-	{ "float4",		"texcoord0",	"TEXCOORD0",	"vofi_TexCoord0",		0,	AT_VS_OUT | AT_PS_IN,	0 },
-	{ "float4",		"texcoord1",	"TEXCOORD1",	"vofi_TexCoord1",		0,	AT_VS_OUT | AT_PS_IN,	0 },
-	{ "float4",		"texcoord2",	"TEXCOORD2",	"vofi_TexCoord2",		0,	AT_VS_OUT | AT_PS_IN,	0 },
-	{ "float4",		"texcoord3",	"TEXCOORD3",	"vofi_TexCoord3",		0,	AT_VS_OUT | AT_PS_IN,	0 },
-	{ "float4",		"texcoord4",	"TEXCOORD4",	"vofi_TexCoord4",		0,	AT_VS_OUT | AT_PS_IN,	0 },
-	{ "float4",		"texcoord5",	"TEXCOORD5",	"vofi_TexCoord5",		0,	AT_VS_OUT | AT_PS_IN,	0 },
-	{ "float4",		"texcoord6",	"TEXCOORD6",	"vofi_TexCoord6",		0,	AT_VS_OUT | AT_PS_IN,	0 },
-	{ "float4",		"texcoord7",	"TEXCOORD7",	"vofi_TexCoord7",		0,	AT_VS_OUT | AT_PS_IN,	0 },
-	{ "float4",		"texcoord8",	"TEXCOORD8",	"vofi_TexCoord8",		0,	AT_VS_OUT | AT_PS_IN,	0 },
-	{ "float4",		"texcoord9",	"TEXCOORD9",	"vofi_TexCoord9",		0,	AT_VS_OUT | AT_PS_IN,	0 },
+	{ "float4",		"texcoord0",	"TEXCOORD0",	"vofi_TexCoord0",		0,	AT_VS_OUT | AT_PS_IN },
+	{ "float4",		"texcoord1",	"TEXCOORD1",	"vofi_TexCoord1",		0,	AT_VS_OUT | AT_PS_IN },
+	{ "float4",		"texcoord2",	"TEXCOORD2",	"vofi_TexCoord2",		0,	AT_VS_OUT | AT_PS_IN },
+	{ "float4",		"texcoord3",	"TEXCOORD3",	"vofi_TexCoord3",		0,	AT_VS_OUT | AT_PS_IN },
+	{ "float4",		"texcoord4",	"TEXCOORD4",	"vofi_TexCoord4",		0,	AT_VS_OUT | AT_PS_IN },
+	{ "float4",		"texcoord5",	"TEXCOORD5",	"vofi_TexCoord5",		0,	AT_VS_OUT | AT_PS_IN },
+	{ "float4",		"texcoord6",	"TEXCOORD6",	"vofi_TexCoord6",		0,	AT_VS_OUT | AT_PS_IN },
+	{ "float4",		"texcoord7",	"TEXCOORD7",	"vofi_TexCoord7",		0,	AT_VS_OUT | AT_PS_IN },
+	{ "float4",		"texcoord8",	"TEXCOORD8",	"vofi_TexCoord8",		0,	AT_VS_OUT | AT_PS_IN },
+	{ "float4",		"texcoord9",	"TEXCOORD9",	"vofi_TexCoord9",		0,	AT_VS_OUT | AT_PS_IN },
 
-	{ "half4",		"htexcoord0",	"TEXCOORD0",	"vofi_TexCoord0",		0,	AT_PS_IN,		0 },
-	{ "half4",		"htexcoord1",	"TEXCOORD1",	"vofi_TexCoord1",		0,	AT_PS_IN,		0 },
-	{ "half4",		"htexcoord2",	"TEXCOORD2",	"vofi_TexCoord2",		0,	AT_PS_IN,		0 },
-	{ "half4",		"htexcoord3",	"TEXCOORD3",	"vofi_TexCoord3",		0,	AT_PS_IN,		0 },
-	{ "half4",		"htexcoord4",	"TEXCOORD4",	"vofi_TexCoord4",		0,	AT_PS_IN,		0 },
-	{ "half4",		"htexcoord5",	"TEXCOORD5",	"vofi_TexCoord5",		0,	AT_PS_IN,		0 },
-	{ "half4",		"htexcoord6",	"TEXCOORD6",	"vofi_TexCoord6",		0,	AT_PS_IN,		0 },
-	{ "half4",		"htexcoord7",	"TEXCOORD7",	"vofi_TexCoord7",		0,	AT_PS_IN,		0 },
-	{ "half4",		"htexcoord8",	"TEXCOORD8",	"vofi_TexCoord8",		0,	AT_PS_IN,		0 },
-	{ "half4",		"htexcoord9",	"TEXCOORD9",	"vofi_TexCoord9",		0,	AT_PS_IN,		0 },
-	{ "float",		"fog",			"FOG",			"vofi_FogFragCoord",	0,	AT_VS_OUT,		0 },
-	{ "float4",		"fog",			"FOG",			"vofi_FogFragCoord",	0,	AT_PS_IN,		0 },
-	{ NULL,			NULL,			NULL,			NULL,					0,	0,				0 }
+	{ "half4",		"htexcoord0",	"TEXCOORD0",	"vofi_TexCoord0",		0,	AT_PS_IN },
+	{ "half4",		"htexcoord1",	"TEXCOORD1",	"vofi_TexCoord1",		0,	AT_PS_IN },
+	{ "half4",		"htexcoord2",	"TEXCOORD2",	"vofi_TexCoord2",		0,	AT_PS_IN },
+	{ "half4",		"htexcoord3",	"TEXCOORD3",	"vofi_TexCoord3",		0,	AT_PS_IN },
+	{ "half4",		"htexcoord4",	"TEXCOORD4",	"vofi_TexCoord4",		0,	AT_PS_IN },
+	{ "half4",		"htexcoord5",	"TEXCOORD5",	"vofi_TexCoord5",		0,	AT_PS_IN },
+	{ "half4",		"htexcoord6",	"TEXCOORD6",	"vofi_TexCoord6",		0,	AT_PS_IN },
+	{ "half4",		"htexcoord7",	"TEXCOORD7",	"vofi_TexCoord7",		0,	AT_PS_IN },
+	{ "half4",		"htexcoord8",	"TEXCOORD8",	"vofi_TexCoord8",		0,	AT_PS_IN },
+	{ "half4",		"htexcoord9",	"TEXCOORD9",	"vofi_TexCoord9",		0,	AT_PS_IN },
+	{ "float",		"fog",			"FOG",			"vofi_FogFragCoord",	0,	AT_VS_OUT },
+	{ "float4",		"fog",			"FOG",			"vofi_FogFragCoord",	0,	AT_PS_IN },
+	{ NULL,			NULL,			NULL,			NULL,					0,	0 }
 };
 
 const char * types[] = {
