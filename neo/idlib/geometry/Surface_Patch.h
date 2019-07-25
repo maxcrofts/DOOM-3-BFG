@@ -113,7 +113,7 @@ ID_INLINE idSurface_Patch::idSurface_Patch( int maxPatchWidth, int maxPatchHeigh
 idSurface_Patch::idSurface_Patch
 =================
 */
-ID_INLINE idSurface_Patch::idSurface_Patch( const idSurface_Patch &patch ) {
+ID_INLINE idSurface_Patch::idSurface_Patch( const idSurface_Patch &patch ) : idSurface() {
 	(*this) = patch;
 }
 

@@ -362,7 +362,7 @@ ID_INLINE idFixedWinding::idFixedWinding( const idWinding &winding ) {
 	numPoints = winding.GetNumPoints();
 }
 
-ID_INLINE idFixedWinding::idFixedWinding( const idFixedWinding &winding ) {
+ID_INLINE idFixedWinding::idFixedWinding( const idFixedWinding &winding ) : idWinding() {
 	int i;
 
 	p = data;

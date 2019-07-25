@@ -50,8 +50,8 @@ Free memory used by an lwClip.
 void lwFreeClip( lwClip *clip )
 {
    if ( clip ) {
-      lwListFree( clip->ifilter, (void (__cdecl *)(void *))lwFreePlugin );
-      lwListFree( clip->pfilter, (void (__cdecl *)(void *))lwFreePlugin );
+      lwListFree( clip->ifilter, (void (*)(void *))lwFreePlugin );
+      lwListFree( clip->pfilter, (void (*)(void *))lwFreePlugin );
 	  switch( clip->type ) {
 		case ID_STIL: {
 	      if ( clip->source.still.name ) Mem_Free( clip->source.still.name );
@@ -317,7 +317,7 @@ void lwFreeEnvelope( lwEnvelope *env )
    if ( env ) {
       if ( env->name ) Mem_Free( env->name );
       lwListFree( env->key, lwFree );
-      lwListFree( env->cfilter, (void (__cdecl *)(void *))lwFreePlugin );
+      lwListFree( env->cfilter, (void (*)(void *))lwFreePlugin );
       Mem_Free( env );
    }
 }
@@ -395,7 +395,7 @@ lwEnvelope *lwGetEnvelope( idFile *fp, int cksize )
             if ( !key ) goto Fail;
             key->time = getF4( fp );
             key->value = getF4( fp );
-            lwListInsert( (void**)&env->key, key, (int (__cdecl *)(void *,void *))compare_keys );
+            lwListInsert( (void**)&env->key, key, (int (*)(void *,void *))compare_keys );
             env->nkeys++;
             break;
 
@@ -1410,7 +1410,7 @@ void lwFreeLayer( lwLayer *layer )
       if ( layer->name ) Mem_Free( layer->name );
       lwFreePoints( &layer->point );
       lwFreePolygons( &layer->polygon );
-      lwListFree( layer->vmap, (void (__cdecl *)(void *))lwFreeVMap );
+      lwListFree( layer->vmap, (void (*)(void *))lwFreeVMap );
       Mem_Free( layer );
    }
 }
@@ -1426,10 +1426,10 @@ Free memory used by an lwObject.
 void lwFreeObject( lwObject *object )
 {
    if ( object ) {
-      lwListFree( object->layer, (void (__cdecl *)(void *))lwFreeLayer );
-      lwListFree( object->env, (void (__cdecl *)(void *))lwFreeEnvelope );
-      lwListFree( object->clip, (void (__cdecl *)(void *))lwFreeClip );
-      lwListFree( object->surf, (void (__cdecl *)(void *))lwFreeSurface );
+      lwListFree( object->layer, (void (*)(void *))lwFreeLayer );
+      lwListFree( object->env, (void (*)(void *))lwFreeEnvelope );
+      lwListFree( object->clip, (void (*)(void *))lwFreeClip );
+      lwListFree( object->surf, (void (*)(void *))lwFreeSurface );
       lwFreeTags( &object->taglist );
       Mem_Free( object );
    }
@@ -2979,18 +2979,18 @@ void lwFreeSurface( lwSurface *surf )
 		if ( surf->name ) Mem_Free( surf->name );
 		if ( surf->srcname ) Mem_Free( surf->srcname );
 
-		lwListFree( surf->shader, (void (__cdecl *)(void *))lwFreePlugin );
+		lwListFree( surf->shader, (void (*)(void *))lwFreePlugin );
 
-		lwListFree( surf->color.tex, (void (__cdecl *)(void *))lwFreeTexture );
-		lwListFree( surf->luminosity.tex, (void (__cdecl *)(void *))lwFreeTexture );
-		lwListFree( surf->diffuse.tex, (void (__cdecl *)(void *))lwFreeTexture );
-		lwListFree( surf->specularity.tex, (void (__cdecl *)(void *))lwFreeTexture );
-		lwListFree( surf->glossiness.tex, (void (__cdecl *)(void *))lwFreeTexture );
-		lwListFree( surf->reflection.val.tex, (void (__cdecl *)(void *))lwFreeTexture );
-		lwListFree( surf->transparency.val.tex, (void (__cdecl *)(void *))lwFreeTexture );
-		lwListFree( surf->eta.tex, (void (__cdecl *)(void *))lwFreeTexture );
-		lwListFree( surf->translucency.tex, (void (__cdecl *)(void *))lwFreeTexture );
-		lwListFree( surf->bump.tex, (void (__cdecl *)(void *))lwFreeTexture );
+		lwListFree( surf->color.tex, (void (*)(void *))lwFreeTexture );
+		lwListFree( surf->luminosity.tex, (void (*)(void *))lwFreeTexture );
+		lwListFree( surf->diffuse.tex, (void (*)(void *))lwFreeTexture );
+		lwListFree( surf->specularity.tex, (void (*)(void *))lwFreeTexture );
+		lwListFree( surf->glossiness.tex, (void (*)(void *))lwFreeTexture );
+		lwListFree( surf->reflection.val.tex, (void (*)(void *))lwFreeTexture );
+		lwListFree( surf->transparency.val.tex, (void (*)(void *))lwFreeTexture );
+		lwListFree( surf->eta.tex, (void (*)(void *))lwFreeTexture );
+		lwListFree( surf->translucency.tex, (void (*)(void *))lwFreeTexture );
+		lwListFree( surf->bump.tex, (void (*)(void *))lwFreeTexture );
 
 		Mem_Free( surf );
 	}
@@ -3645,7 +3645,7 @@ static int add_texture( lwSurface *surf, lwTexture *tex )
       default:  return 0;
    }
 
-   lwListInsert( (void**)list, tex, (int (__cdecl *)(void *,void *))compare_textures );
+   lwListInsert( (void**)list, tex, (int (*)(void *,void *))compare_textures );
    return 1;
 }
 
@@ -3870,7 +3870,7 @@ lwSurface *lwGetSurface( idFile *fp, int cksize )
                case ID_SHDR:
                   shdr = lwGetShader( fp, sz - 4 );
                   if ( !shdr ) goto Fail;
-                  lwListInsert( (void**)&surf->shader, shdr, (int (__cdecl *)(void *,void *))compare_shaders );
+                  lwListInsert( (void**)&surf->shader, shdr, (int (*)(void *,void *))compare_shaders );
                   ++surf->nshaders;
                   set_flen( 4 + get_flen() );
                   break;

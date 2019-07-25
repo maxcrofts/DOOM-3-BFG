@@ -81,36 +81,47 @@ if(CLANG OR NOT MSVC)
     
     # disable some warnings
     add_compile_options(
-        -Wno-bitwise-op-parentheses
+        -Wno-cast-function-type
+        -Wno-class-memaccess
         -Wno-dangling-else
+        -Wno-deprecated-copy
         -Wno-deprecated-declarations
         -Wno-ignored-attributes
         -Wno-ignored-qualifiers
-        -Wno-implicit-exception-spec-mismatch
-        -Wno-inline-new-delete
-        -Wno-invalid-noreturn
-        -Wno-logical-op-parentheses
+        -Wno-implicit-fallthrough
+        -Wno-misleading-indentation
         -Wno-missing-braces
         -Wno-missing-field-initializers
         -Wno-overloaded-virtual
-        -Wno-parentheses-equality
-        -Wno-pragma-pack
+        -Wno-parentheses
         -Wno-reorder
-        -Wno-reserved-user-defined-literal
         -Wno-shift-negative-value
         -Wno-sign-compare
         -Wno-switch
         -Wno-trigraphs
         -Wno-unknown-pragmas
-        -Wno-unknown-warning-option
+        -Wno-unused-but-set-parameter
+        -Wno-unused-but-set-variable
         -Wno-unused-function
-        -Wno-unused-local-typedef
+        -Wno-unused-local-typedefs
         -Wno-unused-parameter
-        -Wno-unused-private-field
         -Wno-unused-value
         -Wno-unused-variable
-        -Wno-writable-strings
+        -Wno-write-strings
     )
+
+    if(CLANG)
+        add_compile_options(
+            -Wno-implicit-exception-spec-mismatch
+            -Wno-inline-new-delete
+            -Wno-invalid-noreturn
+            -Wno-parentheses-equality
+            -Wno-pragma-pack
+            -Wno-reserved-user-defined-literal
+            -Wno-unknown-warning-option
+            -Wno-unused-private-field
+        )
+    endif()
 endif()
 
 # add defines if certain C++11 features are supported
