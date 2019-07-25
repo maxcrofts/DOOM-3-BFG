@@ -46,9 +46,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "s_sound.h"
 
-#ifdef __GNUG__
-#pragma implementation "p_inter.h"
-#endif
 #include "p_inter.h"
 
 #include "Main.h"

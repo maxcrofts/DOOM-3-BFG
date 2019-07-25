@@ -32,9 +32,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "r_defs.h"
 #include "r_state.h"
 
-#ifdef __GNUG__
-#pragma interface
-#endif
 
 // Retrieve column data for span blitting.
 byte*

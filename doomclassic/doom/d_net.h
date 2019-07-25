@@ -32,9 +32,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "d_player.h"
 
 
-#ifdef __GNUG__
-#pragma interface
-#endif
 
 
 //

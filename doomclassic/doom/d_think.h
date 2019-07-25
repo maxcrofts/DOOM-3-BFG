@@ -30,9 +30,6 @@ If you have questions concerning this license or the applicable additional terms
 #define __D_THINK__
 
 
-#ifdef __GNUG__
-#pragma interface
-#endif
 
 //
 // Experimental stuff.

@@ -37,9 +37,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "r_data.h"
 
 
-#ifdef __GNUG__
-#pragma implementation "r_sky.h"
-#endif
 #include "r_sky.h"
 
 //

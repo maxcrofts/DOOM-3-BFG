@@ -30,9 +30,6 @@ If you have questions concerning this license or the applicable additional terms
 #define __M_SWAP__
 
 
-#ifdef __GNUG__
-#pragma interface
-#endif
 
 
 // Endianess handling.

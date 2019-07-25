@@ -31,9 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "doomtype.h"
 
-#ifdef __GNUG__
-#pragma interface
-#endif
 
 // The data sampled per tick (single player)
 // and transmitted to other peers (multiplayer).

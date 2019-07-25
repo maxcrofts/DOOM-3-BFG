@@ -30,9 +30,6 @@ If you have questions concerning this license or the applicable additional terms
 #define __P_SAVEG__
 
 
-#ifdef __GNUG__
-#pragma interface
-#endif
 
 
 // Persistent storage/archiving.

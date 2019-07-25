@@ -46,9 +46,6 @@ If you have questions concerning this license or the applicable additional terms
 // as commands per game tick.
 #include "d_ticcmd.h"
 
-#ifdef __GNUG__
-#pragma interface
-#endif
 
 
 

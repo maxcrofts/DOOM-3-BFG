@@ -30,9 +30,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "globaldata.h"
 
 
-#ifdef __GNUG__
-#pragma implementation "dstrings.h"
-#endif
 #include "dstrings.h"
 
 

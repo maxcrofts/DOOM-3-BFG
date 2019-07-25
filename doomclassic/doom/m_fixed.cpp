@@ -34,9 +34,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "doomtype.h"
 #include "i_system.h"
 
-#ifdef __GNUG__
-#pragma implementation "m_fixed.h"
-#endif
 #include "m_fixed.h"
 
 

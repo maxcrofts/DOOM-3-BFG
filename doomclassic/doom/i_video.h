@@ -33,9 +33,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "doomtype.h"
 #include "d_event.h"
 
-#ifdef __GNUG__
-#pragma interface
-#endif
 
 // Called by D_DoomMain,
 // determines the hardware configuration

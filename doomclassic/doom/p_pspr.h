@@ -44,9 +44,6 @@ If you have questions concerning this license or the applicable additional terms
 // and the Frame Sequence table.
 #include "info.h"
 
-#ifdef __GNUG__
-#pragma interface
-#endif
 
 
 //

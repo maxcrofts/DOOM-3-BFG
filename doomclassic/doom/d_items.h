@@ -31,9 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "doomdef.h"
 
-#ifdef __GNUG__
-#pragma interface
-#endif
 
 
 // Weapon info: sprite frames, ammunition use.

@@ -30,9 +30,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "globaldata.h"
 
 
-#ifdef __GNUG__
-#pragma implementation "doomstat.h"
-#endif
 #include "doomstat.h"
 
 

@@ -30,9 +30,6 @@ If you have questions concerning this license or the applicable additional terms
 #define __I_NET__
 
 
-#ifdef __GNUG__
-#pragma interface
-#endif
 
 
 

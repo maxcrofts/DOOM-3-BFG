@@ -30,9 +30,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "globaldata.h"
 
 
-#ifdef __GNUG__
-#pragma implementation "m_swap.h"
-#endif
 #include "m_swap.h"
 
 

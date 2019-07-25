@@ -30,9 +30,6 @@ If you have questions concerning this license or the applicable additional terms
 #define __P_INTER__
 
 
-#ifdef __GNUG__
-#pragma interface
-#endif
 
 
 qboolean	P_GivePower(player_t*, int);

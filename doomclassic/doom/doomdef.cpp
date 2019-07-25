@@ -30,9 +30,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "globaldata.h"
 
 
-#ifdef __GNUG__
-#pragma implementation "doomdef.h"
-#endif
 #include "doomdef.h"
 
 // Location for any defines turned variables.
