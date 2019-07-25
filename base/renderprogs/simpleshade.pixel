@@ -57,6 +57,6 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	// light is above and to the right in the eye plane
 	float3 L = normalize( float3( 1.0, 1.0, 0.0 ) - pos );
 
-	result.color.xyz = _float3( dot3( normal, L ) * 0.75 );
+	result.color.xyz = float3( dot3( normal, L ) * 0.75 );
 	result.color.w = 1.0;
 }

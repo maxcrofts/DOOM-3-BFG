@@ -51,8 +51,8 @@ struct PS_OUT {
 
 void main( PS_IN fragment, out PS_OUT result ) {
 	half4 bumpMap =			tex2D( samp0, fragment.texcoord1.xy );
-	half4 lightFalloff =	idtex2Dproj( samp1, fragment.texcoord2 );
-	half4 lightProj	=		idtex2Dproj( samp2, fragment.texcoord3 );
+	half4 lightFalloff =	tex2Dproj( samp1, fragment.texcoord2 );
+	half4 lightProj	=		tex2Dproj( samp2, fragment.texcoord3 );
 	half4 YCoCG =			tex2D( samp3, fragment.texcoord4.xy );
 	half4 specMap =			tex2D( samp4, fragment.texcoord5.xy );
 
@@ -67,7 +67,7 @@ void main( PS_IN fragment, out PS_OUT result ) {
 
 	const half specularPower = 10.0f;
 	half hDotN = dot3( normalize( fragment.texcoord6.xyz ), localNormal );
-	half3 specularContribution = _half3( pow( hDotN, specularPower ) );
+	half3 specularContribution = half3( pow( hDotN, specularPower ) );
 
 	half3 diffuseColor = diffuseMap * rpDiffuseModifier.xyz;
 	half3 specularColor = specMap.xyz * specularContribution * rpSpecularModifier.xyz;

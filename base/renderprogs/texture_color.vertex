@@ -49,7 +49,7 @@ void main( VS_IN vertex, out VS_OUT result ) {
 	result.position.w = dot4( vertex.position, rpMVPmatrixW );
 
 	// compute oldschool texgen or multiply by texture matrix
-	BRANCH if ( rpTexGen0Enabled.x > 0.0 ) {
+	if ( rpTexGen0Enabled.x > 0.0 ) {
 		result.texcoord0.x = dot4( vertex.position, rpTexGen0S );
 		result.texcoord0.y = dot4( vertex.position, rpTexGen0T );
 	} else {
@@ -57,6 +57,6 @@ void main( VS_IN vertex, out VS_OUT result ) {
 		result.texcoord0.y = dot4( vertex.texcoord.xy, rpTextureMatrixT );
 	}
 
-	float4 vertexColor = ( swizzleColor( vertex.color ) * rpVertexColorModulate ) + rpVertexColorAdd;
+	float4 vertexColor = ( vertex.color * rpVertexColorModulate ) + rpVertexColorAdd;
 	result.color =  vertexColor * rpColor;
 }

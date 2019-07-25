@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 float4 modelPosition = vertex.position;
-BRANCH if ( rpEnableSkinning.x > 0.0 ) {
+if ( rpEnableSkinning.x > 0.0 ) {
 	//--------------------------------------------------------------
 	// GPU transformation of the normal / binormal / bitangent
 	//

@@ -82,5 +82,5 @@ void main( VS_IN vertex, out VS_OUT result ) {
 
 	const float4 deformMagnitude = rpUser1;
 	result.texcoord2 = x * deformMagnitude;
-	result.color = swizzleColor( vertex.color );
+	result.color = vertex.color;
 }

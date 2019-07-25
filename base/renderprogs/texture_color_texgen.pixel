@@ -46,7 +46,7 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	// materials without a separate shader. Basic materials will have texture
 	// coordinates with w = 1 which will result in a NOP projection when tex2Dproj
 	// gets called.
-	float4 texSample = idtex2Dproj( samp0, fragment.texcoord0 );
+	float4 texSample = tex2Dproj( samp0, fragment.texcoord0 );
 
 	result.color = texSample * fragment.color;
 }

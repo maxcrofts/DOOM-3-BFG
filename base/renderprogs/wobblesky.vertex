@@ -53,5 +53,5 @@ void main( VS_IN vertex, out VS_OUT result ) {
 	result.texcoord0.y = dot3( t0, rpWobbleSkyY );
 	result.texcoord0.z = dot3( t0, rpWobbleSkyZ );
 	
-	result.color = ( swizzleColor( vertex.color ) * rpVertexColorModulate ) + rpVertexColorAdd;
+	result.color = ( vertex.color * rpVertexColorModulate ) + rpVertexColorAdd;
 }

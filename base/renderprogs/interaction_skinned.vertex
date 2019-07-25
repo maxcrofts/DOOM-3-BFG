@@ -181,5 +181,5 @@ void main( VS_IN vertex, out VS_OUT result ) {
 	//# for 1.0 : env[16] = 0, env[17] = 1
 	//# for color : env[16] = 1, env[17] = 0
 	//# for 1.0-color : env[16] = -1, env[17] = 1	
-	// result.color = ( swizzleColor( vertex.color ) * rpVertexColorModulate ) + rpVertexColorAdd;
+	// result.color = ( vertex.color * rpVertexColorModulate ) + rpVertexColorAdd;
 }

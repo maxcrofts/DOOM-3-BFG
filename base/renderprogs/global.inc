@@ -107,11 +107,6 @@ static float dot4( float2 a, float4 b ) { return dot( float4( a, 0, 1 ), b ); }
 // ----------------------
 // YCoCg Color Conversion
 // ----------------------
-static const half4 matrixRGB1toCoCg1YX = half4(  0.50,  0.0, -0.50, 0.50196078 );	// Co
-static const half4 matrixRGB1toCoCg1YY = half4( -0.25,  0.5, -0.25, 0.50196078 );	// Cg
-static const half4 matrixRGB1toCoCg1YZ = half4(  0.0,   0.0,  0.0,  1.0 );			// 1.0
-static const half4 matrixRGB1toCoCg1YW = half4(  0.25,  0.5,  0.25, 0.0 );			// Y
-
 static const half4 matrixCoCg1YtoRGB1X = half4(  1.0, -1.0,  0.0,        1.0 );
 static const half4 matrixCoCg1YtoRGB1Y = half4(  0.0,  1.0, -0.50196078, 1.0 ); // -0.5 * 256.0 / 255.0
 static const half4 matrixCoCg1YtoRGB1Z = half4( -1.0, -1.0,  1.00392156, 1.0 ); // +1.0 * 256.0 / 255.0
@@ -153,24 +148,4 @@ static float2 Rotate2D( float2 inTC, float2 cs ) {
 	return finalTC;
 }
 
-// better noise function available at https://github.com/ashima/webgl-noise
-float rand( float2 co ) {
-    return frac( sin( dot( co.xy, float2( 12.9898, 78.233 ) ) ) * 43758.5453 );
-}
-
-
-#define _half2( x )		half2( x )
-#define _half3( x )		half3( x )
-#define _half4( x )		half4( x )
-#define _float2( x )	float2( x )
-#define _float3( x )	float3( x )
-#define _float4( x )	float4( x )
-
-#define VPOS WPOS
-static float4 idtex2Dproj( sampler2D samp, float4 texCoords ) { return tex2Dproj( samp, texCoords.xyw ); }
-static float4 swizzleColor( float4 c ) { return c; }
 static float2 vposToScreenPosTexCoord( float2 vpos ) { return vpos.xy * rpWindowCoord.xy; }
-
-
-#define BRANCH
-#define IFANY

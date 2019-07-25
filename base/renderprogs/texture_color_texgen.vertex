@@ -61,6 +61,6 @@ void main( VS_IN vertex, out VS_OUT result ) {
 	result.texcoord0.zw = tc0.zw;
 
 	// compute vertex modulation
-	float4 vertexColor = ( swizzleColor( vertex.color ) * rpVertexColorModulate ) + rpVertexColorAdd;
+	float4 vertexColor = ( vertex.color * rpVertexColorModulate ) + rpVertexColorAdd;
 	result.color =  vertexColor * rpColor;
 }

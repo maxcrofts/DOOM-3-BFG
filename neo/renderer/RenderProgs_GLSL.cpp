@@ -104,8 +104,8 @@ attribInfo_t attribsPC[] = {
 	{ "float",		"clip5",		"CLP5",			"gl_ClipDistance[5]",	0,	AT_VS_OUT,		0 },
 
 	// pre-defined fragment program input
-	{ "float4",		"position",		"WPOS",			"gl_FragCoord",			0,	AT_PS_IN,		0 },
-	{ "half4",		"hposition",	"WPOS",			"gl_FragCoord",			0,	AT_PS_IN,		0 },
+	{ "float4",		"position",		"VPOS",			"gl_FragCoord",			0,	AT_PS_IN,		0 },
+	{ "half4",		"hposition",	"VPOS",			"gl_FragCoord",			0,	AT_PS_IN,		0 },
 	{ "float",		"facing",		"FACE",			"gl_FrontFacing",		0,	AT_PS_IN,		0 },
 
 	// fragment program output
