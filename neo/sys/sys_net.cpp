@@ -44,10 +44,6 @@ static bool	winsockInitialized = false;
 
 //lint -e569	ioctl macros trigger this
 
-// force these libs to be included, so users of idLib don't need to add them to every project
-#pragma comment(lib, "iphlpapi.lib" )
-#pragma comment(lib, "wsock32.lib" )
-
 #undef EWOULDBLOCK
 #undef EADDRNOTAVAIL
 #undef EAFNOSUPPORT

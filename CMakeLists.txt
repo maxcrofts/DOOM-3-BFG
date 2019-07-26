@@ -160,6 +160,10 @@ if(MSVC)
     set(SDL2_DLL "${SDL2_LIBDIR}/SDL2.dll")
 else()
     find_package(SDL2 REQUIRED)
+    if(MINGW)
+        unset(SDL2_INCLUDE_DIRS)
+        find_path(SDL2_INCLUDE_DIRS SDL.h PATH_SUFFIXES SDL2)
+    endif()
 endif()
 
 # doomclassic

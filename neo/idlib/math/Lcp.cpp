@@ -209,7 +209,6 @@ static float DotProduct_SIMD( const float * src0, const float * src1, const int 
 		s3 += src0[i+7] * src1[i+7];
 	}
 	switch( count - i ) {
-		NODEFAULT;
 		case 3: s0 += src0[i+2] * src1[i+2];
 		case 2: s1 += src0[i+1] * src1[i+1];
 		case 1: s2 += src0[i+0] * src1[i+0];
@@ -744,7 +743,6 @@ static bool LU_Factor_SIMD( idMatX & mat, idVecX & invDiag, const int n ) {
 				ptr2[k-15] -= d2 * ptr1[k-15];
 			}
 			switch( k - i ) {
-				NODEFAULT;
 				case 15: ptr2[k-14] -= d2 * ptr1[k-14];
 				case 14: ptr2[k-13] -= d2 * ptr1[k-13];
 				case 13: ptr2[k-12] -= d2 * ptr1[k-12];

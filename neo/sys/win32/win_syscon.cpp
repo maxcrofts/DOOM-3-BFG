@@ -118,7 +118,7 @@ static LRESULT WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 			if ( ( HWND ) lParam == s_wcd.hwndBuffer ) {
 				SetBkColor( ( HDC ) wParam, RGB( 0x00, 0x00, 0x80 ) );
 				SetTextColor( ( HDC ) wParam, RGB( 0xff, 0xff, 0x00 ) );
-				return ( long ) s_wcd.hbrEditBackground;
+				return ( LRESULT ) s_wcd.hbrEditBackground;
 			} else if ( ( HWND ) lParam == s_wcd.hwndErrorBox ) {
 				if ( s_timePolarity & 1 ) {
 					SetBkColor( ( HDC ) wParam, RGB( 0x80, 0x80, 0x80 ) );

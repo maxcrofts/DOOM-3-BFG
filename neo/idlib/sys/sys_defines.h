@@ -85,27 +85,9 @@ If you have questions concerning this license or the applicable additional terms
 #define	BUILD_STRING					"win-" CPUSTRING
 #define BUILD_OS_ID						0
 
-#define ALIGN16( x )					__declspec(align(16)) x
-#define ALIGNTYPE16						__declspec(align(16))
-#define ALIGNTYPE128					__declspec(align(128))
-#define FORMAT_PRINTF( x )
-
 #define PATHSEPARATOR_STR				"\\"
 #define PATHSEPARATOR_CHAR				'\\'
 #define NEWLINE							"\r\n"
-
-#define ID_INLINE						inline
-#define ID_FORCE_INLINE					__forceinline
-
-// lint complains that extern used with definition is a hazard, but it
-// has the benefit (?) of making it illegal to take the address of the function
-#ifdef _lint
-#define ID_INLINE_EXTERN				inline
-#define ID_FORCE_INLINE_EXTERN			__forceinline
-#else
-#define ID_INLINE_EXTERN				extern inline
-#define ID_FORCE_INLINE_EXTERN			extern __forceinline
-#endif
 
 // we should never rely on this define in our code. this is here so dodgy external libraries don't get confused
 #ifndef WIN32
@@ -132,23 +114,65 @@ If you have questions concerning this license or the applicable additional terms
 
 #define	BUILD_STRING					"mac-" CPUSTRING
 
+#define PATHSEPARATOR_STR				"/"
+#define PATHSEPARATOR_CHAR				'/'
+#define NEWLINE							"\n"
+
+#endif
+
+/*
+================================================================================================
+
+	Compiler Specific Defines
+
+================================================================================================
+*/
+
+#if defined( _MSC_VER )
+
+#define ALIGN16( x )					__declspec(align(16)) x
+#define ALIGNTYPE16						__declspec(align(16))
+#define ALIGNTYPE128					__declspec(align(128))
+#define FORMAT_PRINTF( x )
+
+#define ID_INLINE						inline
+#define ID_FORCE_INLINE					__forceinline
+
+// lint complains that extern used with definition is a hazard, but it
+// has the benefit (?) of making it illegal to take the address of the function
+#ifdef _lint
+#define ID_INLINE_EXTERN				inline
+#define ID_FORCE_INLINE_EXTERN			__forceinline
+#else
+#define ID_INLINE_EXTERN				extern inline
+#define ID_FORCE_INLINE_EXTERN			extern __forceinline
+#endif
+
+// checking format strings catches a LOT of errors
+#include <CodeAnalysis\SourceAnnotations.h>
+#define	VERIFY_FORMAT_STRING	[SA_FormatString(Style="printf")]
+
+// We need to inform the compiler that Error() and FatalError() will
+// never return, so any conditions that leads to them being called are
+// guaranteed to be false in the following code
+#define NO_RETURN						__declspec(noreturn)
+
+#else
+
 #define ALIGN16( x )					x __attribute__((aligned(16)))
 #define ALIGNTYPE16						__attribute__((aligned(16)))
 #define ALIGNTYPE128					__attribute__((aligned(128)))
 #define FORMAT_PRINTF( x )
 
-#define PATHSEPARATOR_STR				"/"
-#define PATHSEPARATOR_CHAR				'/'
-#define NEWLINE							"\n"
-
 #define ID_INLINE						inline
 #define ID_FORCE_INLINE					inline
+
 #define ID_INLINE_EXTERN				extern inline
 #define ID_FORCE_INLINE_EXTERN			extern inline
 
 #define VERIFY_FORMAT_STRING
 
-#define NO_RETURN __attribute__((noreturn))
+#define NO_RETURN						__attribute__((noreturn))
 
 #endif
 
@@ -212,17 +236,6 @@ bulk of the codebase, so it is the best place for analyze pragmas.
 
 // win32 needs this, but 360 doesn't
 #pragma warning( disable: 6540 )	// warning C6540: The use of attribute annotations on this function will invalidate all of its existing __declspec annotations [D:\tech5\engine\engine-10.vcxproj]
-
-
-// checking format strings catches a LOT of errors
-#include <CodeAnalysis\SourceAnnotations.h>
-#define	VERIFY_FORMAT_STRING	[SA_FormatString(Style="printf")]
-
-
-// We need to inform the compiler that Error() and FatalError() will
-// never return, so any conditions that leeds to them being called are
-// guaranteed to be false in the following code
-#define NO_RETURN __declspec(noreturn)
 
 #endif
 

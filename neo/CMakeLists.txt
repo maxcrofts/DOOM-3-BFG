@@ -4,7 +4,7 @@ target_include_directories(Doom3BFG PUBLIC ${SDL2_INCLUDE_DIRS})
 target_link_libraries(Doom3BFG Game-d3xp idLib doomclassic timidity)
 target_link_libraries(Doom3BFG ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES})
 if(WIN32)
-    target_link_libraries(Doom3BFG Dbghelp.lib winmm.lib)
+    target_link_libraries(Doom3BFG Dbghelp.lib winmm.lib iphlpapi.lib wsock32.lib)
 endif()
 
 target_sources(Doom3BFG PRIVATE
