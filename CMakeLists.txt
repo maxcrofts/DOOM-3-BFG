@@ -78,6 +78,8 @@ if(CLANG OR NOT MSVC)
     if(NOT MSVC) # not clang-cl
         add_compile_options(-Wall -Wextra)
     endif()
+
+    add_compile_options(-fno-strict-aliasing)
     
     # disable some warnings
     add_compile_options(
