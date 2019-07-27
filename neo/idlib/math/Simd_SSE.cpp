@@ -71,7 +71,7 @@ void VPCALL idSIMD_SSE::BlendJoints( idJointQuat *joints, const idJointQuat *ble
 		return;
 	}
 
-	const __m128 vlerp = { lerp, lerp, lerp, lerp };
+	const __m128 vlerp = _mm_set1_ps( lerp );
 
 	const __m128 vector_float_one		= { 1.0f, 1.0f, 1.0f, 1.0f };
 	const __m128 vector_float_sign_bit	= __m128c( _mm_set_epi32( 0x80000000, 0x80000000, 0x80000000, 0x80000000 ) );
@@ -323,8 +323,8 @@ void VPCALL idSIMD_SSE::BlendJointsFast( idJointQuat *joints, const idJointQuat 
 	const __m128 vector_float_rsqrt_c1	= {  -0.5f,  -0.5f,  -0.5f,  -0.5f };
 
 	const float scaledLerp = lerp / ( 1.0f - lerp );
-	const __m128 vlerp = { lerp, lerp, lerp, lerp };
-	const __m128 vscaledLerp = { scaledLerp, scaledLerp, scaledLerp, scaledLerp };
+	const __m128 vlerp = _mm_set1_ps( lerp );
+	const __m128 vscaledLerp = _mm_set1_ps( scaledLerp );
 
 	int i = 0;
 	for ( ; i < numJoints - 3; i += 4 ) {
