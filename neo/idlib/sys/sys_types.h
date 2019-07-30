@@ -98,25 +98,6 @@ private:
 	_type_ *ptr;
 };
 
-#ifndef ID_COMPILER_CXX_CONSTEXPR
-#define constexpr
-#endif
-
-#ifndef ID_COMPILER_CXX_NULLPTR
-struct idNullPtr {
-	// one pointer member initialized to zero so you can pass NULL as a vararg
-	void *value; idNullPtr() : value( 0 ) { }
-
-	// implicit conversion to all pointer types
-	template<typename T1> constexpr operator T1 * () const { return 0; }
-
-	// implicit conversion to all pointer to member types
-	template<typename T1, typename T2> operator T1 T2::* () const { return 0; }
-};
-
-#define nullptr					idNullPtr()
-#endif
-
 //#undef NULL
 //#if defined( ID_WIN ) && !defined( ID_TOOL_EXTERNAL ) && !defined( _lint )
 //#define NULL					idNullPtr()

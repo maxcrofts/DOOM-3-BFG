@@ -126,13 +126,6 @@ if(CLANG OR NOT MSVC)
     endif()
 endif()
 
-# add defines if certain C++11 features are supported
-# emulates write_compiler_detection_header() but doesn't create a file
-set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
-    $<$<COMPILE_FEATURES:cxx_constexpr>:ID_COMPILER_CXX_CONSTEXPR>
-    $<$<COMPILE_FEATURES:cxx_nullptr>:ID_COMPILER_CXX_NULLPTR>
-)
-
 # OpenGL
 find_package(OpenGL REQUIRED)
 
