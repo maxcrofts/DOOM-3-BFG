@@ -29,8 +29,6 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __TR_LOCAL_H__
 #define __TR_LOCAL_H__
 
-#include "../idlib/precompiled.h"
-
 #include "GLState.h"
 #include "ScreenRect.h"
 #include "ImageOpts.h"

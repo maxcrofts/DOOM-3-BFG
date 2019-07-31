@@ -31,6 +31,7 @@ Contains the DxtEncoder implementation for SSE2.
 ================================================================================================
 */
 #pragma hdrstop
+#include "../../idlib/precompiled.h"
 #include "DXTCodec_local.h"
 #include "DXTCodec.h"
 

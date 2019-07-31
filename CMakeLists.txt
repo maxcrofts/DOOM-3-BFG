@@ -6,30 +6,50 @@ cmake_minimum_required(VERSION 3.8)
 project(doom3)
 
 macro(target_pch TARGET PRECOMPILED_HEADER PRECOMPILED_SOURCE)
+    get_target_property(SOURCES ${TARGET} SOURCES)
+    list(FILTER SOURCES INCLUDE REGEX ".+\\.cpp$")
+
     if(MSVC)
-        if(CLANG)
-            get_filename_component(PRECOMPILED_SOURCE_ABS "${PRECOMPILED_SOURCE}" ABSOLUTE BASE_DIR "${CMAKE_CURRENT_LIST_DIR}")
-            get_filename_component(PRECOMPILED_SOURCE_DIR "${PRECOMPILED_SOURCE_ABS}" DIRECTORY)
-            set(PCH "${PRECOMPILED_SOURCE_DIR}/${PRECOMPILED_HEADER}")
+        set(PCH "${PRECOMPILED_HEADER}")
+        set(PCH_OUTPUT "${PRECOMPILED_SOURCE}")
+    else()
+        get_filename_component(PRECOMPILED_SOURCE_ABS "${PRECOMPILED_SOURCE}" ABSOLUTE BASE_DIR "${CMAKE_CURRENT_LIST_DIR}")
+        get_filename_component(PRECOMPILED_SOURCE_DIR "${PRECOMPILED_SOURCE_ABS}" DIRECTORY)
+        set(PCH "${PRECOMPILED_SOURCE_DIR}/${PRECOMPILED_HEADER}")
+        if(GCC)
+            set(PCH_OUTPUT "${PCH}.gch")
         else()
-            set(PCH "${PRECOMPILED_HEADER}")
+            set(PCH_OUTPUT "${PCH}.pch")
         endif()
+    endif()
 
-        get_target_property(SOURCES ${TARGET} SOURCES)
-        list(FILTER SOURCES INCLUDE REGEX ".+\\.(c|cpp|h)$")
-
+    if(MSVC)
         set_source_files_properties(${PRECOMPILED_SOURCE} PROPERTIES COMPILE_FLAGS "/Yc\"${PCH}\"")
         set_source_files_properties(${SOURCES} PROPERTIES COMPILE_FLAGS "/Yu\"${PCH}\" /FI\"${PCH}\"")
-
-        # add precompiled header to sources
-        target_sources(${TARGET} PRIVATE ${PRECOMPILED_SOURCE})
+    elseif(GCC OR CLANG)
+        string(TOUPPER ${CMAKE_BUILD_TYPE} CONFIG)
+        add_custom_command(
+                OUTPUT "${PCH_OUTPUT}"
+                DEPENDS "${PCH}"
+                IMPLICIT_DEPENDS CXX "${PCH}"
+                COMMAND ${CMAKE_CXX_COMPILER}
+                ARGS "--std=gnu++${CMAKE_CXX_STANDARD}" ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${CONFIG}} -x c++-header "${PCH}" -o "${PCH_OUTPUT}"
+        )
+        if(CLANG)
+            set_source_files_properties(${SOURCES} PROPERTIES COMPILE_FLAGS "-include ${PCH}")
+        endif()
     endif()
+
+    # add precompiled header to sources
+    target_sources(${TARGET} PRIVATE "${PCH_OUTPUT}")
 endmacro()
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED NO)
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    set(GCC 1)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(CLANG 1)
 endif()
 
@@ -79,7 +99,7 @@ if(CLANG OR NOT MSVC)
         add_compile_options(-Wall -Wextra)
     endif()
 
-    add_compile_options(-fno-strict-aliasing)
+    add_compile_options(-fno-strict-aliasing -Winvalid-pch)
     
     # disable some warnings
     add_compile_options(

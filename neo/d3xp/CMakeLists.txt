@@ -206,4 +206,5 @@ target_sources(Game-d3xp PRIVATE
 target_pch(Game-d3xp "../idlib/precompiled.h" "precompiled.cpp")
 
 get_target_property(GAME_D3XP_SOURCES Game-d3xp SOURCES)
+list(FILTER GAME_D3XP_SOURCES EXCLUDE REGEX ".+\\.(g|p)ch$")
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${GAME_D3XP_SOURCES})

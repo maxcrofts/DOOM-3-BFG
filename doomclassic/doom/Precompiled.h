@@ -26,9 +26,10 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#pragma once
+#ifndef PRECOMPILED_H
+#define PRECOMPILED_H
 
-#include "idlib/precompiled.h"
+#include "../../neo/idlib/precompiled.h"
 
 
 #include <stdio.h>
@@ -67,3 +68,5 @@ typedef unsigned int dword;
 
 #define MAXWIDTH			1120
 #define MAXHEIGHT			832
+
+#endif

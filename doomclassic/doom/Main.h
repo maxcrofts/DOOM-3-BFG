@@ -30,8 +30,6 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef _MAIN_H_
 #define _MAIN_H_
 
-#include "idlib/precompiled.h"
-
 #include "../doom/doomlib.h"
 #include "../doom/doominterface.h"
 #include "../doom/globaldata.h"
