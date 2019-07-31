@@ -99,7 +99,7 @@ if(CLANG OR NOT MSVC)
         add_compile_options(-Wall -Wextra)
     endif()
 
-    add_compile_options(-fno-strict-aliasing -Winvalid-pch)
+    add_compile_options(-fno-asm-blocks -fno-strict-aliasing -Winvalid-pch)
     
     # disable some warnings
     add_compile_options(
