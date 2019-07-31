@@ -28,12 +28,13 @@ macro(target_pch TARGET PRECOMPILED_HEADER PRECOMPILED_SOURCE)
         set_source_files_properties(${SOURCES} PROPERTIES COMPILE_FLAGS "/Yu\"${PCH}\" /FI\"${PCH}\"")
     elseif(GCC OR CLANG)
         string(TOUPPER ${CMAKE_BUILD_TYPE} CONFIG)
+        separate_arguments(ARGS UNIX_COMMAND "--std=gnu++${CMAKE_CXX_STANDARD} ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${CONFIG}} -x c++-header ${PCH} -o ${PCH_OUTPUT}")
         add_custom_command(
                 OUTPUT "${PCH_OUTPUT}"
                 DEPENDS "${PCH}"
                 IMPLICIT_DEPENDS CXX "${PCH}"
                 COMMAND ${CMAKE_CXX_COMPILER}
-                ARGS "--std=gnu++${CMAKE_CXX_STANDARD}" ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${CONFIG}} -x c++-header "${PCH}" -o "${PCH_OUTPUT}"
+                ARGS ${ARGS}
         )
         if(CLANG)
             set_source_files_properties(${SOURCES} PROPERTIES COMPILE_FLAGS "-include ${PCH}")
