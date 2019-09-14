@@ -80,31 +80,15 @@ typedef enum {
 #include "SoundVoice.h"
 
 
-#define AL_LIBTYPE_STATIC
+#define OPERATION_SET 1
 
-#include "../mojoal/AL/al.h"
-#include "../mojoal/AL/alc.h"
-#include "OpenAL/AL_SoundSample.h"
-#include "OpenAL/AL_SoundVoice.h"
-#include "OpenAL/AL_SoundHardware.h"
-
-ID_INLINE_EXTERN ALenum CheckALErrors_( const char* filename, int line ) {
-	ALenum err = alGetError();
-	if( err != AL_NO_ERROR ) {
-		idLib::Printf( "OpenAL Error: %s (0x%x), @ %s %d\n", alGetString( err ), err, filename, line );
-	}
-	return err;
-}
-#define CheckALErrors() CheckALErrors_(__FILE__, __LINE__)
-
-ID_INLINE_EXTERN ALCenum CheckALCErrors_( ALCdevice* device, const char* filename, int linenum ) {
-	ALCenum err = alcGetError( device );
-	if( err != ALC_NO_ERROR ) {
-		idLib::Printf( "ALC Error: %s (0x%x), @ %s %d\n", alcGetString( device, err ), err, filename, linenum );
-	}
-	return err;
-}
-#define CheckALCErrors(x) CheckALCErrors_((x), __FILE__, __LINE__)
+#include <FAudio.h>
+#include <FAudioFX.h>
+#include <FAPOFX.h>
+#include <F3DAudio.h>
+#include "FAudio/FA_SoundSample.h"
+#include "FAudio/FA_SoundVoice.h"
+#include "FAudio/FA_SoundHardware.h"
 
 
 
@@ -410,7 +394,7 @@ public:
 	virtual void			InitStreamBuffers();
 	virtual void			FreeStreamBuffers();
 
-	virtual void *			GetOpenALDevice() const;
+	virtual void *			GetFAudio() const;
 
 	// for the sound level meter window
 	virtual cinData_t		ImageForTime( const int milliseconds, const bool waveform );
@@ -450,8 +434,8 @@ public:
 			sample( NULL ),
 			bufferNumber( 0 )
 		{ }
-		idSoundVoice_OpenAL *	voice;
-		idSoundSample_OpenAL *	sample;
+		idSoundVoice_FAudio *	voice;
+		idSoundSample_FAudio *	sample;
 		int bufferNumber;
 	};
 

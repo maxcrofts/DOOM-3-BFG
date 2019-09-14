@@ -182,6 +182,9 @@ else()
     endif()
 endif()
 
+# FAudio
+find_package(FAudio REQUIRED)
+
 # doomclassic
 add_subdirectory("doomclassic")
 

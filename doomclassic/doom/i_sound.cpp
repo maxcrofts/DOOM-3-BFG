@@ -3,7 +3,6 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
-Copyright (C) 2013 Felix Rueegg
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -58,17 +57,17 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "sound/snd_local.h"
 
+#include <FAudio.h>
+#include <F3DAudio.h>
+
 #pragma warning ( disable : 4244 )
 
 #define	MIDI_CHANNELS		2
 #define MIDI_RATE			22050
-#define MIDI_SAMPLETYPE		AL_FORMAT_STEREO8
 #define MIDI_FORMAT			AUDIO_U8
 #define MIDI_FORMAT_BYTES	1
 
-ALuint		alMusicSourceVoice;
-ALuint		alMusicBuffer;
-
+FAudioSourceVoice*	pMusicSourceVoice;
 MidiSong*				doomMusic;
 byte*					musicBuffer;
 int						totalBufferSize;
@@ -76,14 +75,12 @@ int						totalBufferSize;
 bool	waitingForMusic;
 bool	musicReady;
 
-typedef struct {
-	idVec3 OrientTop;
-	idVec3 OrientFront;
-	idVec3 Position;
-} doomListener_t;
 
 typedef struct tagActiveSound_t {
-	ALuint alSourceVoice;
+	FAudioSourceVoice*     m_pSourceVoice;         // Source voice
+	F3DAUDIO_DSP_SETTINGS   m_DSPSettings;
+	F3DAUDIO_EMITTER        m_Emitter;
+	F3DAUDIO_CONE           m_Cone;
 	int id;
 	int valid;
 	int start;
@@ -91,6 +88,7 @@ typedef struct tagActiveSound_t {
 	bool localSound;
 	mobj_t *originator;
 } activeSound_t;
+
 
 // cheap little struct to hold a sound
 typedef struct {
@@ -115,16 +113,24 @@ float			x_MusicVolume = GLOBAL_VOLUME_MULTIPLIER;
 
 // The actual lengths of all sound effects.
 static int 		lengths[NUMSFX];
-ALuint			alBuffers[NUMSFX];
 activeSound_t	activeSounds[NUM_SOUNDBUFFERS] = {0};
 
 int				S_initialized = 0;
 bool			Music_initialized = false;
 
+// FAUDIO
+float			g_EmitterAzimuths [] = { 0.f };
 static int		numOutputChannels = 0;
 static bool		soundHardwareInitialized = false;
 
-doomListener_t	doom_Listener;
+
+F3DAUDIO_HANDLE					F3DAudioInstance;
+
+F3DAUDIO_LISTENER				doom_Listener;
+
+//float							localSoundVolumeEntries[] = { 0.f, 0.f, 0.9f, 0.5f, 0.f, 0.f };
+float							localSoundVolumeEntries[] = { 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f };
+
 
 void							I_InitSoundChannel( int channel, int numOutputChannels_ );
 
@@ -143,18 +149,19 @@ void* getsfx ( const char* sfxname, int* len )
 	int                 size;
 	char                name[20];
 	int                 sfxlump;
-	//float               scale = 1.0f;
+	float				scale = 1.0f;
 
-	// Get the sound data from the WAD
+	// Get the sound data from the WAD, allocate lump
+	//  in zone memory.
 	sprintf(name, "ds%s", sfxname);
 
 	// Scale down the plasma gun, it clips
-	//if ( strcmp( sfxname, "plasma" ) == 0 ) {
-	//	scale = 0.75f;
-	//}
-	//if ( strcmp( sfxname, "itemup" ) == 0 ) {
-	//	scale = 1.333f;
-	//}
+	if ( strcmp( sfxname, "plasma" ) == 0 ) {
+		scale = 0.75f;
+	}
+	if ( strcmp( sfxname, "itemup" ) == 0 ) {
+		scale = 1.333f;
+	}
 
 	// If sound requested is not found in current WAD, use pistol as default
 	if ( W_CheckNumForName(name) == -1 )
@@ -239,11 +246,12 @@ I_StartSound2
 // Pitching (that is, increased speed of playback) is set
 //
 int I_StartSound2 ( int id, int player, mobj_t *origin, mobj_t *listener_origin, int pitch, int priority ) {
-	if ( !soundHardwareInitialized || id == 0 ) {
+	if ( !soundHardwareInitialized ) {
 		return id;
 	}
 	
 	int i;
+	FAudioVoiceState state;
 	activeSound_t* sound = 0;
 	int oldest = 0, oldestnum = -1;
 
@@ -273,9 +281,8 @@ int I_StartSound2 ( int id, int player, mobj_t *origin, mobj_t *listener_origin,
 			oldest = sound->start;
 		}
 
-		ALint sourceState;
-		alGetSourcei( sound->alSourceVoice, AL_SOURCE_STATE, &sourceState );
-		if ( sourceState == AL_STOPPED ) {
+		FAudioSourceVoice_GetState( sound->m_pSourceVoice, &state, 0 );
+		if ( state.BuffersQueued == 0 ) {
 			break;
 		}
 	}
@@ -287,42 +294,56 @@ int I_StartSound2 ( int id, int player, mobj_t *origin, mobj_t *listener_origin,
 		sound = &activeSounds[i];
 	}
 
-	alSourceStop( sound->alSourceVoice );
+	// stop the sound with a FlushPackets
+	FAudioSourceVoice_Stop( sound->m_pSourceVoice, 0, FAUDIO_COMMIT_NOW );
+	FAudioSourceVoice_FlushSourceBuffers( sound->m_pSourceVoice );
 
-	// Attach the source voice to the correct buffer
-	if ( sound->id != id ) {
-		alSourcei( sound->alSourceVoice, AL_BUFFER, 0 );
-		alSourcei( sound->alSourceVoice, AL_BUFFER, alBuffers[id] );
-	}
+	// Set up packet
+	FAudioBuffer Packet = { 0 };
+	Packet.Flags = FAUDIO_END_OF_STREAM;
+	Packet.AudioBytes = lengths[id];
+	Packet.pAudioData = (unsigned char*)S_sfx[id].data;
+	Packet.PlayBegin = 0;
+	Packet.PlayLength = 0;
+	Packet.LoopBegin = FAUDIO_NO_LOOP_REGION;
+	Packet.LoopLength = 0;
+	Packet.LoopCount = 0;
+	Packet.pContext = NULL;
 
-	// Set the source voice volume
-	alSourcef( sound->alSourceVoice, AL_GAIN, x_SoundVolume );
 
-	// Set the source voice pitch
-	alSourcef( sound->alSourceVoice, AL_PITCH, 1 + ((float)pitch-128.f)/95.f );
+	// Set voice volumes
+	FAudioVoice_SetVolume( sound->m_pSourceVoice, x_SoundVolume, FAUDIO_COMMIT_NOW );
 
-	// Set the source voice position
-	ALfloat x = 0.f;
-	ALfloat y = 0.f;
-	ALfloat z = 0.f;
-	if ( origin ) {
-		if ( origin == listener_origin ) {
-			sound->localSound = true;
-		} else {
-			sound->localSound = false;
-			x = (ALfloat)(origin->x >> FRACBITS);
-			z = (ALfloat)(origin->y >> FRACBITS);
-		}
+	// Set voice pitch
+	FAudioSourceVoice_SetFrequencyRatio( sound->m_pSourceVoice, 1 + ((float)pitch-128.f)/95.f, FAUDIO_COMMIT_NOW );
+
+	// Set initial spatialization
+	if ( origin && origin != listener_origin ) {
+		// Update Emitter Position
+		sound->m_Emitter.Position.x = (float)(origin->x >> FRACBITS);
+		sound->m_Emitter.Position.y = 0.f;
+		sound->m_Emitter.Position.z = (float)(origin->y >> FRACBITS);
+
+		// Calculate 3D positioned speaker volumes
+		unsigned int calculateFlags = F3DAUDIO_CALCULATE_MATRIX;
+		F3DAudioCalculate( F3DAudioInstance, &doom_Listener, &sound->m_Emitter, calculateFlags, &sound->m_DSPSettings );
+
+		// Pan the voice according to F3DAudio calculation
+		FAudioVoice_SetOutputMatrix( sound->m_pSourceVoice, NULL, 1, numOutputChannels, sound->m_DSPSettings.pMatrixCoefficients, FAUDIO_COMMIT_NOW );
+
+		sound->localSound = false;
 	} else {
+		// Local(or Global) sound, fixed speaker volumes
+		FAudioVoice_SetOutputMatrix( sound->m_pSourceVoice, NULL, 1, numOutputChannels, localSoundVolumeEntries, FAUDIO_COMMIT_NOW );
+
 		sound->localSound = true;
 	}
-	if ( sound->localSound ) {
-		x = doom_Listener.Position.x;
-		z = doom_Listener.Position.z;
-	}
-	alSource3f( sound->alSourceVoice, AL_POSITION, x, y, z );
 
-	alSourcePlay( sound->alSourceVoice );
+	// Submit packet
+	FAudioSourceVoice_SubmitSourceBuffer( sound->m_pSourceVoice, &Packet, NULL );
+
+	// Play the source voice
+	FAudioSourceVoice_Start( sound->m_pSourceVoice, 0, FAUDIO_COMMIT_NOW );
 
 	// set id, and start time
 	sound->id = id;
@@ -404,7 +425,9 @@ void I_StopSound (int handle, int player)
 		return;
 
 	// stop the sound
-	alSourceStop( sound->alSourceVoice );
+	if ( sound->m_pSourceVoice != NULL ) {
+		FAudioSourceVoice_Stop( sound->m_pSourceVoice, 0, FAUDIO_COMMIT_NOW );
+	}
 
 	sound->valid = 0;
 	sound->player = -1;
@@ -421,6 +444,7 @@ int I_SoundIsPlaying(int handle) {
 	}
 
 	int i;
+	FAudioVoiceState	state;
 	activeSound_t* sound;
 
 	for (i = 0; i < NUM_SOUNDBUFFERS; ++i)
@@ -429,9 +453,8 @@ int I_SoundIsPlaying(int handle) {
 		if (!sound->valid || sound->id != handle)
 			continue;
 
-		ALint sourceState;
-		alGetSourcei( sound->alSourceVoice, AL_SOURCE_STATE, &sourceState );
-		if ( sourceState == AL_PLAYING ) {
+		FAudioSourceVoice_GetState( sound->m_pSourceVoice, &state, 0 );
+		if ( state.BuffersQueued > 0 ) {
 			return 1;
 		}
 	}
@@ -444,70 +467,62 @@ int I_SoundIsPlaying(int handle) {
 I_UpdateSound
 ======================
 */
-// Update listener position and go through all the
-// channels and update sound positions.
+// Update Listener Position and go through all the
+// channels and update speaker volumes for 3D sound.
 void I_UpdateSound( void ) {
 	if ( !soundHardwareInitialized ) {
 		return;
 	}
 
-	// Update listener orientation and position
-	mobj_t *playerObj = ::g->players[0].mo;
-	if ( playerObj ) {
-		angle_t	pAngle = playerObj->angle;
-		fixed_t fx, fz;
-
-		pAngle >>= ANGLETOFINESHIFT;
-
-		fx = finecosine[pAngle];
-		fz = finesine[pAngle];
-
-		doom_Listener.OrientFront.x = (float)(fx) / 65535.f;
-		doom_Listener.OrientFront.y = 0.f;
-		doom_Listener.OrientFront.z = (float)(fz) / 65535.f;
-
-		doom_Listener.Position.x = (float)(playerObj->x >> FRACBITS);
-		doom_Listener.Position.y = 0.f;
-		doom_Listener.Position.z = (float)(playerObj->y >> FRACBITS);
-	} else {
-		doom_Listener.OrientFront.x = 0.f;
-		doom_Listener.OrientFront.y = 0.f;
-		doom_Listener.OrientFront.z = 1.f;
-
-		doom_Listener.Position.x = 0.f;
-		doom_Listener.Position.y = 0.f;
-		doom_Listener.Position.z = 0.f;
-	}
-
-	ALfloat listenerOrientation[] = { doom_Listener.OrientFront.x, doom_Listener.OrientFront.y,
-		doom_Listener.OrientFront.z, doom_Listener.OrientTop.x, doom_Listener.OrientTop.y,
-		doom_Listener.OrientTop.z };
-	alListenerfv( AL_ORIENTATION, listenerOrientation );
-	alListener3f( AL_POSITION, doom_Listener.Position.x, doom_Listener.Position.y, doom_Listener.Position.z );
-
-	// Update playing source voice positions
 	int i;
+	FAudioVoiceState	state;
 	activeSound_t* sound;
+
 	for ( i=0; i < NUM_SOUNDBUFFERS; i++ ) {
 		sound = &activeSounds[i];
 
-		if ( !sound->valid ) {
+		if ( !sound->valid || sound->localSound ) {
 			continue;
 		}
 
-		ALint sourceState;
-		alGetSourcei( sound->alSourceVoice, AL_SOURCE_STATE, &sourceState );
-		if ( sourceState == AL_PLAYING ) {
-			if ( sound->localSound ) {
-				alSource3f( sound->alSourceVoice, AL_POSITION, doom_Listener.Position.x,
-						doom_Listener.Position.y, doom_Listener.Position.z );
-			} else {
-				ALfloat x = (ALfloat)(sound->originator->x >> FRACBITS);
-				ALfloat y = 0.f;
-				ALfloat z = (ALfloat)(sound->originator->y >> FRACBITS);
+		FAudioSourceVoice_GetState( sound->m_pSourceVoice, &state, 0 );
 
-				alSource3f( sound->alSourceVoice, AL_POSITION, x, y, z );
-			}
+		if ( state.BuffersQueued > 0 ) {
+			mobj_t *playerObj = ::g->players[ sound->player ].mo;
+
+			// Update Listener Orientation and Position
+			angle_t	pAngle = playerObj->angle;
+			fixed_t fx, fz;
+
+			pAngle >>= ANGLETOFINESHIFT;
+
+			fx = finecosine[pAngle];
+			fz = finesine[pAngle];
+
+			doom_Listener.OrientFront.x = (float)(fx) / 65535.f;
+			doom_Listener.OrientFront.y = 0.f;
+			doom_Listener.OrientFront.z = (float)(fz) / 65535.f;
+
+			// Normalize Listener Orientation
+			float length = sqrtf( doom_Listener.OrientFront.x * doom_Listener.OrientFront.x + doom_Listener.OrientFront.z * doom_Listener.OrientFront.z );
+			doom_Listener.OrientFront.x /= length;
+			doom_Listener.OrientFront.z /= length;
+
+			doom_Listener.Position.x = (float)(playerObj->x >> FRACBITS);
+			doom_Listener.Position.y = 0.f;
+			doom_Listener.Position.z = (float)(playerObj->y >> FRACBITS);
+
+			// Update Emitter Position
+			sound->m_Emitter.Position.x = (float)(sound->originator->x >> FRACBITS);
+			sound->m_Emitter.Position.y = 0.f;
+			sound->m_Emitter.Position.z = (float)(sound->originator->y >> FRACBITS);
+
+			// Calculate 3D positioned speaker volumes
+			unsigned int calculateFlags = F3DAUDIO_CALCULATE_MATRIX;
+			F3DAudioCalculate( F3DAudioInstance, &doom_Listener, &sound->m_Emitter, calculateFlags, &sound->m_DSPSettings );
+
+			// Pan the voice according to F3DAudio calculation
+			FAudioVoice_SetOutputMatrix( sound->m_pSourceVoice, NULL, 1, numOutputChannels, sound->m_DSPSettings.pMatrixCoefficients, FAUDIO_COMMIT_NOW );
 		}
 	}
 }
@@ -530,20 +545,24 @@ void I_ShutdownSound(void) {
 	int i;
 
 	if ( S_initialized ) {
-		// Stop all sounds
+		// Stop all sounds, but don't destroy the FAudio buffers.
 		for ( i = 0; i < NUM_SOUNDBUFFERS; ++i ) {
 			activeSound_t * sound = &activeSounds[i];
 
-			if ( !sound ) {
+			if ( sound == NULL ) {
 				continue;
 			}
 
 			I_StopSound( sound->id, 0 );
+
+			if ( sound->m_pSourceVoice ) {
+				FAudioSourceVoice_FlushSourceBuffers( sound->m_pSourceVoice );
+			}
 		}
 
-		// Free allocated sound memory
 		for (i=1 ; i<NUMSFX ; i++) {
 			if ( S_sfx[i].data && !(S_sfx[i].link) ) {
+				//Z_Free( S_sfx[i].data );
 				free( S_sfx[i].data );
 			}
 		}
@@ -565,14 +584,15 @@ sound channels.
 void I_InitSoundHardware( int numOutputChannels_, int channelMask ) {
 	::numOutputChannels = numOutputChannels_;
 
+	// Initialize the F3DAudio
+	//  Speaker geometry configuration on the final mix, specifies assignment of channels
+	//  to speaker positions, defined as per WAVEFORMATEXTENSIBLE.dwChannelMask
+	//  SpeedOfSound - not used by doomclassic
+	F3DAudioInitialize( channelMask, 340.29f, F3DAudioInstance );
+
 	for ( int i = 0; i < NUM_SOUNDBUFFERS; ++i ) {
 		// Initialize source voices
 		I_InitSoundChannel( i, numOutputChannels );
-	}
-
-	for ( int i = 1; i < NUMSFX; ++i ) {
-		// Create OpenAL buffers
-		alGenBuffers( (ALuint)1, &alBuffers[i] );
 	}
 
 	I_InitMusic();
@@ -594,24 +614,24 @@ void I_ShutdownSoundHardware() {
 
 	I_ShutdownMusic();
 
-	// Delete all source voices
 	for ( int i = 0; i < NUM_SOUNDBUFFERS; ++i ) {
 		activeSound_t * sound = &activeSounds[i];
 
-		if ( !sound ) {
+		if ( sound == NULL ) {
 			continue;
 		}
 
-		if ( sound->alSourceVoice ) {
-			alSourceStop( sound->alSourceVoice );
-			alSourcei( sound->alSourceVoice, AL_BUFFER, 0 );
-			alDeleteSources( 1, &sound->alSourceVoice );
+		if ( sound->m_pSourceVoice ) {
+			FAudioSourceVoice_Stop( sound->m_pSourceVoice, 0, FAUDIO_COMMIT_NOW );
+			FAudioSourceVoice_FlushSourceBuffers( sound->m_pSourceVoice );
+			FAudioVoice_DestroyVoice( sound->m_pSourceVoice );
+			sound->m_pSourceVoice = NULL;
 		}
-	}
 
-	// Delete OpenAL buffers for all sounds
-	for ( int i = 0; i < NUMSFX; i++ ) {
-		alDeleteBuffers( 1, &alBuffers[i] );
+		if ( sound->m_DSPSettings.pMatrixCoefficients ) {
+			delete [] sound->m_DSPSettings.pMatrixCoefficients;
+			sound->m_DSPSettings.pMatrixCoefficients = NULL;
+		}
 	}
 }
 
@@ -623,13 +643,58 @@ I_InitSoundChannel
 void I_InitSoundChannel( int channel, int numOutputChannels_ ) {
 	activeSound_t	*soundchannel = &activeSounds[ channel ];
 
-	alGenSources( (ALuint)1, &soundchannel->alSourceVoice );
+	F3DAUDIO_VECTOR ZeroVector = { 0.0f, 0.0f, 0.0f };
 
-	alSource3f( soundchannel->alSourceVoice, AL_VELOCITY, 0.f, 0.f, 0.f );
-	alSourcei( soundchannel->alSourceVoice, AL_LOOPING, AL_FALSE );
-	alSourcef( soundchannel->alSourceVoice, AL_MAX_DISTANCE, 1200.f );
-	alSourcef( soundchannel->alSourceVoice, AL_REFERENCE_DISTANCE, 100.f );
-	alSourcef( soundchannel->alSourceVoice, AL_ROLLOFF_FACTOR, 0.2f );
+	// Set up emitter parameters
+	soundchannel->m_Emitter.OrientFront.x         = 0.0f;
+	soundchannel->m_Emitter.OrientFront.y         = 0.0f;
+	soundchannel->m_Emitter.OrientFront.z         = 1.0f;
+	soundchannel->m_Emitter.OrientTop.x           = 0.0f;
+	soundchannel->m_Emitter.OrientTop.y           = 1.0f;
+	soundchannel->m_Emitter.OrientTop.z           = 0.0f;
+	soundchannel->m_Emitter.Position              = ZeroVector;
+	soundchannel->m_Emitter.Velocity              = ZeroVector;
+	soundchannel->m_Emitter.pCone                 = &(soundchannel->m_Cone);
+	soundchannel->m_Emitter.pCone->InnerAngle     = 0.0f; // Setting the inner cone angles to F3DAUDIO_2PI and
+	// outer cone other than 0 causes
+	// the emitter to act like a point emitter using the
+	// INNER cone settings only.
+	soundchannel->m_Emitter.pCone->OuterAngle     = 0.0f; // Setting the outer cone angles to zero causes
+	// the emitter to act like a point emitter using the
+	// OUTER cone settings only.
+	soundchannel->m_Emitter.pCone->InnerVolume    = 0.0f;
+	soundchannel->m_Emitter.pCone->OuterVolume    = 1.0f;
+	soundchannel->m_Emitter.pCone->InnerLPF       = 0.0f;
+	soundchannel->m_Emitter.pCone->OuterLPF       = 1.0f;
+	soundchannel->m_Emitter.pCone->InnerReverb    = 0.0f;
+	soundchannel->m_Emitter.pCone->OuterReverb    = 1.0f;
+
+	soundchannel->m_Emitter.ChannelCount          = 1;
+	soundchannel->m_Emitter.ChannelRadius         = 0.0f;
+	soundchannel->m_Emitter.pVolumeCurve          = NULL;
+	soundchannel->m_Emitter.pLFECurve             = NULL;
+	soundchannel->m_Emitter.pLPFDirectCurve       = NULL;
+	soundchannel->m_Emitter.pLPFReverbCurve       = NULL;
+	soundchannel->m_Emitter.pReverbCurve          = NULL;
+	soundchannel->m_Emitter.CurveDistanceScaler   = 1200.0f;
+	soundchannel->m_Emitter.DopplerScaler         = 1.0f;
+	soundchannel->m_Emitter.pChannelAzimuths      = g_EmitterAzimuths;
+
+	soundchannel->m_DSPSettings.SrcChannelCount     = 1;
+	soundchannel->m_DSPSettings.DstChannelCount     = numOutputChannels_;
+	soundchannel->m_DSPSettings.pMatrixCoefficients = new FLOAT[ numOutputChannels_ ];
+
+	// Create Source voice
+	FAudioWaveFormatEx voiceFormat = {0};
+	voiceFormat.wFormatTag = FAUDIO_FORMAT_PCM;
+	voiceFormat.nChannels = 1;
+    voiceFormat.nSamplesPerSec = 11025;
+    voiceFormat.nAvgBytesPerSec = 11025;
+    voiceFormat.nBlockAlign = 1;
+    voiceFormat.wBitsPerSample = 8;
+    voiceFormat.cbSize = 0;
+
+	FAudio_CreateSourceVoice( soundSystemLocal.hardware.GetFAudio(), &soundchannel->m_pSourceVoice, &voiceFormat, 0, FAUDIO_DEFAULT_FREQ_RATIO, NULL, NULL, NULL );
 }
 
 /*
@@ -641,18 +706,18 @@ void I_InitSound() {
 
 	if (S_initialized == 0) {
 		int i;
+
+		F3DAUDIO_VECTOR ZeroVector = { 0.0f, 0.0f, 0.0f };
+
 		// Set up listener parameters
-		doom_Listener.OrientFront.x	= 0.f;
-		doom_Listener.OrientFront.y	= 0.f;
-		doom_Listener.OrientFront.z	= 1.f;
-
-		doom_Listener.OrientTop.x	= 0.f;
-		doom_Listener.OrientTop.y	= -1.f;
-		doom_Listener.OrientTop.z	= 0.f;
-
-		doom_Listener.Position.x	= 0.f;
-		doom_Listener.Position.y	= 0.f;
-		doom_Listener.Position.z	= 0.f;
+		doom_Listener.OrientFront.x        = 0.0f;
+		doom_Listener.OrientFront.y        = 0.0f;
+		doom_Listener.OrientFront.z        = 1.0f;
+		doom_Listener.OrientTop.x          = 0.0f;
+		doom_Listener.OrientTop.y          = 1.0f;
+		doom_Listener.OrientTop.z          = 0.0f;
+		doom_Listener.Position             = ZeroVector;
+		doom_Listener.Velocity             = ZeroVector;
 
 		for (i=1 ; i<NUMSFX ; i++)
 		{ 
@@ -667,10 +732,6 @@ void I_InitSound() {
 				// Previously loaded already?
 				S_sfx[i].data = S_sfx[i].link->data;
 				lengths[i] = lengths[(S_sfx[i].link - S_sfx)/sizeof(sfxinfo_t)];
-			}
-			if (S_sfx[i].data)
-			{
-				alBufferData( alBuffers[i], AL_FORMAT_MONO8, (byte*)S_sfx[i].data, lengths[i], 11025 );
 			}
 		}
 
@@ -692,7 +753,7 @@ void I_SubmitSound(void)
 		// Do 3D positioning of sounds
 		I_UpdateSound();
 
-		// Change music if required
+		// Check for XMP notifications
 		I_UpdateMusic();
 	}
 }
@@ -730,11 +791,17 @@ void I_InitMusic(void)
 		waitingForMusic = false;
 		musicReady = false;
 
-		alGenSources( (ALuint)1, &alMusicSourceVoice );
+		// Create Source voice
+		FAudioWaveFormatEx voiceFormat = {0};
+		voiceFormat.wFormatTag = FAUDIO_FORMAT_PCM;
+		voiceFormat.nChannels = 2;
+		voiceFormat.nSamplesPerSec = MIDI_RATE;
+		voiceFormat.nAvgBytesPerSec = MIDI_RATE * MIDI_FORMAT_BYTES * 2;
+		voiceFormat.nBlockAlign = MIDI_FORMAT_BYTES * 2;
+		voiceFormat.wBitsPerSample = MIDI_FORMAT_BYTES * 8;
+		voiceFormat.cbSize = 0;
 
-		alSourcef( alMusicSourceVoice, AL_PITCH, 1.f );
-
-		alGenBuffers( (ALuint)1, &alMusicBuffer );
+		FAudio_CreateSourceVoice( soundSystemLocal.hardware.GetFAudio(), &pMusicSourceVoice, &voiceFormat, FAUDIO_VOICE_MUSIC, FAUDIO_DEFAULT_FREQ_RATIO, NULL, NULL, NULL );
 
 		Music_initialized = true;
 	}
@@ -747,24 +814,25 @@ I_ShutdownMusic
 */
 void I_ShutdownMusic(void)	
 {
-	if ( Music_initialized ) {
-		if ( alMusicSourceVoice ) {
-			I_StopSong( 0 );
-			alSourcei( alMusicSourceVoice, AL_BUFFER, 0 );
-			alDeleteSources( 1, &alMusicSourceVoice );
-		}
+	I_StopSong( 0 );
 
-		if ( alMusicBuffer ) {
-			alDeleteBuffers( 1, &alMusicBuffer );
+	if ( Music_initialized ) {
+		if ( pMusicSourceVoice ) {
+			FAudioSourceVoice_Stop( pMusicSourceVoice, 0, FAUDIO_COMMIT_NOW );
+			FAudioSourceVoice_FlushSourceBuffers( pMusicSourceVoice );
+			FAudioVoice_DestroyVoice( pMusicSourceVoice );
+			pMusicSourceVoice = NULL;
 		}
 
 		if ( musicBuffer ) {
 			free( musicBuffer );
-			musicBuffer = NULL;
 		}
 
 		Timidity_Shutdown();
 	}
+
+	pMusicSourceVoice = NULL;
+	musicBuffer = NULL;
 
 	totalBufferSize = 0;
 	waitingForMusic = false;
@@ -829,12 +897,32 @@ void I_PlaySong( const char *songname, int looping)
 		return;
 	}
 
-	I_StopSong( 0 );
+	if ( pMusicSourceVoice != NULL ) {
+		// Stop the voice and flush packets before freeing the musicBuffer
+		FAudioSourceVoice_Stop( pMusicSourceVoice, 0, FAUDIO_COMMIT_NOW );
+		FAudioSourceVoice_FlushSourceBuffers( pMusicSourceVoice );
+	}
+
+	// Make sure voice is stopped before we free the buffer
+	bool isStopped = false;
+	int d = 0;
+	while ( !isStopped ) {
+		FAudioVoiceState test;
+
+		if ( pMusicSourceVoice != NULL ) {
+			FAudioSourceVoice_GetState( pMusicSourceVoice, &test, 0 );
+		}
+
+		if ( test.pCurrentBufferContext == NULL && test.BuffersQueued == 0 ) {
+			isStopped = true;
+		}
+		//I_Printf( "waiting to stop (%d)\n", d++ );
+	}
 
 	// Clear old state
-	if ( musicBuffer ) {
+	if ( musicBuffer != NULL ) {
 		free( musicBuffer );
-		musicBuffer = 0;
+		musicBuffer = NULL;
 	}
 
 	musicReady = false;
@@ -856,23 +944,37 @@ void I_UpdateMusic( void ) {
 		return;
 	}
 
-	if ( alMusicSourceVoice ) {
-		// Set the volume
-		alSourcef( alMusicSourceVoice, AL_GAIN, x_MusicVolume * GLOBAL_VOLUME_MULTIPLIER );
-	}
-
 	if ( waitingForMusic ) {
-		if ( musicReady && alMusicSourceVoice ) {
+
+		if ( musicReady && pMusicSourceVoice != NULL ) {
+
 			if ( musicBuffer ) {
-				alSourcei( alMusicSourceVoice, AL_BUFFER, 0 );
-				alBufferData( alMusicBuffer, MIDI_SAMPLETYPE, musicBuffer, totalBufferSize, MIDI_RATE );
-				alSourcei( alMusicSourceVoice, AL_BUFFER, alMusicBuffer );
-				alSourcei( alMusicSourceVoice, AL_LOOPING, ::g->mus_looping );
-				alSourcePlay( alMusicSourceVoice );
+				// Set up packet
+				FAudioBuffer Packet = { 0 };
+				Packet.Flags = FAUDIO_END_OF_STREAM;
+				Packet.AudioBytes = totalBufferSize;
+				Packet.pAudioData = (unsigned char*)musicBuffer;
+				Packet.PlayBegin = 0;
+				Packet.PlayLength = 0;
+				Packet.LoopBegin = 0;
+				Packet.LoopLength = 0;
+				Packet.LoopCount = ::g->mus_looping ? FAUDIO_LOOP_INFINITE : 0;
+				Packet.pContext = NULL;
+
+				// Submit packet
+				FAudioSourceVoice_SubmitSourceBuffer( pMusicSourceVoice, &Packet, NULL );
+
+				// Play the source voice
+				FAudioSourceVoice_Start( pMusicSourceVoice, 0, FAUDIO_COMMIT_NOW );
 			}
 
 			waitingForMusic = false;
 		}
+	}
+
+	if ( pMusicSourceVoice != NULL ) {
+		// Set the volume
+		FAudioVoice_SetVolume( pMusicSourceVoice, x_MusicVolume * GLOBAL_VOLUME_MULTIPLIER, FAUDIO_COMMIT_NOW );
 	}
 }
 
@@ -883,11 +985,14 @@ I_PauseSong
 */
 void I_PauseSong (int handle)
 {
-	if ( !Music_initialized || !alMusicSourceVoice ) {
+	if ( !Music_initialized ) {
 		return;
 	}
 
-	alSourcePause( alMusicSourceVoice );
+	if ( pMusicSourceVoice != NULL ) {
+		// Stop the music source voice
+		FAudioSourceVoice_Stop( pMusicSourceVoice, 0, FAUDIO_COMMIT_NOW );
+	}
 }
 
 /*
@@ -897,11 +1002,14 @@ I_ResumeSong
 */
 void I_ResumeSong (int handle)
 {
-	if ( !Music_initialized || !alMusicSourceVoice ) {
+	if ( !Music_initialized ) {
 		return;
 	}
 
-	alSourcePlay( alMusicSourceVoice );
+	// Stop the music source voice
+	if ( pMusicSourceVoice != NULL ) {
+		FAudioSourceVoice_Start( pMusicSourceVoice, 0, FAUDIO_COMMIT_NOW );
+	}
 }
 
 /*
@@ -911,11 +1019,14 @@ I_StopSong
 */
 void I_StopSong(int handle)
 {
-	if ( !Music_initialized || !alMusicSourceVoice ) {
+	if ( !Music_initialized ) {
 		return;
 	}
 
-	alSourceStop( alMusicSourceVoice );
+	// Stop the music source voice
+	if ( pMusicSourceVoice != NULL ) {
+		FAudioSourceVoice_Stop( pMusicSourceVoice, 0, FAUDIO_COMMIT_NOW );
+	}
 }
 
 /*

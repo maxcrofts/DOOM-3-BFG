@@ -3,7 +3,6 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
-Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -26,112 +25,92 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#ifndef __AL_SOUNDSAMPLE_H__
-#define __AL_SOUNDSAMPLE_H__
+#ifndef __FA_SOUNDSAMPLE_H__
+#define __FA_SOUNDSAMPLE_H__
 
 /*
 ================================================
-idSoundSample_OpenAL
+idSoundSample_FAudio
 ================================================
 */
 class idSampleInfo;
-class idSoundSample_OpenAL {
+class idSoundSample_FAudio {
 public:
-					idSoundSample_OpenAL();
-	
+					idSoundSample_FAudio();
+
 	// Loads and initializes the resource based on the name.
-	virtual void	LoadResource();
-	
-	void			SetName( const char* n ) { name = n; }
-	const char* 	GetName() const { return name; }
+	virtual void	 LoadResource();
+
+	void			SetName( const char * n ) { name = n; }
+	const char *	GetName() const { return name; }
 	ID_TIME_T		GetTimestamp() const { return timestamp; }
-	
+
 	// turns it into a beep
 	void			MakeDefault();
-	
+
 	// frees all data
 	void			FreeData();
-	
+
 	int				LengthInMsec() const { return SamplesToMsec( NumSamples(), SampleRate() ); }
 	int				SampleRate() const { return format.basic.samplesPerSec; }
 	int				NumSamples() const { return playLength; }
 	int				NumChannels() const { return format.basic.numChannels; }
 	int				BufferSize() const { return totalBufferSize; }
-	
+
 	bool			IsCompressed() const { return ( format.basic.formatTag != idWaveFile::FORMAT_PCM ); }
-	
+
 	bool			IsDefault() const { return timestamp == FILE_NOT_FOUND_TIMESTAMP; }
 	bool			IsLoaded() const { return loaded; }
-	
+
 	void			SetNeverPurge() { neverPurge = true; }
 	bool			GetNeverPurge() const { return neverPurge; }
-	
+
 	void			SetLevelLoadReferenced() { levelLoadReferenced = true; }
 	void			ResetLevelLoadReferenced() { levelLoadReferenced = false; }
 	bool			GetLevelLoadReferenced() const { return levelLoadReferenced; }
-	
+
 	int				GetLastPlayedTime() const { return lastPlayedTime; }
 	void			SetLastPlayedTime( int t ) { lastPlayedTime = t; }
-	
+
 	float			GetAmplitude( int timeMS ) const;
 
-	ALenum			GetOpenALBufferFormat() const;
-	
-	void			CreateOpenALBuffer();
-	
 protected:
-	friend class idSoundHardware_OpenAL;
-	friend class idSoundVoice_OpenAL;
-	
-	~idSoundSample_OpenAL();
-	
-	bool			LoadWav( const idStr& name );
-	bool			LoadAmplitude( const idStr& name );
-	void			WriteAllSamples( const idStr& sampleName );
-	bool			LoadGeneratedSample( const idStr& name );
-	void			WriteGeneratedSample( idFile* fileOut );
-	
-	struct MS_ADPCM_decodeState_t {
-		uint8 hPredictor;
-		int16 coef1;
-		int16 coef2;
-		
-		uint16 iDelta;
-		int16 iSamp1;
-		int16 iSamp2;
-	};
-	
-	int32			MS_ADPCM_nibble( MS_ADPCM_decodeState_t* state, int8 nybble );
-	int				MS_ADPCM_decode( uint8** audio_buf, uint32* audio_len );
-	
+	friend class idSoundHardware_FAudio;
+	friend class idSoundVoice_FAudio;
+
+					~idSoundSample_FAudio();
+
+	bool			LoadWav( const idStr & name );
+	bool			LoadAmplitude( const idStr & name );
+	void			WriteAllSamples( const idStr &sampleName );
+	bool			LoadGeneratedSample( const idStr &name );
+	void			WriteGeneratedSample( idFile *fileOut );
+
 	struct sampleBuffer_t {
-		void* buffer;
+		void * buffer;
 		int bufferSize;
 		int numSamples;
 	};
-	
+
 	idStr			name;
-	
+
 	ID_TIME_T		timestamp;
 	bool			loaded;
-	
+
 	bool			neverPurge;
 	bool			levelLoadReferenced;
 	bool			usesMapHeap;
-	
+
 	uint32			lastPlayedTime;
-	
+
 	int				totalBufferSize;	// total size of all the buffers
 	idList<sampleBuffer_t, TAG_AUDIO> buffers;
-	
-	// OpenAL buffer that contains all buffers
-	ALuint			openalBuffer;
-	
+
 	int				playBegin;
 	int				playLength;
-	
+
 	idWaveFile::waveFmt_t	format;
-	
+
 	idList<byte, TAG_AMPLITUDE> amplitude;
 };
 
@@ -143,7 +122,7 @@ This reverse-inheritance purportedly makes working on
 multiple platforms easier.
 ================================================
 */
-class idSoundSample : public idSoundSample_OpenAL {
+class idSoundSample : public idSoundSample_FAudio {
 public:
 };
 

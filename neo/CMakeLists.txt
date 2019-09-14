@@ -2,7 +2,7 @@
 add_executable(Doom3BFG WIN32 $<TARGET_OBJECTS:Game-d3xp>)
 target_include_directories(Doom3BFG PUBLIC ${SDL2_INCLUDE_DIRS})
 target_link_libraries(Doom3BFG Game-d3xp idLib doomclassic timidity)
-target_link_libraries(Doom3BFG ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES})
+target_link_libraries(Doom3BFG ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} FAudio)
 if(WIN32)
     target_link_libraries(Doom3BFG Dbghelp.lib winmm.lib iphlpapi.lib wsock32.lib)
 endif()
@@ -200,12 +200,12 @@ target_sources(Doom3BFG PRIVATE
     "renderer/tr_trisurf.cpp"
     "renderer/VertexCache.cpp"
     "renderer/VertexCache.h"
-    "sound/OpenAL/AL_SoundHardware.cpp"
-    "sound/OpenAL/AL_SoundHardware.h"
-    "sound/OpenAL/AL_SoundSample.cpp"
-    "sound/OpenAL/AL_SoundSample.h"
-    "sound/OpenAL/AL_SoundVoice.cpp"
-    "sound/OpenAL/AL_SoundVoice.h"
+    "sound/FAudio/FA_SoundHardware.cpp"
+    "sound/FAudio/FA_SoundHardware.h"
+    "sound/FAudio/FA_SoundSample.cpp"
+    "sound/FAudio/FA_SoundSample.h"
+    "sound/FAudio/FA_SoundVoice.cpp"
+    "sound/FAudio/FA_SoundVoice.h"
     "sound/snd_emitter.cpp"
     "sound/snd_local.h"
     "sound/snd_shader.cpp"
@@ -368,9 +368,6 @@ target_pch(Doom3BFG "../idlib/precompiled.h" "framework/precompiled.cpp")
 target_sources(Doom3BFG PRIVATE
     "framework/miniz.c"
     "framework/miniz.h"
-    "mojoal/AL/al.h"
-    "mojoal/AL/alc.h"
-    "mojoal/mojoal.c"
     "renderer/jobs/dynamicshadowvolume/DynamicShadowVolume.cpp"
     "renderer/jobs/dynamicshadowvolume/DynamicShadowVolume.h"
     "renderer/jobs/dynamicshadowvolume/DynamicShadowVolume_local.h"
@@ -389,7 +386,6 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${DOOM3BFG_SOURCES})
 
 if(MSVC)
     set_source_files_properties("framework/miniz.c" PROPERTIES COMPILE_FLAGS /W0)
-    set_source_files_properties("mojoal/mojoal.c" PROPERTIES COMPILE_FLAGS /W0)
 endif()
 
 # copy shaders to target directory

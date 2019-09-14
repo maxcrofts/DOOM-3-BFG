@@ -3,7 +3,6 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
-Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -26,71 +25,58 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#ifndef __AL_SOUNDHARDWARE_H__
-#define __AL_SOUNDHARDWARE_H__
+#ifndef __FA_SOUNDHARDWARE_H__
+#define __FA_SOUNDHARDWARE_H__
 
-class idSoundSample_OpenAL;
-class idSoundVoice_OpenAL;
-class idSoundHardware_OpenAL;
+class idSoundSample_FAudio;
+class idSoundVoice_FAudio;
 
 /*
 ================================================
-idSoundHardware_OpenAL
+idSoundHardware_FAudio
 ================================================
 */
-
-class idSoundHardware_OpenAL {
+class idSoundHardware_FAudio {
 public:
-					idSoundHardware_OpenAL();
-	
+					idSoundHardware_FAudio();
+
 	void			Init();
 	void			Shutdown();
-	
+
 	void 			Update();
-	
-	idSoundVoice* 	AllocateVoice( const idSoundSample* leadinSample, const idSoundSample* loopingSample );
-	void			FreeVoice( idSoundVoice* voice );
-	
-	// listDevices needs this
-	ALCdevice* 		GetOpenALDevice() const { return openalDevice; };
-	
+
+	idSoundVoice *	AllocateVoice( const idSoundSample * leadinSample, const idSoundSample * loopingSample );
+	void			FreeVoice( idSoundVoice * voice );
+
+	// video playback needs this
+	FAudio *		GetFAudio() const { return pFAudio; };
+
 	int				GetNumZombieVoices() const { return zombieVoices.Num(); }
 	int				GetNumFreeVoices() const { return freeVoices.Num(); }
-	
-	// OpenAL info
-	static void		PrintDeviceList( const char* list );
-	static void		PrintALCInfo( ALCdevice* device );
-	static void		PrintALInfo();
-	
+
 protected:
-	friend class idSoundSample_OpenAL;
-	friend class idSoundVoice_OpenAL;
-	
+	friend class idSoundSample_FAudio;
+	friend class idSoundVoice_FAudio;
+
 private:
-	/*
-	IXAudio2* pXAudio2;
-	IXAudio2MasteringVoice* pMasterVoice;
-	IXAudio2SubmixVoice* pSubmixVoice;
-	
-	idSoundEngineCallback	soundEngineCallback;
-	*/
-	
-	ALCdevice*			openalDevice;
-	ALCcontext*			openalContext;
-	
+	FAudio * pFAudio;
+	FAudioMasteringVoice * pMasterVoice;
+	FAudioSubmixVoice * pSubmixVoice;
+
+	FAudioEngineCallback	soundEngineCallback;
 	int					lastResetTime;
-	
-	//int				outputChannels;
-	//int				channelMask;
-	
-	//idDebugGraph* 	vuMeterRMS;
-	//idDebugGraph* 	vuMeterPeak;
-	//int				vuMeterPeakTimes[ 8 ];
-	
+
+	int					outputChannels;
+	int					channelMask;
+
+	idDebugGraph *		vuMeterRMS;
+	idDebugGraph *		vuMeterPeak;
+	int					vuMeterPeakTimes[ 8 ];
+
 	// Can't stop and start a voice on the same frame, so we have to double this to handle the worst case scenario of stopping all voices and starting a full new set
-	idStaticList<idSoundVoice_OpenAL, MAX_HARDWARE_VOICES * 2 > voices;
-	idStaticList<idSoundVoice_OpenAL*, MAX_HARDWARE_VOICES * 2 > zombieVoices;
-	idStaticList<idSoundVoice_OpenAL*, MAX_HARDWARE_VOICES * 2 > freeVoices;
+	idStaticList<idSoundVoice_FAudio, MAX_HARDWARE_VOICES * 2 > voices;
+	idStaticList<idSoundVoice_FAudio *, MAX_HARDWARE_VOICES * 2 > zombieVoices;
+	idStaticList<idSoundVoice_FAudio *, MAX_HARDWARE_VOICES * 2 > freeVoices;
 };
 
 /*
@@ -98,7 +84,7 @@ private:
 idSoundHardware
 ================================================
 */
-class idSoundHardware : public idSoundHardware_OpenAL {
+class idSoundHardware : public idSoundHardware_FAudio {
 };
 
 #endif
