@@ -193,6 +193,11 @@ if(NOT faudio_POPULATED)
     FetchContent_Populate(FAudio)
     add_subdirectory(${faudio_SOURCE_DIR} ${faudio_BINARY_DIR})
 endif()
+if(MSVC)
+    target_compile_options(FAudio PRIVATE /WX-)
+else()
+    target_compile_options(FAudio PRIVATE -w)
+endif()
 
 # doomclassic
 add_subdirectory("doomclassic")
