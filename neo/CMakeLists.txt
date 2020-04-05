@@ -406,6 +406,14 @@ if(SDL2_DLL)
     )
 endif()
 
+# copy FAudio shared library to target dir
+add_custom_command(
+    TARGET Doom3BFG
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND}
+    ARGS -E copy $<TARGET_FILE:FAudio> $<TARGET_FILE_DIR:Doom3BFG>
+)
+
 # idLib
 add_subdirectory("idlib")
 

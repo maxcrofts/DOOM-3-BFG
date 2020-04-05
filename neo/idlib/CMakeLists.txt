@@ -1,5 +1,5 @@
 # idLib
-add_library(idLib ${IDLIB_FILES})
+add_library(idLib STATIC ${IDLIB_FILES})
 target_include_directories(idLib PUBLIC ${SDL2_INCLUDE_DIRS})
 
 target_sources(idLib PRIVATE

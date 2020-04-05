@@ -2,7 +2,7 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
     message(FATAL_ERROR "Prevented in-source build. Please make a build subdirectory and run CMake from there.")
 endif()
 
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.11)
 project(doom3)
 
 macro(target_pch TARGET PRECOMPILED_HEADER PRECOMPILED_SOURCE)
@@ -183,7 +183,16 @@ else()
 endif()
 
 # FAudio
-find_package(FAudio REQUIRED)
+include(FetchContent)
+FetchContent_Declare(
+    FAudio
+    GIT_REPOSITORY https://github.com/FNA-XNA/FAudio.git
+)
+FetchContent_GetProperties(FAudio)
+if(NOT faudio_POPULATED)
+    FetchContent_Populate(FAudio)
+    add_subdirectory(${faudio_SOURCE_DIR} ${faudio_BINARY_DIR})
+endif()
 
 # doomclassic
 add_subdirectory("doomclassic")

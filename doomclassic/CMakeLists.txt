@@ -1,6 +1,7 @@
 # doomclassic
-add_library(doomclassic ${DOOMCLASSIC_FILES})
+add_library(doomclassic STATIC ${DOOMCLASSIC_FILES})
 target_include_directories(doomclassic PUBLIC "../neo")
+target_link_libraries(doomclassic FAudio)
 if(MSVC)
     target_compile_options(doomclassic PRIVATE /WX-)
 endif()

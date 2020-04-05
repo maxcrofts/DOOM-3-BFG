@@ -1,5 +1,5 @@
 # timidity
-add_library(timidity ${TIMIDITY_FILES})
+add_library(timidity STATIC ${TIMIDITY_FILES})
 if(MSVC)
     target_compile_options(timidity PRIVATE /WX-)
 endif()
