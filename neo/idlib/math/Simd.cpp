@@ -321,123 +321,6 @@ void TestMinMax() {
 
 /*
 ============
-TestMemcpy
-============
-*/
-void TestMemcpy() {
-	TIME_TYPE start, end, bestClocksGeneric, bestClocksSIMD;
-	int i;
-	byte test0[BIG_COUNT];
-	byte test1[BIG_COUNT];
-	const char * result;
-
-	idRandom random( RANDOM_SEED );
-	for ( i = 0; i < BIG_COUNT; i++ ) {
-		test0[i] = random.RandomInt( 255 );
-	}
-
-	idLib::common->Printf("====================================\n" );
-
-	bestClocksGeneric = 0;
-	for ( i = 0; i < NUMTESTS; i++ ) {
-		StartRecordTime( start );
-		p_generic->Memcpy( test1, test0, BIG_COUNT );
-		StopRecordTime( end );
-		GetBest( start, end, bestClocksGeneric );
-	}
-	PrintClocks( "generic->Memcpy()", BIG_COUNT, bestClocksGeneric );
-
-	for ( i = 0; i < BIG_COUNT; i++ ) {
-		test0[i] = random.RandomInt( 255 );
-	}
-
-	bestClocksSIMD = 0;
-	for ( i = 0; i < NUMTESTS; i++ ) {
-		StartRecordTime( start );
-		p_simd->Memcpy( test1, test0, BIG_COUNT );
-		StopRecordTime( end );
-		GetBest( start, end, bestClocksSIMD );
-	}
-	for ( i = 0; i < BIG_COUNT; i++ ) {
-		if ( test1[i] != test0[i] ) {
-			break;
-		}
-	}
-	result = ( i >= BIG_COUNT ) ? "ok" : S_COLOR_RED"X";
-	PrintClocks( va( "   simd->Memcpy() %s", result), BIG_COUNT, bestClocksSIMD, bestClocksGeneric );
-}
-
-/*
-============
-TestMemset
-============
-*/
-void TestMemset() {
-	TIME_TYPE start, end, bestClocksGeneric, bestClocksSIMD;
-	int i, j;
-	const char * result;
-	byte test0[BIG_COUNT];
-
-	idRandom random( RANDOM_SEED );
-	j = 1 + random.RandomInt( 254 );
-
-	idLib::common->Printf("====================================\n" );
-
-	bestClocksGeneric = 0;
-	for ( i = 0; i < NUMTESTS; i++ ) {
-		StartRecordTime( start );
-		p_generic->Memset( test0, j, BIG_COUNT );
-		StopRecordTime( end );
-		GetBest( start, end, bestClocksGeneric );
-	}
-	PrintClocks( "generic->Memset()", BIG_COUNT, bestClocksGeneric );
-
-	j = 1 + random.RandomInt( 254 );
-
-	bestClocksSIMD = 0;
-	for ( i = 0; i < NUMTESTS; i++ ) {
-		StartRecordTime( start );
-		p_simd->Memset( test0, j, BIG_COUNT );
-		StopRecordTime( end );
-		GetBest( start, end, bestClocksSIMD );
-	}
-	for ( i = 0; i < BIG_COUNT; i++ ) {
-		if ( test0[i] != j ) {
-			break;
-		}
-	}
-	result = ( i >= BIG_COUNT ) ? "ok" : S_COLOR_RED"X";
-	PrintClocks( va( "   simd->Memset() %s", result), BIG_COUNT, bestClocksSIMD, bestClocksGeneric );
-
-	j = 0;
-
-	bestClocksGeneric = 0;
-	for ( i = 0; i < NUMTESTS; i++ ) {
-		StartRecordTime( start );
-		p_generic->Memset( test0, j, BIG_COUNT );
-		StopRecordTime( end );
-		GetBest( start, end, bestClocksGeneric );
-	}
-	PrintClocks( "generic->Memset( 0 )", BIG_COUNT, bestClocksGeneric );
-
-	bestClocksSIMD = 0;
-	for ( i = 0; i < NUMTESTS; i++ ) {
-		StartRecordTime( start );
-		p_simd->Memset( test0, j, BIG_COUNT );
-		StopRecordTime( end );
-		GetBest( start, end, bestClocksSIMD );
-	}
-	for ( i = 0; i < BIG_COUNT; i++ ) {
-		if ( test0[i] != j ) {
-			break;
-		}
-	}
-	result = ( i >= BIG_COUNT ) ? "ok" : S_COLOR_RED"X";
-	PrintClocks( va( "   simd->Memset( 0 ) %s", result), BIG_COUNT, bestClocksSIMD, bestClocksGeneric );
-}
-
-/*
-============
 TestBlendJoints
 ============
 */
@@ -1233,8 +1116,6 @@ void idSIMD::Test_f( const idCmdArgs &args ) {
 
 	TestMath();
 	TestMinMax();
-	TestMemcpy();
-	TestMemset();
 
 	idLib::common->Printf("====================================\n" );
 

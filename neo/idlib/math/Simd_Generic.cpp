@@ -112,24 +112,6 @@ void VPCALL idSIMD_Generic::MinMax( idVec3 &min, idVec3 &max, const idDrawVert *
 }
 
 /*
-================
-idSIMD_Generic::Memcpy
-================
-*/
-void VPCALL idSIMD_Generic::Memcpy( void *dst, const void *src, const int count ) {
-	memcpy( dst, src, count );
-}
-
-/*
-================
-idSIMD_Generic::Memset
-================
-*/
-void VPCALL idSIMD_Generic::Memset( void *dst, const int val, const int count ) {
-	memset( dst, val, count );
-}
-
-/*
 ============
 idSIMD_Generic::BlendJoints
 ============

@@ -69,7 +69,7 @@ Mem_ClearedAlloc
 */
 void * Mem_ClearedAlloc( const int size, const memTag_t tag ) {
 	void * mem = Mem_Alloc( size, tag );
-	SIMDProcessor->Memset( mem, 0, size );
+	memset( mem, 0, size );
 	return mem;
 }
 

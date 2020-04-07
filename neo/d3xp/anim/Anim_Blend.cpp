@@ -4312,7 +4312,7 @@ bool idAnimator::CreateFrame( int currentTime, bool force ) {
 
 	numJoints = modelDef->Joints().Num();
 	idJointQuat *jointFrame = ( idJointQuat * )_alloca16( numJoints * sizeof( jointFrame[0] ) );
-	SIMDProcessor->Memcpy( jointFrame, defaultPose, numJoints * sizeof( jointFrame[0] ) );
+	memcpy( jointFrame, defaultPose, numJoints * sizeof( jointFrame[0] ) );
 
 	hasAnim = false;
 

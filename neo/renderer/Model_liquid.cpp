@@ -98,7 +98,7 @@ modelSurface_t idRenderModelLiquid::GenerateSurface( float lerp ) {
 
 	tri->numVerts = deformInfo->numOutputVerts;
 	R_AllocStaticTriSurfVerts( tri, tri->numVerts );
-	SIMDProcessor->Memcpy( tri->verts, verts.Ptr(), deformInfo->numSourceVerts * sizeof(tri->verts[0]) );
+	memcpy( tri->verts, verts.Ptr(), deformInfo->numSourceVerts * sizeof(tri->verts[0]) );
 
 	// replicate the mirror seam vertexes
 	base = deformInfo->numOutputVerts - deformInfo->numMirroredVerts;

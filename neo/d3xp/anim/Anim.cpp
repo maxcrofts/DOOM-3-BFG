@@ -857,7 +857,7 @@ idMD5Anim::GetInterpolatedFrame
 */
 void idMD5Anim::GetInterpolatedFrame( frameBlend_t &frame, idJointQuat *joints, const int *index, int numIndexes ) const {
 	// copy the baseframe
-	SIMDProcessor->Memcpy( joints, baseFrame.Ptr(), baseFrame.Num() * sizeof( baseFrame[ 0 ] ) );
+	memcpy( joints, baseFrame.Ptr(), baseFrame.Num() * sizeof( baseFrame[ 0 ] ) );
 
 	if ( numAnimatedComponents == 0 ) {
 		// just use the base frame
@@ -933,7 +933,7 @@ idMD5Anim::GetSingleFrame
 */
 void idMD5Anim::GetSingleFrame( int framenum, idJointQuat *joints, const int *index, int numIndexes ) const {
 	// copy the baseframe
-	SIMDProcessor->Memcpy( joints, baseFrame.Ptr(), baseFrame.Num() * sizeof( baseFrame[ 0 ] ) );
+	memcpy( joints, baseFrame.Ptr(), baseFrame.Num() * sizeof( baseFrame[ 0 ] ) );
 
 	if ( framenum == 0 || numAnimatedComponents == 0 ) {
 		// just use the base frame

@@ -1196,7 +1196,7 @@ bool idAASLocal::FindNearestGoal( aasGoal_t &goal, int areaNum, const idVec3 ori
 	}
 	
 	badTravelFlags = ~travelFlags;
-	SIMDProcessor->Memset( goalAreaTravelTimes, 0, file->GetNumAreas() * sizeof( unsigned short ) );
+	memset( goalAreaTravelTimes, 0, file->GetNumAreas() * sizeof( unsigned short ) );
 
 	targetDist = (target - origin).Length();
 
