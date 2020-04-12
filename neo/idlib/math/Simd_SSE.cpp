@@ -56,6 +56,282 @@ const char * idSIMD_SSE::GetName() const {
 
 /*
 ============
+idSIMD_SSE::MinMax
+============
+*/
+void VPCALL idSIMD_SSE::MinMax( float &min, float &max, const float *src, const int count ) {
+	__m128 vec_0 = _mm_setzero_ps();
+
+	__m128 min_0 = _mm_load_ss( &idMath::INFINITY );
+	min_0 = _mm_splat_ps( min_0, 0 );
+
+	__m128 max_0 = _mm_setzero_ps();
+	max_0 = _mm_sub_ps( max_0, min_0 );
+
+	int i = 0;
+	for ( ; i < count - 3; i +=4 ) {
+		vec_0 = _mm_load_ps( &src[i] );
+		min_0 = _mm_min_ps( min_0, vec_0 );
+		max_0 = _mm_max_ps( max_0, vec_0 );
+	}
+
+	for ( ; i < count; i++ ) {
+		vec_0 = _mm_load_ss( &src[i] );
+		min_0 = _mm_min_ps( min_0, vec_0 );
+		max_0 = _mm_max_ps( max_0, vec_0 );
+	}
+
+	__m128 min_1 = _mm_perm_ps( min_0, _MM_SHUFFLE( 3, 2, 3, 2 ) );
+	__m128 max_1 = _mm_perm_ps( max_0, _MM_SHUFFLE( 3, 2, 3, 2 ) );
+
+	min_0 = _mm_min_ps( min_0, min_1 );
+	min_1 = _mm_perm_ps( min_0, _MM_SHUFFLE( 3, 2, 1, 1 ) );
+	min_0 = _mm_min_ps( min_0, min_1 );
+	max_0 = _mm_max_ps( max_0, max_1 );
+	max_1 = _mm_perm_ps( max_0, _MM_SHUFFLE( 3, 2, 1, 1 ) );
+	max_0 = _mm_max_ps( max_0, max_1 );
+
+	_mm_store_ss( &min, min_0 );
+	_mm_store_ss( &max, max_0 );
+}
+
+/*
+============
+idSIMD_SSE::MinMax
+============
+*/
+void VPCALL idSIMD_SSE::MinMax( idVec2 &min, idVec2 &max, const idVec2 *src, const int count ) {
+	__m128 vec_0 = _mm_setzero_ps();
+
+	__m128 min_0 = _mm_load_ss( &idMath::INFINITY );
+	min_0 = _mm_splat_ps( min_0, 0 );
+
+	__m128 max_0 = _mm_setzero_ps();
+	max_0 = _mm_sub_ps( max_0, min_0 );
+
+	int i = 0;
+	for ( ; i < count - 1; i += 2 ) {
+		vec_0 = _mm_load_ps( (float *)&src[i] );
+		min_0 = _mm_min_ps( min_0, vec_0 );
+		max_0 = _mm_max_ps( max_0, vec_0 );
+	}
+
+	if ( i < count ) {
+		vec_0 = _mm_loadl_pi( vec_0, (__m64 *)&src[i] );
+		min_0 = _mm_min_ps( min_0, vec_0 );
+		max_0 = _mm_max_ps( max_0, vec_0 );
+	}
+
+	__m128 min_1 = _mm_perm_ps( min_0, _MM_SHUFFLE( 1, 0, 3, 2 ) );
+	__m128 max_1 = _mm_perm_ps( max_0, _MM_SHUFFLE( 1, 0, 3, 2 ) );
+
+	min_0 = _mm_min_ps( min_0, min_1 );
+	_mm_storel_pi( (__m64 *)&min, min_0 );
+	max_0 = _mm_max_ps( max_0, max_1 );
+	_mm_storel_pi( (__m64 *)&max, max_0 );
+}
+
+/*
+============
+idSIMD_SSE::MinMax
+============
+*/
+void VPCALL idSIMD_SSE::MinMax( idVec3 &min, idVec3 &max, const idVec3 *src, const int count ) {
+	const float * srcPtr = (float *)src;
+	float * minPtr = min.ToFloatPtr();
+	float * maxPtr = max.ToFloatPtr();
+
+	__m128 vec_0;
+	__m128 vec_1;
+
+	__m128 min_0 = _mm_load_ss( &idMath::INFINITY );
+	min_0 = _mm_splat_ps( min_0, 0 );
+
+	__m128 max_0 = _mm_setzero_ps();
+	max_0 = _mm_sub_ps( max_0, min_0 );
+
+	__m128 min_1 = min_0;
+	__m128 max_1 = max_0;
+
+	int i = 0;
+	for ( ; i < count - 3; i += 4 ) {
+		vec_0 = _mm_load_ss( &srcPtr[i*3+0*3+2] );
+		vec_0 = _mm_loadh_pi( vec_0, (__m64 *)&srcPtr[i*3+0*3+0] );
+		min_0 = _mm_min_ps( min_0, vec_0 );
+		max_0 = _mm_max_ps( max_0, vec_0 );
+
+		vec_1 = _mm_load_ss( &srcPtr[i*3+1*3+0] );
+		vec_1 = _mm_loadh_pi( vec_1, (__m64 *)&srcPtr[i*3+1*3+1] );
+		min_1 = _mm_min_ps( min_1, vec_1 );
+		max_1 = _mm_max_ps( max_1, vec_1 );
+
+		vec_0 = _mm_load_ss( &srcPtr[i*3+2*3+2] );
+		vec_0 = _mm_loadh_pi( vec_0, (__m64 *)&srcPtr[i*3+2*3+0] );
+		min_0 = _mm_min_ps( min_0, vec_0 );
+		max_0 = _mm_max_ps( max_0, vec_0 );
+
+		vec_1 = _mm_load_ss( &srcPtr[i*3+3*3+0] );
+		vec_1 = _mm_loadh_pi( vec_1, (__m64 *)&srcPtr[i*3+3*3+1] );
+		min_1 = _mm_min_ps( min_1, vec_1 );
+		max_1 = _mm_max_ps( max_1, vec_1 );
+	}
+
+	for ( ; i < count; i++ ) {
+		vec_0 = _mm_load_ss( &srcPtr[i*3+0*3+2] );
+		vec_0 = _mm_loadh_pi( vec_0, (__m64 *)&srcPtr[i*3+0*3+0] );
+		min_0 = _mm_min_ps( min_0, vec_0 );
+		max_0 = _mm_max_ps( max_0, vec_0 );
+	}
+
+	min_1 = _mm_perm_ps( min_1, _MM_SHUFFLE( 2, 0, 1, 3 ) );
+	max_1 = _mm_perm_ps( max_1, _MM_SHUFFLE( 2, 0, 1, 3 ) );
+	min_0 = _mm_min_ps( min_0, min_1 );
+	max_0 = _mm_max_ps( max_0, max_1 );
+
+	_mm_storeh_pi( (__m64 *)minPtr, min_0 );
+	_mm_store_ss( minPtr + 2, min_0 );
+	_mm_storeh_pi( (__m64 *)maxPtr, max_0 );
+	_mm_store_ss( maxPtr + 2, max_0 );
+}
+
+/*
+============
+idSIMD_SSE::MinMax
+============
+*/
+void VPCALL idSIMD_SSE::MinMax( idVec3 &min, idVec3 &max, const idDrawVert *src, const int count ) {
+	assert( sizeof( idDrawVert ) == DRAWVERT_SIZE );
+	assert( (int)&((idDrawVert *)0)->xyz == DRAWVERT_XYZ_OFFSET );
+
+	const float * srcPtr = (float *)src;
+	float * minPtr = min.ToFloatPtr();
+	float * maxPtr = max.ToFloatPtr();
+
+	__m128 vec_0;
+	__m128 vec_1;
+
+	__m128 min_0 = _mm_load_ss( &idMath::INFINITY );
+	min_0 = _mm_splat_ps( min_0, 0 );
+
+	__m128 max_0 = _mm_setzero_ps();
+	max_0 = _mm_sub_ps( max_0, min_0 );
+
+	__m128 min_1 = min_0;
+	__m128 max_1 = max_0;
+
+	int i = 0;
+	for ( ; i < count - 3; i += 4 ) {
+		vec_0 = _mm_load_ss( &srcPtr[i*8+0*8+2] );
+		vec_0 = _mm_loadh_pi( vec_0, (__m64 *)&srcPtr[i*8+0*8+0] );
+		min_0 = _mm_min_ps( min_0, vec_0 );
+		max_0 = _mm_max_ps( max_0, vec_0 );
+
+		vec_1 = _mm_load_ss( &srcPtr[i*8+1*8+0] );
+		vec_1 = _mm_loadh_pi( vec_1, (__m64 *)&srcPtr[i*8+1*8+1] );
+		min_1 = _mm_min_ps( min_1, vec_1 );
+		max_1 = _mm_max_ps( max_1, vec_1 );
+
+		vec_0 = _mm_load_ss( &srcPtr[i*8+2*8+2] );
+		vec_0 = _mm_loadh_pi( vec_0, (__m64 *)&srcPtr[i*8+2*8+0] );
+		min_0 = _mm_min_ps( min_0, vec_0 );
+		max_0 = _mm_max_ps( max_0, vec_0 );
+
+		vec_1 = _mm_load_ss( &srcPtr[i*8+3*8+0] );
+		vec_1 = _mm_loadh_pi( vec_1, (__m64 *)&srcPtr[i*8+3*8+1] );
+		min_1 = _mm_min_ps( min_1, vec_1 );
+		max_1 = _mm_max_ps( max_1, vec_1 );
+	}
+
+	for ( ; i < count; i++ ) {
+		vec_0 = _mm_load_ss( &srcPtr[i*8+0*8+2] );
+		vec_0 = _mm_loadh_pi( vec_0, (__m64 *)&srcPtr[i*8+0*8+0] );
+		min_0 = _mm_min_ps( min_0, vec_0 );
+		max_0 = _mm_max_ps( max_0, vec_0 );
+	}
+
+	min_1 = _mm_perm_ps( min_1, _MM_SHUFFLE( 2, 0, 1, 3 ) );
+	max_1 = _mm_perm_ps( max_1, _MM_SHUFFLE( 2, 0, 1, 3 ) );
+	min_0 = _mm_min_ps( min_0, min_1 );
+	max_0 = _mm_max_ps( max_0, max_1 );
+
+	_mm_storeh_pi( (__m64 *)minPtr, min_0 );
+	_mm_store_ss( minPtr + 2, min_0 );
+	_mm_storeh_pi( (__m64 *)maxPtr, max_0 );
+	_mm_store_ss( maxPtr + 2, max_0 );
+}
+
+/*
+============
+idSIMD_SSE::MinMax
+============
+*/
+void VPCALL idSIMD_SSE::MinMax( idVec3 &min, idVec3 &max, const idDrawVert *src, const triIndex_t *indexes, const int count ) {
+	assert( sizeof( idDrawVert ) == DRAWVERT_SIZE );
+	assert( (int)&((idDrawVert *)0)->xyz == DRAWVERT_XYZ_OFFSET );
+
+	const float * srcPtr = (float *)src;
+	float * minPtr = min.ToFloatPtr();
+	float * maxPtr = max.ToFloatPtr();
+
+	__m128 vec_0;
+	__m128 vec_1;
+
+	__m128 min_0 = _mm_load_ss( &idMath::INFINITY );
+	min_0 = _mm_splat_ps( min_0, 0 );
+
+	__m128 max_0 = _mm_setzero_ps();
+	max_0 = _mm_sub_ps( max_0, min_0 );
+
+	__m128 min_1 = min_0;
+	__m128 max_1 = max_0;
+
+	int i = 0;
+	for ( ; i < count - 3; i += 4 ) {
+		int j = indexes[i];
+
+		vec_0 = _mm_load_ss( &srcPtr[j*8+0*8+2] );
+		vec_0 = _mm_loadh_pi( vec_0, (__m64 *)&srcPtr[j*8+0*8+0] );
+		min_0 = _mm_min_ps( min_0, vec_0 );
+		max_0 = _mm_max_ps( max_0, vec_0 );
+
+		vec_1 = _mm_load_ss( &srcPtr[j*8+1*8+0] );
+		vec_1 = _mm_loadh_pi( vec_1, (__m64 *)&srcPtr[j*8+1*8+1] );
+		min_1 = _mm_min_ps( min_1, vec_1 );
+		max_1 = _mm_max_ps( max_1, vec_1 );
+
+		vec_0 = _mm_load_ss( &srcPtr[j*8+2*8+2] );
+		vec_0 = _mm_loadh_pi( vec_0, (__m64 *)&srcPtr[j*8+2*8+0] );
+		min_0 = _mm_min_ps( min_0, vec_0 );
+		max_0 = _mm_max_ps( max_0, vec_0 );
+
+		vec_1 = _mm_load_ss( &srcPtr[j*8+3*8+0] );
+		vec_1 = _mm_loadh_pi( vec_1, (__m64 *)&srcPtr[j*8+3*8+1] );
+		min_1 = _mm_min_ps( min_1, vec_1 );
+		max_1 = _mm_max_ps( max_1, vec_1 );
+	}
+
+	for ( ; i < count; i++ ) {
+		int j = indexes[i];
+
+		vec_0 = _mm_load_ss( &srcPtr[j*8+0*8+2] );
+		vec_0 = _mm_loadh_pi( vec_0, (__m64 *)&srcPtr[j*8+0*8+0] );
+		min_0 = _mm_min_ps( min_0, vec_0 );
+		max_0 = _mm_max_ps( max_0, vec_0 );
+	}
+
+	min_1 = _mm_perm_ps( min_1, _MM_SHUFFLE( 2, 0, 1, 3 ) );
+	max_1 = _mm_perm_ps( max_1, _MM_SHUFFLE( 2, 0, 1, 3 ) );
+	min_0 = _mm_min_ps( min_0, min_1 );
+	max_0 = _mm_max_ps( max_0, max_1 );
+
+	_mm_storeh_pi( (__m64 *)minPtr, min_0 );
+	_mm_store_ss( minPtr + 2, min_0 );
+	_mm_storeh_pi( (__m64 *)maxPtr, max_0 );
+	_mm_store_ss( maxPtr + 2, max_0 );
+}
+
+/*
+============
 idSIMD_SSE::BlendJoints
 ============
 */
